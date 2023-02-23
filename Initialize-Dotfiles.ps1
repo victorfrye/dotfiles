@@ -1,5 +1,7 @@
 $RepoHome=$Home + '\Repositories'
 $DotfilesRepo=$RepoHome + '\victorfrye\dotfiles'
+
+$InstallDevToolsScript=$DotfilesRepo + "\Install-DevelopmentTools.ps1"
 $DotfilesPowerShellProfile=$DotfilesRepo + '\files\DotfilesPowerShellProfile.ps1'
 
 function Test-WindowsPackageManager() {
@@ -12,29 +14,25 @@ function Test-WindowsPackageManager() {
 }
 
 function Install-DevelopmentTools() {
-    pwsh.exe $DotfilesRepo + "\Install-DevelopmentTools.ps1"
+    pwsh.exe $InstallDevToolsScript
 }
 
-function Initialize-PowerShellProfile() {
-    Write-Host "Initializing PowerShell profile..."
+function Set-PowerShellProfile() {
+    Write-Host "Setting PowerShell profile..."
     if (!(Test-Path -Path $PROFILE.CurrentUserAllHosts)) {
         New-Item -ItemType File -Path $PROFILE.CurrentUserAllHosts -Force
       }
     
-    Get-Content $PROFILE.CurrentUserAllHosts, $DotfilesPowerShellProfile | Set-Content $PROFILE.CurrentUserAllHosts
-    Write-Host "Complete!! PowerShell profile has been initialized"
+    Get-Content $DotfilesPowerShellProfile | Set-Content $PROFILE.CurrentUserAllHosts
+    Write-Host "Complete!! PowerShell profile has been set."
 }
 
 Write-Host "Starting initialization of dotfiles for local development on this Windows machine..."
 
 [Environment]::SetEnvironmentVariable('REPOHOME', $RepoHome, 'User')
 
-if (Test-WindowsPackageManager -eq $false) {
-    exit 1
-}
-
 Install-DevelopmentTools
-Initialize-PowerShellProfile
+Set-PowerShellProfile
 
 Write-Host "Complete!! Machine is ready for local Windows development."
 
