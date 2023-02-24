@@ -5,7 +5,7 @@ This repository is a partially automated set-up for a local development environm
 
 ## Set-Up Guide
 
-### Windows Package Manager
+### Windows Package Manager (winget)
 1. The winget command-line tool should be pre-installed on Windows 11 as part of the **App Installer**. Let's test this:
 ```
 winget -v
@@ -18,6 +18,13 @@ winget -v
 winget install --id=Microsoft.PowerShell --source=winget
 ```
 2. Open a PowerShell session for further steps.
+
+### Install Windows Subsystem for Linux (WSL)
+1. Install WSL directly via the following command:
+```
+wsl --install
+```
+2. Afterwards, you will need to restart the machine before continuing.
 
 ### Install Git
 1. Install Git for Windows via
