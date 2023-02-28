@@ -47,6 +47,18 @@ function Install-Postman() {
     winget install --id=Postman.Postman --source=winget
 }
 
+function Install-GitHubDesktop() {
+    winget install --id=GitHub.GitHubDesktop --source=winget
+}
+
+function Install-Slack() {
+    winget install --id=SlackTechnologies.Slack --source=winget
+}
+
+function Install-Discord() {
+    winget install --id=Discord.Discord --source=winget
+}
+
 Write-Host "Installing local development tools..."
 Install-WindowsTerminal
 Install-OhMyPosh
@@ -59,5 +71,8 @@ Install-NuGet
 Install-NodeJS
 Install-DockerDesktop
 Install-Postman
+Install-GitHubDesktop
+Install-Slack
+Install-Discord
 
 Write-Host "Complete!! Development tools installed successfully."
