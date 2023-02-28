@@ -1,8 +1,8 @@
-$RepoHome=$Home + '\Repositories'
-$DotfilesRepo=$RepoHome + '\victorfrye\dotfiles'
+$RepoHome=$Home + '\Source\Repos'
+$DotfilesRepo=$RepoHome + '\VictorFrye\Dotfiles'
 
-$InstallDevToolsScript=$DotfilesRepo + "\Install-DevelopmentTools.ps1"
-$DotfilesPowerShellProfile=$DotfilesRepo + '\files\DotfilesPowerShellProfile.ps1'
+$InstallDevToolsScript=$DotfilesRepo + "\scripts\Install-DevelopmentTools.ps1"
+$DotfilesPowerShellProfile=$DotfilesRepo + '\files\Profile.ps1'
 
 function Install-DevelopmentTools() {
     pwsh.exe $InstallDevToolsScript
@@ -19,6 +19,7 @@ function Set-PowerShellProfile() {
 }
 
 function Set-GitConfigurations() {
+    git config --global core.autocrlf true
     git config --global core.editor "code --wait"
     git config --global init.defaultBranch main
 }

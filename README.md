@@ -1,11 +1,11 @@
 # dotfiles
 
 ## About
-This repository is a partially automated set-up for a local development environment on a Windows device. A few pre-requisite steps are outlined in the below set-up guide. The final step is the invocation of a key PowerShell script that automatically installs development tools and sets a pre-defined profile for PowerShell. These elements may all be expanded over time as tool and environment needs change.
+This repository is a partially automated setup for a local development environment on a Windows device. A few pre-requisite steps are outlined in the below setup guide. The final step is the invocation of a key PowerShell script that automatically installs development tools and sets a pre-defined profile for PowerShell. These elements may all be expanded over time as tool and environment needs change.
 
-## Set-Up Guide
+## Setup Guide
 
-### Windows Package Manager (winget)
+### Test Windows Package Manager CLI (aka winget)
 1. The winget command-line tool should be pre-installed on Windows 11 as part of the **App Installer**. Let's test this:
 ```
 winget -v
@@ -19,7 +19,7 @@ winget install --id=Microsoft.PowerShell --source=winget
 ```
 2. Open a PowerShell session for further steps.
 
-### Install Windows Subsystem for Linux (WSL)
+### Install Windows Subsystem for Linux (aka WSL)
 1. Install WSL directly via the following command:
 ```
 wsl --install
@@ -43,11 +43,11 @@ git config --global user.name "Victor Frye"; git config --global user.email "vic
 ### Clone Dotfiles Repository
 1. Clone the dotfiles repository from [GitHub](https://github.com/victorfrye/dotfiles):
 ```
-git clone https://github.com/victorfrye/dotfiles $HOME\Repositories\victorfrye\dotfiles
+git clone https://github.com/victorfrye/dotfiles $HOME\Source\Repos\VictorFrye\Dotfiles
 ```
 
 ### Invoke Scripts
 1. Invoke the dotfiles initialization script:
 ```
-pwsh.exe $HOME\Repositories\victorfrye\dotfiles\Initialize-Dotfiles.ps1
+pwsh.exe $HOME\Source\Repos\VictorFrye\Dotfiles\scripts\Initialize-Dotfiles.ps1
 ```
