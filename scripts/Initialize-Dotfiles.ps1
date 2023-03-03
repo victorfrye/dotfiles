@@ -1,11 +1,28 @@
-$RepoHome=$Home + '\Source\Repos'
-$DotfilesRepo=$RepoHome + '\VictorFrye\Dotfiles'
+$RepoHome = Join-Path $Home '\Source\Repos'
+$DotfilesRepo = Join-Path $RepoHome '\VictorFrye\Dotfiles'
 
-$InstallDevToolsScript=$DotfilesRepo + "\scripts\Install-DevelopmentTools.ps1"
-$DotfilesPowerShellProfile=$DotfilesRepo + '\files\Profile.ps1'
+$InstallDevToolsScript = Join-Path $DotfilesRepo '\scripts\Install-DevelopmentTools.ps1'
+$FontFilesPath = Join-Path $DotfilesRepo '\files\Fonts\*.otf'
+$PowerShellProfilePath = Join-Path $DotfilesRepo '\files\Profile.ps1'
 
 function Install-DevelopmentTools() {
     pwsh.exe $InstallDevToolsScript
+}
+
+function Install-Fonts() {
+    Write-Host "Install fonts..."
+
+    $fonts = (New-Object -ComObject Shell.Application).Namespace(0x14)
+
+    foreach ($file in Get-ChildItem -Path $FontFilesPath -Recurse)
+    {
+        $fileName = $file.Name
+        if (!(Test-Path -Path "C:\Windows\Fonts\$fileName" )) {
+            Get-ChildItem $file | ForEach-Object { $fonts.CopyHere($_.fullname) }
+        }
+    }
+    
+    Write-Host "Complete!! Fonts have been installed."
 }
 
 function Set-PowerShellProfile() {
@@ -14,7 +31,7 @@ function Set-PowerShellProfile() {
         New-Item -ItemType File -Path $PROFILE.CurrentUserAllHosts -Force
       }
     
-    Get-Content $DotfilesPowerShellProfile | Set-Content $PROFILE.CurrentUserAllHosts
+    Get-Content $PowerShellProfilePath | Set-Content $PROFILE.CurrentUserAllHosts
     Write-Host "Complete!! PowerShell profile has been set."
 }
 
@@ -29,6 +46,7 @@ Write-Host "Starting initialization of dotfiles for local development on this Wi
 [Environment]::SetEnvironmentVariable('REPOHOME', $RepoHome, 'User')
 
 Install-DevelopmentTools
+Install-Fonts
 Set-PowerShellProfile
 Set-GitConfigurations
 
