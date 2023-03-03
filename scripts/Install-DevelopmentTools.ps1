@@ -17,7 +17,6 @@ function Install-CoreDotNetTools() {
     winget install --id=Microsoft.NuGet --source=winget
 
     winget install --id=Docker.DockerDesktop --source=winget
-
 }
 
 function Install-CoreJavaTools() {
