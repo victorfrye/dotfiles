@@ -1,7 +1,6 @@
 function Install-PowerUserTools() {
     winget install --id=Microsoft.WindowsTerminal --source=winget
 
-    # TODO: Automate nerd font and any module steps from this https://learn.microsoft.com/en-us/windows/terminal/tutorials/custom-prompt-setup
     winget install --id=JanDeDobbeleer.OhMyPosh --source=msstore
 
     winget install --id=Microsoft.PowerToys --source=winget
@@ -47,6 +46,7 @@ function Install-PreviewTools() {
 }
 
 Write-Host "Installing local development tools..."
+
 Install-PowerUserTools
 Install-CoreDotNetTools
 Install-CoreJavaTools
