@@ -1,7 +1,7 @@
 function Install-PowerUserTools() {
     winget install --id=Microsoft.WindowsTerminal --source=winget
 
-    winget install --id=JanDeDobbeleer.OhMyPosh --source=msstore
+    winget install --id=JanDeDobbeleer.OhMyPosh --source=winget
 
     winget install --id=Microsoft.PowerToys --source=winget
 }
@@ -21,6 +21,12 @@ function Install-CoreDotNetTools() {
 function Install-CoreJavaTools() {
     winget install --id=EclipseAdoptium.Temurin.17.JDK --source=winget
     [Environment]::SetEnvironmentVariable('JDK_17', $env:JAVA_HOME, 'Machine')
+
+    winget install --id=Microsoft.OpenJDK.17 --source=winget
+
+    winget install --id=Microsoft.OpenJDK.16 --source=winget
+    
+    winget install --id=Microsoft.OpenJDK.11 --source=winget
 
     winget install --id=JetBrains.IntelliJIDEA.Community --source=winget
 }

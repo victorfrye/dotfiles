@@ -10,7 +10,7 @@ function Install-DevelopmentTools() {
 }
 
 function Install-Fonts() {
-    Write-Host "Install fonts..."
+    Write-Host "Installing fonts..."
 
     $fonts = (New-Object -ComObject Shell.Application).Namespace(0x14)
 

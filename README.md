@@ -10,7 +10,7 @@ This repository is a partially automated setup for a local development environme
 ```
 winget -v
 ```
-2. If already installed, we're good. Otherwise, install it via [Microsoft Store](https://learn.microsoft.com/en-us/windows/package-manager/winget/#install-winget) and repeat above test.
+2. If already installed and version is greater than v.1.3.X, we're good. Otherwise, install or update it via [Microsoft Store](https://learn.microsoft.com/en-us/windows/package-manager/winget/#install-winget) and repeat above test.
 
 ### Install PowerShell
 1. Install PowerShell Core utilizing winget:
@@ -27,8 +27,7 @@ wsl --install
 2. Afterwards, you will need to restart the machine before continuing.
 
 ### Install Git
-1. Install Git for Windows via
-winget:
+1. Install Git for Windows via winget:
 ```
 winget install --id=Git.Git --source=winget
 ```
@@ -47,7 +46,7 @@ git clone https://github.com/victorfrye/dotfiles $HOME\Source\Repos\VictorFrye\D
 ```
 
 ### Invoke Scripts
-1. Invoke the dotfiles initialization script:
+1. Invoke the dotfiles initialization script as an administrator:
 ```
 pwsh.exe $HOME\Source\Repos\VictorFrye\Dotfiles\scripts\Initialize-Dotfiles.ps1
 ```
