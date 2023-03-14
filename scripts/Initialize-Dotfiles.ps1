@@ -41,6 +41,10 @@ function Set-GitConfigurations() {
     git config --global init.defaultBranch main
 }
 
+function Set-Wallpaper() {
+    winget install --id=Microsoft.BingWallpaper --source=winget
+}
+
 Write-Host "Starting initialization of dotfiles for local development on this Windows machine..."
 
 [Environment]::SetEnvironmentVariable('REPOHOME', $RepoHome, 'User')
@@ -49,6 +53,7 @@ Install-DevelopmentTools
 Install-Fonts
 Set-PowerShellProfile
 Set-GitConfigurations
+Set-Wallpaper
 
 Write-Host "Complete!! Machine is ready for local Windows development."
 
