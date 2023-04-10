@@ -4,6 +4,8 @@ function Install-PowerUserTools() {
     winget install --id=JanDeDobbeleer.OhMyPosh --source=winget
 
     winget install --id=Microsoft.PowerToys --source=winget
+
+    winget install --id=Neovim.Neovim --source=winget
 }
 
 function Install-CoreDotNetTools() {

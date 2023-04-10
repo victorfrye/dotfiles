@@ -37,7 +37,7 @@ function Set-PowerShellProfile() {
 
 function Set-GitConfigurations() {
     git config --global core.autocrlf true
-    git config --global core.editor "code --wait"
+    git config --global core.editor nvim
     git config --global init.defaultBranch main
 }
 
@@ -47,7 +47,7 @@ function Set-Wallpaper() {
 
 Write-Host "Starting initialization of dotfiles for local development on this Windows machine..."
 
-[Environment]::SetEnvironmentVariable('REPOHOME', $RepoHome, 'User')
+[Environment]::SetEnvironmentVariable('REPO_HOME', $RepoHome, 'User')
 
 Install-DevelopmentTools
 Install-Fonts
