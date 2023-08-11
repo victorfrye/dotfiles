@@ -39,6 +39,7 @@ function Set-GitConfigurations() {
     git config --global core.autocrlf true
     git config --global core.editor nvim
     git config --global init.defaultBranch main
+    git config --global push.autoSetupRemote true
 }
 
 function Set-Wallpaper() {
