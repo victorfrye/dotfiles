@@ -57,4 +57,3 @@ Set-GitConfigurations
 Set-Wallpaper
 
 Write-Host "Complete!! Machine is ready for local Windows development."
-
