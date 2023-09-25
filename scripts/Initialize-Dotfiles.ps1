@@ -1,9 +1,6 @@
-$RepoHome = Join-Path $Home '\Source\Repos'
-$DotfilesRepo = Join-Path $RepoHome '\VictorFrye\Dotfiles'
-
-$InstallDevToolsScript = Join-Path $DotfilesRepo '\scripts\Install-DevelopmentTools.ps1'
-$FontFilesPath = Join-Path $DotfilesRepo '\files\Fonts\*.otf'
-$PowerShellProfilePath = Join-Path $DotfilesRepo '\files\Profile.ps1'
+$InstallDevToolsScript = Join-Path $RepoRoot '\scripts\Install-DevelopmentTools.ps1'
+$FontFilesPath = Join-Path $RepoRoot '\files\Fonts\*.otf'
+$PowerShellProfilePath = Join-Path $RepoRoot '\files\Profile.ps1'
 
 function Install-DevelopmentTools() {
     pwsh.exe $InstallDevToolsScript
@@ -48,7 +45,7 @@ function Set-Wallpaper() {
 
 Write-Host "Starting initialization of dotfiles for local development on this Windows machine..."
 
-[Environment]::SetEnvironmentVariable('REPO_HOME', $RepoHome, 'User')
+$RepoRoot = Split-Path -Parent $PSScriptRoot
 
 Install-DevelopmentTools
 Install-Fonts

@@ -23,7 +23,6 @@ function Install-DotNetTools() {
 
 function Install-JavaTools() {
     winget install --id=Microsoft.OpenJDK.17 --source=winget
-    [Environment]::SetEnvironmentVariable('JDK_17', $env:JAVA_HOME, 'Machine')
 
     winget install --id=Microsoft.OpenJDK.16 --source=winget
     
