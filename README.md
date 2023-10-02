@@ -6,9 +6,9 @@ This repository is a partially automated set up of local machine configuration o
 
 ## Set-up Guide
 
-### Test Windows Package Manager CLI (aka winget)
+### Test Windows Package Manager CLI (aka WinGet)
 
-1. The winget command-line tool should be pre-installed on Windows 11 as part of the **App Installer**. Let's test this:
+1. The WinGet command-line tool should be pre-installed on Windows 11 as part of the **App Installer**. Let's test this:
 
     ``` pwsh
     winget --version
@@ -18,7 +18,7 @@ This repository is a partially automated set up of local machine configuration o
 
 ### Install PowerShell
 
-1. Install PowerShell Core utilizing winget:
+1. Install PowerShell Core utilizing WinGet:
 
     ``` pwsh
     winget install --id Microsoft.PowerShell --source winget
@@ -38,7 +38,7 @@ This repository is a partially automated set up of local machine configuration o
 
 ### Install Git
 
-1. Install Git for Windows via winget:
+1. Install Git for Windows via WinGet:
 
     ``` pwsh
     winget install --id Git.Git --source winget
