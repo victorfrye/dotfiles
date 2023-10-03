@@ -18,10 +18,10 @@ This repository is a partially automated set up of local machine configuration o
 
 ### Install PowerShell
 
-1. Install PowerShell Core utilizing WinGet:
+1. Install PowerShell via WinGet:
 
     ``` pwsh
-    winget install --id Microsoft.PowerShell --source winget
+    winget install -exact --id Microsoft.PowerShell --source winget
     ```
 
 2. Open a PowerShell session for further steps.
@@ -38,10 +38,10 @@ This repository is a partially automated set up of local machine configuration o
 
 ### Install Git
 
-1. Install Git for Windows via WinGet:
+1. Install Git via WinGet:
 
     ``` pwsh
-    winget install --id Git.Git --source winget
+    winget install --exact --id Git.Git --source winget
     ```
 
 2. Test git to verify installation:
@@ -66,7 +66,7 @@ This repository is a partially automated set up of local machine configuration o
 
 ### Clone Dotfiles Repository
 
-1. Clone the dotfiles repository from [GitHub](https://github.com/victorfrye/dotfiles):
+1. Clone this repository from [GitHub](https://github.com/victorfrye/dotfiles):
 
     ``` pwsh
     git clone https://github.com/victorfrye/dotfiles D:\Source\VictorFrye\Dotfiles
@@ -74,8 +74,8 @@ This repository is a partially automated set up of local machine configuration o
 
 ### Invoke Script
 
-1. Invoke the dotfiles initialization script as an administrator:
+1. Invoke the initialization script as an administrator:
 
     ``` pwsh
-    pwsh D:\Source\VictorFrye\Dotfiles\scripts\Initialize-Dotfiles.ps1
+    pwsh D:\Source\VictorFrye\Dotfiles\scripts\Initialize-MachineConfiguration.ps1
     ```

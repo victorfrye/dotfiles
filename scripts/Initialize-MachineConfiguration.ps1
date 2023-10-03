@@ -3,7 +3,7 @@ $FontFilesPath = Join-Path $RepoRoot '\files\Fonts\*.otf'
 $PowerShellProfilePath = Join-Path $RepoRoot '\files\Profile.ps1'
 
 function Install-DevelopmentTools() {
-    pwsh.exe $InstallDevToolsScript
+    pwsh $InstallDevToolsScript
 }
 
 function Install-Fonts() {
@@ -40,7 +40,7 @@ function Set-GitConfigurations() {
 }
 
 function Set-Wallpaper() {
-    winget install --id=Microsoft.BingWallpaper --source=winget
+    winget install --exact --id Microsoft.BingWallpaper --source winget
 }
 
 Write-Host "Starting initialization of dotfiles for local development on this Windows machine..."
