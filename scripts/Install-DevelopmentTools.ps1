@@ -1,6 +1,7 @@
 function Install-PowerUserTools() {
     winget install --exact --id GitHub.cli --source winget
     winget install --exact --id JanDeDobbeleer.OhMyPosh --source winget
+    winget install --exact --id Microsoft.AzureCLI --source winget
     winget install --exact --id Microsoft.DevHome --source winget
     winget install --exact --id Microsoft.PowerToys --source winget
     winget install --exact --id Microsoft.WindowsTerminal --source winget
