@@ -7,7 +7,7 @@ function Install-DevelopmentTools() {
 }
 
 function Install-Fonts() {
-    Write-Host "Installing fonts..."
+    Write-Output "Installing fonts..."
 
     $fonts = (New-Object -ComObject Shell.Application).Namespace(0x14)
 
@@ -19,17 +19,17 @@ function Install-Fonts() {
         }
     }
     
-    Write-Host "Complete!! Fonts have been installed."
+    Write-Output "Complete!! Fonts have been installed."
 }
 
 function Set-PowerShellProfile() {
-    Write-Host "Setting PowerShell profile..."
+    Write-Output "Setting PowerShell profile..."
     if (!(Test-Path -Path $PROFILE.CurrentUserAllHosts)) {
         New-Item -ItemType File -Path $PROFILE.CurrentUserAllHosts -Force
       }
     
     Get-Content $PowerShellProfilePath | Set-Content $PROFILE.CurrentUserAllHosts
-    Write-Host "Complete!! PowerShell profile has been set."
+    Write-Output "Complete!! PowerShell profile has been set."
 }
 
 function Set-GitConfigurations() {
@@ -43,7 +43,7 @@ function Set-Wallpaper() {
     winget install --exact --id Microsoft.BingWallpaper --source winget
 }
 
-Write-Host "Starting initialization of dotfiles for local development on this Windows machine..."
+Write-Output "Starting initialization of dotfiles for local development on this Windows machine..."
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 
@@ -53,4 +53,4 @@ Set-PowerShellProfile
 Set-GitConfigurations
 Set-Wallpaper
 
-Write-Host "Complete!! Machine is ready for local Windows development."
+Write-Output "Complete!! Machine is ready for local Windows development."

@@ -43,7 +43,7 @@ function Install-PreviewTools() {
     winget install --exact --id Microsoft.WindowsTerminal.Preview --source winget
 }
 
-Write-Host "Installing local development tools..."
+Write-Output "Installing local development tools..."
 
 Install-PowerUserTools
 Install-DotNetTools
@@ -52,4 +52,4 @@ Install-MiscellaneousTools
 Install-CommunicationTools
 Install-PreviewTools
 
-Write-Host "Complete!! Development tools installed successfully."
+Write-Output "Complete!! Development tools installed successfully."
