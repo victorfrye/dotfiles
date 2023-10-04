@@ -21,7 +21,7 @@ This repository is a partially automated set up of local machine configuration o
 1. Install PowerShell via WinGet:
 
     ``` pwsh
-    winget install --exact --id Microsoft.PowerShell --source winget
+    winget install --exact --id Microsoft.PowerShell.Preview --source winget
     ```
 
 2. Open a PowerShell session for further steps.
