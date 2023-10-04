@@ -14,7 +14,7 @@ This repository is a partially automated set up of local machine configuration o
     winget --version
     ```
 
-2. If already installed and version is greater than v.1.3.X, we're good. Otherwise, install or update it via [Microsoft Store](https://learn.microsoft.com/en-us/windows/package-manager/winget/#install-winget) and repeat above test.
+2. If already installed and version is greater than v1.3.X, we're good. Otherwise, install or update it via [Microsoft Store](https://learn.microsoft.com/en-us/windows/package-manager/winget/#install-winget) and repeat above test.
 
 ### Install PowerShell
 
@@ -58,7 +58,7 @@ This repository is a partially automated set up of local machine configuration o
 
 ### Add Dev Drive (optional)
 
-1. Format Dev Drive volume as an administrator:
+1. Format a Dev Drive volume as an administrator:
 
     ``` pwsh
     Format-Volume -DriveLetter D -DevDrive
@@ -69,7 +69,7 @@ This repository is a partially automated set up of local machine configuration o
 1. Clone this repository from [GitHub](https://github.com/victorfrye/dotfiles):
 
     ``` pwsh
-    git clone https://github.com/victorfrye/dotfiles D:\Source\VictorFrye\Dotfiles
+    git clone https://github.com/victorfrye/dotfiles D:\Source\Repos\VictorFrye\Dotfiles
     ```
 
 ### Invoke Script
@@ -77,5 +77,5 @@ This repository is a partially automated set up of local machine configuration o
 1. Invoke the initialization script as an administrator:
 
     ``` pwsh
-    pwsh D:\Source\VictorFrye\Dotfiles\scripts\Initialize-MachineConfiguration.ps1
+    pwsh D:\Source\Repos\VictorFrye\Dotfiles\scripts\Initialize-MachineConfiguration.ps1
     ```
