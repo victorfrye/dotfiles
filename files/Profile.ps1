@@ -1,7 +1,10 @@
 # Oh My Posh
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\paradox.omp.json" | Invoke-Expression
 
-#Functions
+# Posh Git
+Import-Module posh-git
+
+# Functions
 ## Git - These functions allow for management of Git Repositories
 function Reset-AllRepositories() {
   $RepositoryDirectories = Get-AllRepositories
