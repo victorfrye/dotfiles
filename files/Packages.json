@@ -1,0 +1,101 @@
+{
+	"$schema" : "https://aka.ms/winget-packages.schema.2.0.json",
+	"CreationDate" : "2023-10-04T10:15:47.988-00:00",
+	"Sources" : 
+	[
+		{
+			"Packages" : 
+			[
+				{
+					"PackageIdentifier": "Docker.DockerDesktop"
+				},
+				{
+					"PackageIdentifier" : "GitHub.cli"
+				},
+				{
+					"PackageIdentifier": "GitHub.GitHubDesktop"
+				},
+				{
+					"PackageIdentifier": "Hashicorp.Terraform"
+				},
+				{
+					"PackageIdentifier": "JanDeDobbeleer.OhMyPosh"
+				},		
+				{
+					"PackageIdentifier": "Microsoft.AzureCLI"
+				},
+				{
+					"PackageIdentifier": "Microsoft.AzureDataStudio"
+				},
+				{
+					"PackageIdentifier": "Microsoft.BingWallpaper"
+				},
+				{
+					"PackageIdentifier": "Microsoft.DevHome"
+				},
+				{
+					"PackageIdentifier": "Microsoft.DotNet.SDK.Preview"
+				},
+				{
+					"PackageIdentifier": "Microsoft.Edge.Beta"
+				},
+				{
+					"PackageIdentifier": "Microsoft.Edge.Canary"
+				},
+				{
+					"PackageIdentifier": "Microsoft.NuGet"
+				},
+				{
+					"PackageIdentifier": "Microsoft.OpenJDK.11"
+				},
+				{
+					"PackageIdentifier": "Microsoft.OpenJDK.17"
+				},
+				{
+					"PackageIdentifier": "Microsoft.OpenJDK.21"
+				},
+				{
+					"PackageIdentifier": "Microsoft.PowerToys"
+				},
+				{
+					"PackageIdentifier": "Microsoft.VisualStudio.2022.Community.Preview"
+				},
+				{
+					"PackageIdentifier": "Microsoft.VisualStudioCode.Insiders"
+				},
+				{
+					"PackageIdentifier": "Microsoft.WindowsTerminal.Preview"
+				},
+				{
+					"PackageIdentifier": "Neovim.Neovim"
+				},
+				{
+					"PackageIdentifier": "OpenJS.NodeJS"
+				},
+				{
+					"PackageIdentifier": "Postman.Postman"
+				},
+				{
+					"PackageIdentifier": "Python.Python.3.11"
+				},
+				{
+					"PackageIdentifier": "SlackTechnologies.Slack"
+				},
+				{
+					"PackageIdentifier": "Zoom.Zoom"
+				},
+				{
+					"PackageIdentifier": "Zoom.ZoomOutlookPlugin"
+				}
+			],
+			"SourceDetails" : 
+			{
+				"Argument" : "https://cdn.winget.microsoft.com/cache",
+				"Identifier" : "Microsoft.Winget.Source_8wekyb3d8bbwe",
+				"Name" : "winget",
+				"Type" : "Microsoft.PreIndexed.Package"
+			}
+		}
+	],
+	"WinGetVersion" : "1.6.2721"
+}

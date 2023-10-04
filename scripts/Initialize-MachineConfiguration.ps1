@@ -1,35 +1,41 @@
-$InstallDevToolsScript = Join-Path $RepoRoot '\scripts\Install-DevelopmentTools.ps1'
 $FontFilesPath = Join-Path $RepoRoot '\files\Fonts\*.otf'
-$PowerShellProfilePath = Join-Path $RepoRoot '\files\Profile.ps1'
+$NewProfile = Join-Path $RepoRoot '\files\Profile.ps1'
+$PackagesFile = Join-Path $RepoRoot '\files\Packages.json'
 
-function Install-DevelopmentTools() {
-    pwsh $InstallDevToolsScript
+function Install-WinGetPackages() {
+    Write-Output 'Installing WinGet packages...'
+    winget import --import-file $PackagesFile --accept-source-agreements --accept-package-agreements
+    Write-Output 'Complete!! Development tools installed successfully.'
 }
 
 function Install-Fonts() {
-    Write-Output "Installing fonts..."
+    Write-Output 'Installing fonts...'
 
     $fonts = (New-Object -ComObject Shell.Application).Namespace(0x14)
-
-    foreach ($file in Get-ChildItem -Path $FontFilesPath -Recurse)
-    {
+    foreach ($file in Get-ChildItem -Path $FontFilesPath -Recurse) {
         $fileName = $file.Name
         if (!(Test-Path -Path "C:\Windows\Fonts\$fileName" )) {
             Get-ChildItem $file | ForEach-Object { $fonts.CopyHere($_.fullname) }
         }
     }
     
-    Write-Output "Complete!! Fonts have been installed."
+    Write-Output 'Complete!! Fonts have been installed.'
+}
+
+function Install-PoshGit() {
+    Write-Output 'Installing PoshGit...'
+    PowerShellGet\Install-Module posh-git -Scope CurrentUser -Force
+    Write-Output 'Complete!! PoshGit has been installed.'
 }
 
 function Set-PowerShellProfile() {
-    Write-Output "Setting PowerShell profile..."
+    Write-Output 'Setting PowerShell profile...'
     if (!(Test-Path -Path $PROFILE.CurrentUserAllHosts)) {
         New-Item -ItemType File -Path $PROFILE.CurrentUserAllHosts -Force
-      }
+    }
     
-    Get-Content $PowerShellProfilePath | Set-Content $PROFILE.CurrentUserAllHosts
-    Write-Output "Complete!! PowerShell profile has been set."
+    Get-Content $NewProfile | Set-Content $PROFILE.CurrentUserAllHosts
+    Write-Output 'Complete!! PowerShell profile has been set.'
 }
 
 function Set-GitConfigurations() {
@@ -39,18 +45,13 @@ function Set-GitConfigurations() {
     git config --global push.autoSetupRemote true
 }
 
-function Set-Wallpaper() {
-    winget install --exact --id Microsoft.BingWallpaper --source winget
-}
-
-Write-Output "Starting initialization of dotfiles for local development on this Windows machine..."
+Write-Output 'Starting initialization of machine configuration...'
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 
-Install-DevelopmentTools
+Install-WinGetPackages
 Install-Fonts
 Set-PowerShellProfile
 Set-GitConfigurations
-Set-Wallpaper
 
-Write-Output "Complete!! Machine is ready for local Windows development."
+Write-Output 'Complete!! Machine is ready.'
