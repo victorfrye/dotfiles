@@ -76,7 +76,7 @@
 					"PackageIdentifier": "Postman.Postman"
 				},
 				{
-					"PackageIdentifier": "Python.Python.3.11"
+					"PackageIdentifier": "Python.Python.3.12"
 				},
 				{
 					"PackageIdentifier": "SlackTechnologies.Slack"
