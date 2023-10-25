@@ -7,6 +7,9 @@
 			"Packages" : 
 			[
 				{
+					"PackageIdentifier": "CoreyButler.NVMforWindows"
+				},
+				{
 					"PackageIdentifier": "Docker.DockerDesktop"
 				},
 				{
@@ -26,6 +29,15 @@
 				},
 				{
 					"PackageIdentifier": "Microsoft.AzureDataStudio"
+				},
+				{
+					"PackageIdentifier": "Microsoft.Azure.Aztfy"
+				},
+				{
+					"PackageIdentifier": "Microsoft.Azure.FunctionsCoreTools"
+				},
+				{
+					"PackageIdentifier": "Microsoft.Azure.StorageEmulator"
 				},
 				{
 					"PackageIdentifier": "Microsoft.BingWallpaper"
