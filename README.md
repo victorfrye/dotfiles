@@ -10,7 +10,7 @@ This repository is a partially automated set up of local machine configuration o
 
 1. The WinGet command-line tool should be pre-installed on Windows 11 as part of the **App Installer**. Let's test this:
 
-    ``` pwsh
+    ``` cmd
     winget --version
     ```
 
@@ -20,7 +20,7 @@ This repository is a partially automated set up of local machine configuration o
 
 1. Install PowerShell via WinGet:
 
-    ``` pwsh
+    ``` cmd
     winget install --exact --id Microsoft.PowerShell.Preview --source winget
     ```
 
@@ -30,7 +30,7 @@ This repository is a partially automated set up of local machine configuration o
 
 1. Install WSL directly via the following command:
 
-    ``` pwsh
+    ``` cmd
     wsl --install
     ```
 
@@ -40,20 +40,21 @@ This repository is a partially automated set up of local machine configuration o
 
 1. Install Git via WinGet:
 
-    ``` pwsh
+    ``` cmd
     winget install --exact --id Git.Git --source winget
     ```
 
 2. Test git to verify installation:
 
-    ``` pwsh
+    ``` cmd
     git --version
     ```
 
 3. Set global git configurations for user name and email:
 
-    ``` pwsh
-    git config --global user.name "Victor Frye"; git config --global user.email "victorfrye@outlook.com";
+    ``` cmd
+    git config --global user.name "Victor Frye"
+    git config --global user.email "victorfrye@outlook.com"
     ```
 
 ### Add Dev Drive (optional)
@@ -68,7 +69,7 @@ This repository is a partially automated set up of local machine configuration o
 
 1. Clone this repository from [GitHub](https://github.com/victorfrye/dotfiles):
 
-    ``` pwsh
+    ``` cmd
     git clone https://github.com/victorfrye/dotfiles D:\Source\Repos\VictorFrye\Dotfiles
     ```
 
@@ -76,6 +77,6 @@ This repository is a partially automated set up of local machine configuration o
 
 1. Invoke the initialization script as an administrator:
 
-    ``` pwsh
+    ``` cmd
     pwsh D:\Source\Repos\VictorFrye\Dotfiles\scripts\Initialize-MachineConfiguration.ps1
     ```
