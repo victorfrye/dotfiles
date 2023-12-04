@@ -70,9 +70,6 @@
 					"PackageIdentifier": "Microsoft.PowerToys"
 				},
 				{
-					"PackageIdentifier": "Microsoft.VisualStudio.2022.Community.Preview"
-				},
-				{
 					"PackageIdentifier": "Microsoft.VisualStudioCode.Insiders"
 				},
 				{
@@ -80,9 +77,6 @@
 				},
 				{
 					"PackageIdentifier": "Neovim.Neovim"
-				},
-				{
-					"PackageIdentifier": "OpenJS.NodeJS"
 				},
 				{
 					"PackageIdentifier": "Postman.Postman"
@@ -109,5 +103,5 @@
 			}
 		}
 	],
-	"WinGetVersion" : "1.6.2721"
+	"WinGetVersion" : "1.6.3133"
 }
