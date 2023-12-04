@@ -64,7 +64,7 @@ function Set-PowerShellProfile() {
         New-Item -ItemType File -Path $PROFILE.CurrentUserAllHosts -Force
     }
     Get-Content $NewProfile | Set-Content $PROFILE.CurrentUserAllHosts
-    
+
     Write-Output 'Complete!! PowerShell profile has been set.'
 }
 
@@ -80,7 +80,7 @@ function Install-TheFuck() {
     Write-Output 'Complete!! TheFuck has been installed'
 }
 
-Write-Output 'Starting initialization of machine configuration...'
+Write-Output 'Starting installation of my dotfiles...'
 
 Initialize-Git
 Format-DevDrive
@@ -91,4 +91,4 @@ Set-PowerShellProfile
 Install-PoshGit
 Install-TheFuck
 
-Write-Output 'Complete!! Machine is ready.'
+Write-Output 'Complete!! Dotfiles installed successfully.'

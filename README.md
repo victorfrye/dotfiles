@@ -2,7 +2,16 @@
 
 ## About
 
-This repository is a partially automated set up of local machine configuration on a Windows device. A few pre-requisite steps are outlined in the below set up guide. The final step is the invocation of a key PowerShell script that automatically installs development tools and sets a pre-defined profile for PowerShell. These elements may all be expanded over time as tool and environment needs change.
+This repository is a partially automated set up of local machine configuration on a Windows device. A few pre-requisite steps are outlined in the below set up guide. The final step is the download and invocation of the [Install-Dotfiles.ps1](./scripts/Install-Dotfiles.ps1) script. This script will do the following:
+
+- Install [Git for Windows](https://git-scm.com/)
+- Format a [Dev Drive](https://learn.microsoft.com/en-us/windows/dev-drive/)
+- Clone this repository to the new Dev Drive
+- Import [WinGet packages](./files/Packages.json)
+- Install some [fonts](./files/Fonts)
+- Set up [PowerShell Profile](./files/Profile.ps1)
+- Install [PoshGit](https://github.com/dahlbyk/posh-git)
+- Install [PoShFuck](https://github.com/mattparkes/PoShFuck)
 
 ## Set-up Guide
 
