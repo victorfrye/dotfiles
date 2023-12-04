@@ -9,9 +9,9 @@ This repository is a partially automated set up of local machine configuration o
 - Clone this repository to the new Dev Drive
 - Import [WinGet packages](./files/Packages.json)
 - Install some [fonts](./files/Fonts)
-- Set up [PowerShell Profile](./files/Profile.ps1)
 - Install [PoshGit](https://github.com/dahlbyk/posh-git)
 - Install [PoShFuck](https://github.com/mattparkes/PoShFuck)
+- Set up [PowerShell Profile](./files/Profile.ps1)
 
 ## Set-up Guide
 
