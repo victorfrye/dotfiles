@@ -87,8 +87,8 @@ Format-DevDrive
 Get-Repository
 Install-WinGetPackages
 Install-Fonts
-Set-PowerShellProfile
 Install-PoshGit
 Install-TheFuck
+Set-PowerShellProfile
 
 Write-Output 'Complete!! Dotfiles installed successfully.'
