@@ -36,47 +36,16 @@ This repository is a partially automated set up of local machine configuration o
 
 2. Afterwards, you will need to restart the machine before continuing.
 
-### Install Git
+### Install Dotfiles
 
-1. Install Git via WinGet:
-
-    ``` cmd
-    winget install --exact --id Git.Git --source winget
-    ```
-
-2. Test git to verify installation:
-
-    ``` cmd
-    git --version
-    ```
-
-3. Set global git configurations for user name and email:
-
-    ``` cmd
-    git config --global user.name "Victor Frye"
-    git config --global user.email "victorfrye@outlook.com"
-    ```
-
-### Add Dev Drive (optional)
-
-1. Format a Dev Drive volume as an administrator:
+1. Set execution to remote signed on local machine:
 
     ``` pwsh
-    Format-Volume -DriveLetter D -DevDrive
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
     ```
 
-### Clone Dotfiles Repository
+2. From an administrative PowerShell session, invoke and install dotfiles:
 
-1. Clone this repository from [GitHub](https://github.com/victorfrye/dotfiles):
-
-    ``` cmd
-    git clone https://github.com/victorfrye/dotfiles D:\Source\Repos\VictorFrye\Dotfiles
-    ```
-
-### Invoke Script
-
-1. Invoke the initialization script as an administrator:
-
-    ``` cmd
-    pwsh D:\Source\Repos\VictorFrye\Dotfiles\scripts\Initialize-MachineConfiguration.ps1
+    ``` pwsh
+    Invoke-Expression ((New-Object net.webclient).DownloadString('https://raw.githubusercontent.com/victorfrye/dotfiles/main/scripts/Install-Dotfiles.ps1'))
     ```
