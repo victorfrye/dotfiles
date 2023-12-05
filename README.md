@@ -8,10 +8,11 @@ This repository is a partially automated set up of local machine configuration o
 - Format a [Dev Drive](https://learn.microsoft.com/en-us/windows/dev-drive/)
 - Clone this repository to the new Dev Drive
 - Import [WinGet packages](./files/Packages.json)
-- Install some [fonts](./files/Fonts)
+- Install a [Nerd Font](./files/Fonts)
 - Install [PoshGit](https://github.com/dahlbyk/posh-git)
 - Install [PoShFuck](https://github.com/mattparkes/PoShFuck)
 - Set up [PowerShell Profile](./files/Profile.ps1)
+- Set Environment Variables
 
 ## Set-up Guide
 
@@ -56,5 +57,5 @@ This repository is a partially automated set up of local machine configuration o
 2. From an administrative PowerShell session, invoke and install dotfiles:
 
     ``` pwsh
-    Invoke-Expression ((New-Object net.webclient).DownloadString('https://raw.githubusercontent.com/victorfrye/dotfiles/main/scripts/Install-Dotfiles.ps1'))
+    Invoke-RestMethod -Uri https://raw.githubusercontent.com/victorfrye/dotfiles/main/scripts/Install-Dotfiles.ps1 | Invoke-Expression
     ```

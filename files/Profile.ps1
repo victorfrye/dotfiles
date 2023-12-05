@@ -4,6 +4,9 @@ oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\paradox.omp.json" | Invoke-
 # Posh Git
 Import-Module posh-git
 
+# PoSh Fuck
+Import-Module PoShFuck
+
 # Functions
 ## Git - These functions allow for management of Git Repositories
 function Reset-AllRepositories() {
@@ -27,10 +30,13 @@ function Clear-RepositoryBranches() {
   }
 }
 
-## Java - These functions allow for JDK version management
+# Docker - These functions include general Docker commands that might be useful
+function Clear-Docker { docker image prune -a --filter 'until=12h'; docker system prune }
 
+
+## Java - These functions allow for JDK version management
 function Reset-JavaHome() {
-  $env:JAVA_HOME = $env:JDK_21
+  $env:JAVA_HOME = $env:JDK_21_HOME
   Write-Output "The JAVA_HOME environment variable is now set to $env:JAVA_HOME."
 }
 
@@ -89,19 +95,3 @@ function Get-Path() {
 Set-Alias -Name code -Value code-insiders
 Set-Alias -Name sjh -Value Set-JavaHome
 Set-Alias -Name rsjh -Value Reset-JavaHome
-
-# # Environment Variables
-# ## Git
-# $env:DEVDRIVE = 'D:'
-# $env:SOURCE_ROOT = Join-Path $env:DEVDRIVE 'Source'
-# $env:GITHUB_TOKEN = ''
-
-# ## .NET
-# $env:DOTNET_ROOT = 'C:\Program Files\dotnet'
-# $env:DOTNET_TOOLS = ''
-
-# ## Java
-# $env:JDK_21_HOME = ''
-# $env:JDK_17_HOME = ''
-# $env:JDK_11_HOME = ''
-# $env:JAVA_HOME = $env:JDK_21_HOME
