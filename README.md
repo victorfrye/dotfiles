@@ -16,16 +16,6 @@ This repository is a partially automated set up of local machine configuration o
 
 ## Set-up Guide
 
-### Test Windows Package Manager CLI (aka WinGet)
-
-1. The WinGet command-line tool should be pre-installed on Windows 11 as part of the **App Installer**. Let's test this:
-
-    ``` cmd
-    winget --version
-    ```
-
-2. If already installed and version is greater than v1.3.X, we're good. Otherwise, install or update it via [Microsoft Store](https://learn.microsoft.com/en-us/windows/package-manager/winget/#install-winget) and repeat above test.
-
 ### Install PowerShell
 
 1. Install PowerShell via WinGet:
@@ -48,14 +38,9 @@ This repository is a partially automated set up of local machine configuration o
 
 ### Install Dotfiles
 
-1. Set execution to remote signed on local machine:
+1. From an administrative PowerShell session, set execution policy to remote signed and invoke dotfiles installation:
 
     ``` pwsh
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
-    ```
-
-2. From an administrative PowerShell session, invoke and install dotfiles:
-
-    ``` pwsh
     Invoke-RestMethod -Uri https://raw.githubusercontent.com/victorfrye/dotfiles/main/scripts/Install-Dotfiles.ps1 | Invoke-Expression
     ```
