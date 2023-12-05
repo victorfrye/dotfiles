@@ -57,6 +57,18 @@ function Install-Fonts() {
     Write-Output 'Complete!! Fonts have been installed.'
 }
 
+function Install-PoshGit() {
+    Write-Output 'Installing PoshGit...'
+    PowerShellGet\Install-Module posh-git -Scope CurrentUser -Force
+    Write-Output 'Complete!! PoshGit has been installed.'
+}
+
+function Install-TheFucker() {
+    Write-Output 'Installing TheFuck...'
+    Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/mattparkes/PoShFuck/master/Install-TheFucker.ps1' | Invoke-Expression
+    Write-Output 'Complete!! TheFuck has been installed'
+}
+
 function Set-PowerShellProfile() {
     Write-Output 'Setting PowerShell profile...'
 
@@ -68,16 +80,33 @@ function Set-PowerShellProfile() {
     Write-Output 'Complete!! PowerShell profile has been set.'
 }
 
-function Install-PoshGit() {
-    Write-Output 'Installing PoshGit...'
-    PowerShellGet\Install-Module posh-git -Scope CurrentUser -Force
-    Write-Output 'Complete!! PoshGit has been installed.'
-}
+function Set-EnvironmentVariables() {
+    [System.Environment]::SetEnvironmentVariable('DEVDRIVE', "$global:DevDriveLetter:", 'Machine')
 
-function Install-TheFuck() {
-    Write-Output 'Installing TheFuck...'
-    Invoke-Expression ((New-Object net.webclient).DownloadString('https://raw.githubusercontent.com/mattparkes/PoShFuck/master/Install-TheFucker.ps1'))
-    Write-Output 'Complete!! TheFuck has been installed'
+    [System.Environment]::SetEnvironmentVariable('REPOS_ROOT', "$global:DevDriveLetter:\Source\Repos", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('REPOS_VF', "$global:DevDriveLetter:\Source\Repos\VictorFrye", 'Machine')
+
+    [System.Environment]::SetEnvironmentVariable('PACKAGES_ROOT', "$global:DevDriveLetter:\Packages", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('NPM_CONFIG_CACHE', "$global:DevDriveLetter:\Packages\.npm", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('NUGET_PACKAGES', "$global:DevDriveLetter:\Packages\.nuget", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('PIP_CACHE_DIR', "$global:DevDriveLetter:\Packages\.pip", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('MAVEN_OPTS', "-Dmaven.repo.local=$global:DevDriveLetter:\Packages\.maven $env:MAVEN_OPTS",'Machine')
+
+    [System.Environment]::SetEnvironmentVariable('DOTNET_ROOT', "$env:PROGRAMFILES\dotnet", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('PATH', "$env:PATH;%DOTNET_ROOT%", 'Machine')
+
+    [System.Environment]::SetEnvironmentVariable('NVIM_ROOT', "$env:PROGRAMFILES\Neovim", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('PATH', "$env:PATH;%NVIM_ROOT_%\bin", 'Machine')
+
+    $MsftJavaHome = 'C:\Program Files\Microsoft'
+    $Java11 = Get-ChildItem -Path $MsftJavaHome -Filter 'jdk-11*' -Name
+    $Java17 = Get-ChildItem -Path $MsftJavaHome -Filter 'jdk-17*' -Name
+    $Java21 = Get-ChildItem -Path $MsftJavaHome -Filter 'jdk-21*' -Name
+    [System.Environment]::SetEnvironmentVariable('JDK_11_HOME', "$MsftJavaHome\$Java11\", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('JDK_17_HOME', "$MsftJavaHome\$Java17\", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('JDK_21_HOME', "$MsftJavaHome\$Java21\", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('JAVA_HOME', "%JDK_21_HOME%", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('PATH', "$env:PATH;%JAVA_HOME%", 'Machine')
 }
 
 Write-Output 'Starting installation of my dotfiles...'
@@ -88,7 +117,8 @@ Get-Repository
 Install-WinGetPackages
 Install-Fonts
 Install-PoshGit
-Install-TheFuck
+Install-TheFucker
 Set-PowerShellProfile
+Set-EnvironmentVariables
 
 Write-Output 'Complete!! Dotfiles installed successfully.'
