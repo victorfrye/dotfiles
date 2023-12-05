@@ -1,12 +1,9 @@
 $MyName = 'Victor Frye'
 $MyEmail = 'victorfrye@outlook.com'
 
-$FontFilesPath = Join-Path $RepoRoot '\files\Fonts\*.otf'
-$NewProfile = Join-Path $RepoRoot '\files\Profile.ps1'
-$PackagesFile = Join-Path $RepoRoot '\files\Packages.json'
-
 function Initialize-Git() {
     winget install --exact --id Git.Git --source winget
+
     git config --global user.name $MyName
     git config --global user.email $MyEmail
     git config --global core.autocrlf true
@@ -16,21 +13,40 @@ function Initialize-Git() {
 }
 
 function Format-DevDrive() {
-    Write-Output 'Formatting development drive...'
+    Write-Output 'Initializing development drive...'
+
+    $Volumes = Get-Volume
+
+    $global:DevDriveLetter = ($Volumes | Where-Object { $_.FileSystemLabel -eq 'DEVDRIVE' } | Select-Object -First 1).DriveLetter
+
+    if (Test-Path -Path "$global:DevDriveLetter:\") {
+        Write-Output "Development drive $global:DevDriveLetter already exists. Skipping format."
+        return
+    }
 
     $PreferredDriveLetters = 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'
-    $Volumes = Get-Volume
     $global:DevDriveLetter = $PreferredDriveLetters | Where-Object { $Volumes.DriveLetter -notcontains $_ } | Select-Object -First 1
 
     Format-Volume -DriveLetter $DevDriveLetter -DevDrive
 
-    Write-Output "Complete!! Development drive $DevDriveLetter has been formatted."
+    Write-Output "Complete!! Development drive $DevDriveLetter has been initialized."
 }
 
 function Get-Repository() {
     Write-Output 'Cloning dotfiles repository...'
 
     $global:RepoRoot = "$global:DevDriveLetter:\Source\Repos\VictorFrye\Dotfiles"
+
+    if (Test-Path -Path $global:RepoRoot) {
+        Write-Output "Dotfiles repository already exists at $global:RepoRoot. Fetching latest instead."
+        Push-Location $global:RepoRoot
+
+        git fetch --all
+
+        Write-Output "Existing dotfiles repository has been updated to the latest version."
+        return
+    }
+
     git clone https://github.com/victorfrye/dotfiles $global:RepoRoot
     Push-Location $global:RepoRoot
 
@@ -39,17 +55,22 @@ function Get-Repository() {
 
 function Install-WinGetPackages() {
     Write-Output 'Installing WinGet packages...'
+
+    $PackagesFile = Join-Path $global:RepoRoot '\files\Packages.json'
     winget import --import-file $PackagesFile --accept-source-agreements --accept-package-agreements
+
     Write-Output 'Complete!! WinGet packages installed successfully.'
 }
 
 function Install-Fonts() {
     Write-Output 'Installing fonts...'
 
+    $FontFilesPath = Join-Path $global:RepoRoot '\files\Fonts\*.otf'
+
     $fonts = (New-Object -ComObject Shell.Application).Namespace(0x14)
     foreach ($file in Get-ChildItem -Path $FontFilesPath -Recurse) {
         $fileName = $file.Name
-        if (!(Test-Path -Path "C:\Windows\Fonts\$fileName" )) {
+        if (!(Test-Path -Path "C:\Windows\Fonts\$fileName")) {
             Get-ChildItem $file | ForEach-Object { $fonts.CopyHere($_.fullname) }
         }
     }
@@ -72,6 +93,8 @@ function Install-TheFucker() {
 function Set-PowerShellProfile() {
     Write-Output 'Setting PowerShell profile...'
 
+    $NewProfile = Join-Path $global:RepoRoot '\files\Profile.ps1'
+
     if (!(Test-Path -Path $PROFILE.CurrentUserAllHosts)) {
         New-Item -ItemType File -Path $PROFILE.CurrentUserAllHosts -Force
     }
@@ -90,7 +113,7 @@ function Set-EnvironmentVariables() {
     [System.Environment]::SetEnvironmentVariable('NPM_CONFIG_CACHE', "$global:DevDriveLetter:\Packages\.npm", 'Machine')
     [System.Environment]::SetEnvironmentVariable('NUGET_PACKAGES', "$global:DevDriveLetter:\Packages\.nuget", 'Machine')
     [System.Environment]::SetEnvironmentVariable('PIP_CACHE_DIR', "$global:DevDriveLetter:\Packages\.pip", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('MAVEN_OPTS', "-Dmaven.repo.local=$global:DevDriveLetter:\Packages\.maven $env:MAVEN_OPTS",'Machine')
+    [System.Environment]::SetEnvironmentVariable('MAVEN_OPTS', "-Dmaven.repo.local=$global:DevDriveLetter:\Packages\.maven $env:MAVEN_OPTS", 'Machine')
 
     [System.Environment]::SetEnvironmentVariable('DOTNET_ROOT', "$env:PROGRAMFILES\dotnet", 'Machine')
     [System.Environment]::SetEnvironmentVariable('PATH', "$env:PATH;%DOTNET_ROOT%", 'Machine')
@@ -105,7 +128,7 @@ function Set-EnvironmentVariables() {
     [System.Environment]::SetEnvironmentVariable('JDK_11_HOME', "$MsftJavaHome\$Java11\", 'Machine')
     [System.Environment]::SetEnvironmentVariable('JDK_17_HOME', "$MsftJavaHome\$Java17\", 'Machine')
     [System.Environment]::SetEnvironmentVariable('JDK_21_HOME', "$MsftJavaHome\$Java21\", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('JAVA_HOME', "%JDK_21_HOME%", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('JAVA_HOME', '%JDK_21_HOME%', 'Machine')
     [System.Environment]::SetEnvironmentVariable('PATH', "$env:PATH;%JAVA_HOME%", 'Machine')
 }
 
