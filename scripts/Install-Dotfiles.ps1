@@ -1,96 +1,129 @@
 $MyName = 'Victor Frye'
 $MyEmail = 'victorfrye@outlook.com'
 
-$FontFilesPath = Join-Path $RepoRoot '\files\Fonts\*.otf'
-$NewProfile = Join-Path $RepoRoot '\files\Profile.ps1'
-$PackagesFile = Join-Path $RepoRoot '\files\Packages.json'
+$DevDriveLetter = $null
+$RepoRoot = $null
 
 function Initialize-Git() {
+    Write-Host 'Initializing Git...'
+
     winget install --exact --id Git.Git --source winget
+
     git config --global user.name $MyName
     git config --global user.email $MyEmail
     git config --global core.autocrlf true
     git config --global core.editor nvim
     git config --global init.defaultBranch main
     git config --global push.autoSetupRemote true
+
+    Write-Host 'Done. Git has been initialized.'
 }
 
 function Format-DevDrive() {
-    Write-Output 'Formatting development drive...'
+    Write-Host 'Initializing development drive...'
 
-    $PreferredDriveLetters = 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'
     $Volumes = Get-Volume
+
+    $DevDrive = $Volumes | Where-Object { $_.FileSystemLabel -eq 'DEVDRIVE' } | Select-Object -First 1
+
+    if ($DevDrive) {
+        $global:DevDriveLetter = $DevDrive.DriveLetter
+        Write-Host "Skipped. Development drive $global:DevDriveLetter already exists."
+        return
+    }
+
+    $PreferredDriveLetters = 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
     $global:DevDriveLetter = $PreferredDriveLetters | Where-Object { $Volumes.DriveLetter -notcontains $_ } | Select-Object -First 1
 
     Format-Volume -DriveLetter $DevDriveLetter -DevDrive
 
-    Write-Output "Complete!! Development drive $DevDriveLetter has been formatted."
+    Write-Host "Done. Development drive $DevDriveLetter has been initialized."
 }
 
 function Get-Repository() {
-    Write-Output 'Cloning dotfiles repository...'
+    Write-Host 'Cloning dotfiles repository...'
 
-    $global:RepoRoot = "$global:DevDriveLetter:\Source\Repos\VictorFrye\Dotfiles"
+    $global:RepoRoot = "$($global:DevDriveLetter):\Source\Repos\VictorFrye\Dotfiles"
+
+    if (Test-Path -Path $global:RepoRoot) {
+        Write-Host "Dotfiles repository already exists at $global:RepoRoot. Fetching latest instead."
+        Push-Location $global:RepoRoot
+
+        git fetch --all
+
+        Write-Host 'Done. Existing dotfiles repository has been updated with the latest sources.'
+        return
+    }
+
     git clone https://github.com/victorfrye/dotfiles $global:RepoRoot
     Push-Location $global:RepoRoot
 
-    Write-Output "Complete!! Dotfiles repository has been cloned to $global:RepoRoot."
+    Write-Host "Done. Dotfiles repository has been cloned to $global:RepoRoot."
 }
 
 function Install-WinGetPackages() {
-    Write-Output 'Installing WinGet packages...'
+    Write-Host 'Installing WinGet packages...'
+
+    $PackagesFile = Join-Path $global:RepoRoot '\files\Packages.json'
     winget import --import-file $PackagesFile --accept-source-agreements --accept-package-agreements
-    Write-Output 'Complete!! WinGet packages installed successfully.'
+
+    Write-Host 'Done. WinGet packages installed successfully.'
 }
 
 function Install-Fonts() {
-    Write-Output 'Installing fonts...'
+    Write-Host 'Installing fonts...'
+
+    $FontFilesPath = Join-Path $global:RepoRoot '\files\Fonts\*.otf'
 
     $fonts = (New-Object -ComObject Shell.Application).Namespace(0x14)
     foreach ($file in Get-ChildItem -Path $FontFilesPath -Recurse) {
         $fileName = $file.Name
-        if (!(Test-Path -Path "C:\Windows\Fonts\$fileName" )) {
+        if (!(Test-Path -Path "C:\Windows\Fonts\$fileName")) {
             Get-ChildItem $file | ForEach-Object { $fonts.CopyHere($_.fullname) }
         }
     }
 
-    Write-Output 'Complete!! Fonts have been installed.'
+    Write-Host 'Done. Fonts have been installed.'
 }
 
 function Install-PoshGit() {
-    Write-Output 'Installing PoshGit...'
+    Write-Host 'Installing PoshGit...'
     PowerShellGet\Install-Module posh-git -Scope CurrentUser -Force
-    Write-Output 'Complete!! PoshGit has been installed.'
+    Write-Host 'Done. PoshGit has been installed.'
 }
 
 function Install-TheFucker() {
-    Write-Output 'Installing TheFuck...'
+    Write-Host 'Installing TheFuck...'
     Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/mattparkes/PoShFuck/master/Install-TheFucker.ps1' | Invoke-Expression
-    Write-Output 'Complete!! TheFuck has been installed'
+    Write-Host 'Done. TheFuck has been installed'
 }
 
 function Set-PowerShellProfile() {
-    Write-Output 'Setting PowerShell profile...'
+    Write-Host 'Setting PowerShell profile...'
+
+    $NewProfile = Join-Path $global:RepoRoot '\files\Profile.ps1'
 
     if (!(Test-Path -Path $PROFILE.CurrentUserAllHosts)) {
         New-Item -ItemType File -Path $PROFILE.CurrentUserAllHosts -Force
     }
     Get-Content $NewProfile | Set-Content $PROFILE.CurrentUserAllHosts
 
-    Write-Output 'Complete!! PowerShell profile has been set.'
+    Write-Host 'Done. PowerShell profile has been set.'
 }
 
 function Set-EnvironmentVariables() {
-    [System.Environment]::SetEnvironmentVariable('DEVDRIVE', "$global:DevDriveLetter:", 'Machine')
+    Write-Host 'Setting system environment variables...'
 
-    [System.Environment]::SetEnvironmentVariable('REPOS_ROOT', "$global:DevDriveLetter:\Source\Repos", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('REPOS_VF', "$global:DevDriveLetter:\Source\Repos\VictorFrye", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('DEVDRIVE', "$($global:DevDriveLetter):", 'Machine')
 
-    [System.Environment]::SetEnvironmentVariable('PACKAGES_ROOT', "$global:DevDriveLetter:\Packages", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('NPM_CONFIG_CACHE', "$global:DevDriveLetter:\Packages\.npm", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('NUGET_PACKAGES', "$global:DevDriveLetter:\Packages\.nuget", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('PIP_CACHE_DIR', "$global:DevDriveLetter:\Packages\.pip", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('MAVEN_OPTS', "-Dmaven.repo.local=$global:DevDriveLetter:\Packages\.maven $env:MAVEN_OPTS",'Machine')
+    [System.Environment]::SetEnvironmentVariable('REPOS_ROOT', "$($global:DevDriveLetter):\Source\Repos", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('REPOS_VF', "$($global:DevDriveLetter):\Source\Repos\VictorFrye", 'Machine')
+
+    [System.Environment]::SetEnvironmentVariable('PACKAGES_ROOT', "$($global:DevDriveLetter):\Packages", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('NPM_CONFIG_CACHE', "$($global:DevDriveLetter):\Packages\.npm", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('NUGET_PACKAGES', "$($global:DevDriveLetter):\Packages\.nuget", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('PIP_CACHE_DIR', "$($global:DevDriveLetter):\Packages\.pip", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('MAVEN_OPTS', "-Dmaven.repo.local=$($global:DevDriveLetter):\Packages\.maven $env:MAVEN_OPTS", 'Machine')
 
     [System.Environment]::SetEnvironmentVariable('DOTNET_ROOT', "$env:PROGRAMFILES\dotnet", 'Machine')
     [System.Environment]::SetEnvironmentVariable('PATH', "$env:PATH;%DOTNET_ROOT%", 'Machine')
@@ -105,11 +138,13 @@ function Set-EnvironmentVariables() {
     [System.Environment]::SetEnvironmentVariable('JDK_11_HOME', "$MsftJavaHome\$Java11\", 'Machine')
     [System.Environment]::SetEnvironmentVariable('JDK_17_HOME', "$MsftJavaHome\$Java17\", 'Machine')
     [System.Environment]::SetEnvironmentVariable('JDK_21_HOME', "$MsftJavaHome\$Java21\", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('JAVA_HOME', "%JDK_21_HOME%", 'Machine')
+    [System.Environment]::SetEnvironmentVariable('JAVA_HOME', '%JDK_21_HOME%', 'Machine')
     [System.Environment]::SetEnvironmentVariable('PATH', "$env:PATH;%JAVA_HOME%", 'Machine')
+
+    Write-Host 'Done. System environment variables have been set.'
 }
 
-Write-Output 'Starting installation of my dotfiles...'
+Write-Host 'Starting installation of my dotfiles...'
 
 Initialize-Git
 Format-DevDrive
@@ -121,4 +156,4 @@ Install-TheFucker
 Set-PowerShellProfile
 Set-EnvironmentVariables
 
-Write-Output 'Complete!! Dotfiles installed successfully.'
+Write-Host 'Complete!! Dotfiles installed successfully.' -ForegroundColor Green

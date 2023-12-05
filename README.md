@@ -5,8 +5,8 @@
 This repository is a partially automated set up of local machine configuration on a Windows device. A few pre-requisite steps are outlined in the below set up guide. The final step is the download and invocation of the [Install-Dotfiles.ps1](./scripts/Install-Dotfiles.ps1) script. This script will do the following:
 
 - Install [Git for Windows](https://git-scm.com/)
-- Format a [Dev Drive](https://learn.microsoft.com/en-us/windows/dev-drive/)
-- Clone this repository to the new Dev Drive
+- Format a [Dev Drive](https://learn.microsoft.com/en-us/windows/dev-drive/) if one doesn't already exist
+- Clone repository to Dev Drive or fetch latest if already exists
 - Import [WinGet packages](./files/Packages.json)
 - Install a [Nerd Font](./files/Fonts)
 - Install [PoshGit](https://github.com/dahlbyk/posh-git)
