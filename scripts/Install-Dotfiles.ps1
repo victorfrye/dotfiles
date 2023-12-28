@@ -46,7 +46,7 @@ function Get-Repository() {
     $global:RepoRoot = "$($global:DevDriveLetter):\Source\Repos\VictorFrye\Dotfiles"
 
     if (Test-Path -Path $global:RepoRoot) {
-        Write-Host "Dotfiles repository already exists at $global:RepoRoot. Fetching latest instead."
+        Write-Host "Dotfiles repository already exists at $global:RepoRoot. Fetching latest instead..."
         Push-Location $global:RepoRoot
 
         git fetch --all
@@ -100,6 +100,14 @@ function Install-TheFucker() {
 
 function Install-AzPowerShell() {
     Write-Host 'Installing Azure PowerShell...'
+
+    if (Get-Module -Name Az -ListAvailable) {
+        Write-Host 'Azure PowerShell is already installed. Updating to latest...'
+        Update-Module -Name Az -Force
+        Write-Host 'Done. Azure PowerShell updated to latest.'
+        return
+    }
+
     Install-Module -Name Az -Repository PSGallery -Force
     Write-Host 'Done. Azure PowerShell has been installed.'
 }
