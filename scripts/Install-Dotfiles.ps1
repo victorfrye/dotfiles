@@ -46,7 +46,7 @@ function Get-Repository() {
     $global:RepoRoot = "$($global:DevDriveLetter):\Source\Repos\VictorFrye\Dotfiles"
 
     if (Test-Path -Path $global:RepoRoot) {
-        Write-Host "Dotfiles repository already exists at $global:RepoRoot. Fetching latest instead."
+        Write-Host "Dotfiles repository already exists at $global:RepoRoot. Fetching latest instead..."
         Push-Location $global:RepoRoot
 
         git fetch --all
@@ -95,7 +95,21 @@ function Install-PoshGit() {
 function Install-TheFucker() {
     Write-Host 'Installing TheFuck...'
     Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/mattparkes/PoShFuck/master/Install-TheFucker.ps1' | Invoke-Expression
-    Write-Host 'Done. TheFuck has been installed'
+    Write-Host 'Done. TheFuck has been installed.'
+}
+
+function Install-AzPowerShell() {
+    Write-Host 'Installing Azure PowerShell...'
+
+    if (Get-Module -Name Az -ListAvailable) {
+        Write-Host 'Azure PowerShell is already installed. Updating to latest...'
+        Update-Module -Name Az -Force
+        Write-Host 'Done. Azure PowerShell updated to latest.'
+        return
+    }
+
+    Install-Module -Name Az -Repository PSGallery -Force
+    Write-Host 'Done. Azure PowerShell has been installed.'
 }
 
 function Set-PowerShellProfile() {
@@ -131,7 +145,7 @@ function Set-EnvironmentVariables() {
     [System.Environment]::SetEnvironmentVariable('NVIM_ROOT', "$env:PROGRAMFILES\Neovim", 'Machine')
     [System.Environment]::SetEnvironmentVariable('PATH', "$env:PATH;%NVIM_ROOT_%\bin", 'Machine')
 
-    $MsftJavaHome = 'C:\Program Files\Microsoft'
+    $MsftJavaHome = Join-Path $env:ProgramFiles 'Microsoft'
     $Java11 = Get-ChildItem -Path $MsftJavaHome -Filter 'jdk-11*' -Name
     $Java17 = Get-ChildItem -Path $MsftJavaHome -Filter 'jdk-17*' -Name
     $Java21 = Get-ChildItem -Path $MsftJavaHome -Filter 'jdk-21*' -Name
@@ -153,6 +167,7 @@ Install-WinGetPackages
 Install-Fonts
 Install-PoshGit
 Install-TheFucker
+Install-AzPowerShell
 Set-PowerShellProfile
 Set-EnvironmentVariables
 

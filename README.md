@@ -11,7 +11,8 @@ This repository is a partially automated set up of local machine configuration o
 - Install a [Nerd Font](./files/Fonts)
 - Install [PoshGit](https://github.com/dahlbyk/posh-git)
 - Install [PoShFuck](https://github.com/mattparkes/PoShFuck)
-- Set up [PowerShell Profile](./files/Profile.ps1)
+- Install [Azure PowerShell](https://learn.microsoft.com/en-us/powershell/azure/install-azps-windows)
+- Set [PowerShell Profile](./files/Profile.ps1)
 - Set Environment Variables
 
 ## Set-up Guide
