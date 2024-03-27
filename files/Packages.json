@@ -1,107 +1,125 @@
 {
-	"$schema" : "https://aka.ms/winget-packages.schema.2.0.json",
-	"CreationDate" : "2023-10-04T10:15:47.988-00:00",
-	"Sources" : 
-	[
-		{
-			"Packages" : 
-			[
-				{
-					"PackageIdentifier": "CoreyButler.NVMforWindows"
-				},
-				{
-					"PackageIdentifier": "Docker.DockerDesktop"
-				},
-				{
-					"PackageIdentifier" : "GitHub.cli"
-				},
-				{
-					"PackageIdentifier": "GitHub.GitHubDesktop"
-				},
-				{
-					"PackageIdentifier": "Hashicorp.Terraform"
-				},
-				{
-					"PackageIdentifier": "JanDeDobbeleer.OhMyPosh"
-				},		
-				{
-					"PackageIdentifier": "Microsoft.AzureCLI"
-				},
-				{
-					"PackageIdentifier": "Microsoft.AzureDataStudio"
-				},
-				{
-					"PackageIdentifier": "Microsoft.Azure.Aztfy"
-				},
-				{
-					"PackageIdentifier": "Microsoft.Azure.FunctionsCoreTools"
-				},
-				{
-					"PackageIdentifier": "Microsoft.Azure.StorageEmulator"
-				},
-				{
-					"PackageIdentifier": "Microsoft.BingWallpaper"
-				},
-				{
-					"PackageIdentifier": "Microsoft.DevHome"
-				},
-				{
-					"PackageIdentifier": "Microsoft.DotNet.SDK.Preview"
-				},
-				{
-					"PackageIdentifier": "Microsoft.Edge.Beta"
-				},
-				{
-					"PackageIdentifier": "Microsoft.Edge.Canary"
-				},
-				{
-					"PackageIdentifier": "Microsoft.NuGet"
-				},
-				{
-					"PackageIdentifier": "Microsoft.OpenJDK.11"
-				},
-				{
-					"PackageIdentifier": "Microsoft.OpenJDK.17"
-				},
-				{
-					"PackageIdentifier": "Microsoft.OpenJDK.21"
-				},
-				{
-					"PackageIdentifier": "Microsoft.PowerToys"
-				},
-				{
-					"PackageIdentifier": "Microsoft.VisualStudioCode.Insiders"
-				},
-				{
-					"PackageIdentifier": "Microsoft.WindowsTerminal.Preview"
-				},
-				{
-					"PackageIdentifier": "Neovim.Neovim"
-				},
-				{
-					"PackageIdentifier": "Postman.Postman"
-				},
-				{
-					"PackageIdentifier": "Python.Python.3.12"
-				},
-				{
-					"PackageIdentifier": "SlackTechnologies.Slack"
-				},
-				{
-					"PackageIdentifier": "Zoom.Zoom"
-				},
-				{
-					"PackageIdentifier": "Zoom.ZoomOutlookPlugin"
-				}
-			],
-			"SourceDetails" : 
-			{
-				"Argument" : "https://cdn.winget.microsoft.com/cache",
-				"Identifier" : "Microsoft.Winget.Source_8wekyb3d8bbwe",
-				"Name" : "winget",
-				"Type" : "Microsoft.PreIndexed.Package"
-			}
-		}
-	],
-	"WinGetVersion" : "1.6.3133"
+  "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
+  "CreationDate": "2024-03-27T00:00:00.000-00:00",
+  "Sources": [
+    {
+      "Packages": [
+        {
+          "PackageIdentifier": "CoreyButler.NVMforWindows"
+        },
+        {
+          "PackageIdentifier": "Docker.DockerDesktop"
+        },
+        {
+          "PackageIdentifier": "GitHub.cli"
+        },
+        {
+          "PackageIdentifier": "GitHub.GitHubDesktop"
+        },
+        {
+          "PackageIdentifier": "Google.AndroidStudio"
+        },
+        {
+          "PackageIdentifier": "Google.Chrome"
+        },
+        {
+          "PackageIdentifier": "Google.PlatformTools"
+        },
+        {
+          "PackageIdentifier": "Hashicorp.Terraform"
+        },
+        {
+          "PackageIdentifier": "Helm.Helm"
+        },
+        {
+          "PackageIdentifier": "JanDeDobbeleer.OhMyPosh"
+        },
+        {
+          "PackageIdentifier": "Kubernetes.kubectl"
+        },
+        {
+          "PackageIdentifier": "ManicTime.ManicTime"
+        },
+        {
+          "PackageIdentifier": "Microsoft.AzureCLI"
+        },
+        {
+          "PackageIdentifier": "Microsoft.AzureDataStudio"
+        },
+        {
+          "PackageIdentifier": "Microsoft.Azure.Aztfy"
+        },
+        {
+          "PackageIdentifier": "Microsoft.Azure.FunctionsCoreTools"
+        },
+        {
+          "PackageIdentifier": "Microsoft.Azure.StorageEmulator"
+        },
+        {
+          "PackageIdentifier": "Microsoft.BingWallpaper"
+        },
+        {
+          "PackageIdentifier": "Microsoft.DevHome"
+        },
+        {
+          "PackageIdentifier": "Microsoft.DotNet.SDK.Preview"
+        },
+        {
+          "PackageIdentifier": "Microsoft.Edge.Beta"
+        },
+        {
+          "PackageIdentifier": "Microsoft.Edge.Canary"
+        },
+        {
+          "PackageIdentifier": "Microsoft.NuGet"
+        },
+        {
+          "PackageIdentifier": "Microsoft.OpenJDK.17"
+        },
+        {
+          "PackageIdentifier": "Microsoft.OpenJDK.21"
+        },
+        {
+          "PackageIdentifier": "Microsoft.PowerToys"
+        },
+        {
+          "PackageIdentifier": "Microsoft.VisualStudioCode.Insiders"
+        },
+        {
+          "PackageIdentifier": "Microsoft.WindowsTerminal.Preview"
+        },
+        {
+          "PackageIdentifier": "Mozilla.Firefox"
+        },
+        {
+          "PackageIdentifier": "Neovim.Neovim"
+        },
+        {
+          "PackageIdentifier": "PaulWoolcock.SyncOutlookandGooglecalendars"
+        },
+        {
+          "PackageIdentifier": "Postman.Postman"
+        },
+        {
+          "PackageIdentifier": "Python.Python.3.12"
+        },
+        {
+          "PackageIdentifier": "SlackTechnologies.Slack"
+        },
+        {
+          "PackageIdentifier": "Zoom.Zoom"
+        },
+        {
+          "PackageIdentifier": "Zoom.ZoomOutlookPlugin"
+        }
+      ],
+      "SourceDetails": {
+        "Argument": "https://cdn.winget.microsoft.com/cache",
+        "Identifier": "Microsoft.Winget.Source_8wekyb3d8bbwe",
+        "Name": "winget",
+        "Type": "Microsoft.PreIndexed.Package"
+      }
+    }
+  ],
+  "WinGetVersion": "1.7.10661"
 }
