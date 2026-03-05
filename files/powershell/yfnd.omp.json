@@ -1,0 +1,162 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "version": 3,
+  "final_space": true,
+  "palette": {
+    "bg-transparent": "transparent",
+    "fg-neutral": "#ffffff",
+    "fg-brand": "#479ef5",
+    "fg-blue": "#479ef5",
+    "fg-purple": "#5b5fc7",
+    "fg-green": "#54b054",
+    "fg-success": "#54b054",
+    "fg-warning": "#faa06b",
+    "fg-danger": "#dc626d"
+  },
+  "blocks": [
+    {
+      "alignment": "left",
+      "newline": false,
+      "segments": [
+        {
+          "type": "os",
+          "background": "p:bg-transparent",
+          "foreground": "p:fg-brand",
+          "style": "plain",
+          "template": "{{ if .WSL }}WSL at {{ end }}{{.Icon}} "
+        },
+        {
+          "type": "session",
+          "background": "p:bg-transparent",
+          "foreground": "p:fg-brand",
+          "style": "plain",
+          "template": "{{ .UserName }} "
+        },
+        {
+          "type": "path",
+          "background": "p:bg-transparent",
+          "foreground": "p:fg-neutral",
+          "properties": {
+            "folder_separator_icon": "\ue216",
+            "home_icon": "\uf015",
+            "style": "folder"
+          },
+          "style": "plain",
+          "template": "\uf07b {{ .Path }} "
+        },
+        {
+          "type": "git",
+          "background": "p:bg-transparent",
+          "foreground": "p:fg-success",
+          "foreground_templates": [
+            "{{ if or (.Working.Changed) (.Staging.Changed) }}p:fg-warning{{ end }}",
+            "{{ if and (gt .Ahead 0) (gt .Behind 0) }}p:fg-danger{{ end }}",
+            "{{ if gt .Ahead 0 }}p:fg-purple{{ end }}",
+            "{{ if gt .Behind 0 }}p:fg-purple{{ end }}"
+          ],
+          "properties": {
+            "branch_template": "{{ trunc 25 .Branch }}",
+            "fetch_status": true,
+            "fetch_upstream_icon": true
+          },
+          "style": "plain",
+          "template": "{{ .UpstreamIcon }} {{ .HEAD }}{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }} \uf044 {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} \uf046 {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0 }} \ueb4b {{ .StashCount }}{{ end }} "
+        },
+        {
+          "type": "status",
+          "background": "p:bg-transparent",
+          "foreground": "p:fg-neutral",
+          "foreground_templates": [
+            "{{ if eq .Code 0 }}p:fg-success{{ else }}p:fg-danger{{ end }}"
+          ],
+          "properties": {
+            "always_enabled": true
+          },
+          "style": "plain",
+          "template": "{{ if eq .Code 0 }}\uf00c{{ else }}\uf00d {{ .Code }}{{ end }} "
+        },
+        {
+          "type": "executiontime",
+          "background": "p:bg-transparent",
+          "foreground": "p:fg-neutral",
+          "properties": {
+            "always_enabled": true
+          },
+          "style": "plain",
+          "template": "\uf253 {{ .FormattedMs }} "
+        }
+      ],
+      "type": "prompt"
+    },
+    {
+      "alignment": "right",
+      "newline": false,
+      "segments": [
+        {
+          "type": "dotnet",
+          "background": "p:bg-transparent",
+          "foreground": "p:fg-purple",
+          "properties": {
+            "display_mode": "always",
+            "home_enabled": true,
+            "fetch_version": true
+          },
+          "style": "plain",
+          "template": "\udb82\udeae {{ if .Unsupported }}\uf071{{ else }}{{ .Major }}.{{ .Minor }}.{{ .Patch }}{{ end }} "
+        },
+        {
+          "type": "node",
+          "background": "p:bg-transparent",
+          "foreground": "p:fg-green",
+          "properties": {
+            "display_mode": "always",
+            "home_enabled": true,
+            "fetch_version": true
+          },
+          "style": "plain",
+          "template": "\udb80\udf99 {{ .Major }}.{{ .Minor }}.{{ .Patch }} {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}"
+        },
+        {
+          "type": "az",
+          "background": "p:bg-transparent",
+          "foreground": "p:fg-blue",
+          "properties": {
+            "source": "cli"
+          },
+          "style": "plain",
+          "template": "\uebd8 {{ .TenantDisplayName }} "
+        },
+        {
+          "type": "time",
+          "background": "p:bg-transparent",
+          "foreground": "p:fg-neutral",
+          "properties": {
+            "time_format": "15:04 PM"
+          },
+          "style": "plain",
+          "template": "\udb85\udc4e {{ .CurrentDate | date .Format }}"
+        }
+      ],
+      "type": "prompt"
+    },
+    {
+      "alignment": "left",
+      "newline": true,
+      "segments": [
+        {
+          "type": "text",
+          "background": "p:bg-transparent",
+          "foreground": "p:fg-neutral",
+          "style": "plain",
+          "template": "\ue683"
+        }
+      ],
+      "type": "prompt"
+    }
+  ],
+  "transient_prompt": {
+    "background": "p:bg-transparent",
+    "foreground": "p:fg-neutral",
+    "template": "\ue683 "
+  }
+}

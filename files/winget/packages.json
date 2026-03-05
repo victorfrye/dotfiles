@@ -111,6 +111,9 @@
         },
         {
           "PackageIdentifier": "SlackTechnologies.Slack"
+        },
+        {
+          "PackageIdentifier": "GitHub.Copilot.Prerelease"
         }
       ],
       "SourceDetails": {

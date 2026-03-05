@@ -6,3 +6,6 @@
 
 # Built Visual Studio Code Extensions
 *.vsix
+
+# Local secrets
+env.ps1
