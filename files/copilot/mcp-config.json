@@ -1,0 +1,47 @@
+{
+  "mcpServers": {
+    "aspire": {
+      "tools": [
+        "*"
+      ],
+      "type": "local",
+      "command": "aspire",
+      "args": [
+        "mcp",
+        "start"
+      ]
+    },
+    "playwright": {
+      "tools": [
+        "*"
+      ],
+      "type": "local",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest"
+      ]
+    },
+    "azdo": {
+      "tools": [
+        "*"
+      ],
+      "type": "local",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@azure-devops/mcp",
+        "<YOUR_ORG>"
+      ]
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {},
+      "tools": [
+        "query-docs",
+        "resolve-library-id"
+      ]
+    }
+  }
+}

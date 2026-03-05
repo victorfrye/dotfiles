@@ -132,6 +132,37 @@ function Set-PowerShellProfile() {
     Write-Host 'Done. PowerShell profile has been set.'
 }
 
+function Install-CopilotConfig() {
+    Write-Host 'Installing Copilot CLI configuration...'
+
+    $CopilotSource = Join-Path $global:RepoRoot 'files\copilot'
+    $CopilotDest = Join-Path $HOME '.copilot'
+
+    if (!(Test-Path -Path $CopilotDest)) {
+        New-Item -ItemType Directory -Path $CopilotDest -Force
+    }
+
+    $AgentsDest = Join-Path $CopilotDest 'agents'
+    if (!(Test-Path -Path $AgentsDest)) {
+        New-Item -ItemType Directory -Path $AgentsDest -Force
+    }
+
+    $FilesToCopy = @('config.json', 'copilot-instructions.md', 'mcp-config.json')
+    foreach ($file in $FilesToCopy) {
+        $src = Join-Path $CopilotSource $file
+        $dst = Join-Path $CopilotDest $file
+        Get-Content $src | Set-Content $dst
+    }
+
+    $AgentsSource = Join-Path $CopilotSource 'agents'
+    foreach ($file in Get-ChildItem -Path $AgentsSource -Filter '*.md') {
+        $dst = Join-Path $AgentsDest $file.Name
+        Get-Content $file.FullName | Set-Content $dst
+    }
+
+    Write-Host 'Done. Copilot CLI configuration has been installed.'
+}
+
 function Set-EnvironmentVariables() {
     Write-Host 'Setting system environment variables...'
 
@@ -182,6 +213,7 @@ Install-PoshGit
 Install-TheFucker
 Install-AzPowerShell
 Set-PowerShellProfile
+Install-CopilotConfig
 Set-EnvironmentVariables
 
 Write-Host 'Complete!! Dotfiles installed successfully.' -ForegroundColor Green

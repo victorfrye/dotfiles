@@ -1,0 +1,6 @@
+{
+  "banner": "always",
+  "render_markdown": true,
+  "theme": "auto",
+  "model": "claude-opus-4.6"
+}
