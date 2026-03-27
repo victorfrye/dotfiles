@@ -129,6 +129,13 @@ properties:
         id: Canonical.Ubuntu.2404
         source: winget
 
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Podman Desktop
+      settings:
+        id: RedHat.Podman-Desktop
+        source: winget
+
     # =========================================================================
     # Packages — .NET Ecosystem
     # =========================================================================
