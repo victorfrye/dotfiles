@@ -355,6 +355,13 @@ properties:
 
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       directives:
+        description: Install Docker Credential Helper for Windows
+      settings:
+        id: Docker.docker-credential-wincred
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
         description: Install Podman
       settings:
         id: RedHat.Podman
@@ -422,6 +429,20 @@ properties:
         allowPrerelease: true
       settings:
         id: Microsoft.Edge.Canary
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Mozilla Firefox
+      settings:
+        id: Mozilla.Firefox
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Google Chrome
+      settings:
+        id: Google.Chrome
         source: winget
 
     # =========================================================================
