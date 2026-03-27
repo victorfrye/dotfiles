@@ -21,7 +21,7 @@ function Test-Check {
     try {
         $result = & $Test
         if ($result) {
-            Write-Host "  PASS: $Name" -ForegroundColor Green
+            Write-Host "  PASS: $Name" -ForegroundColor Magenta
         } else {
             Write-Host "  FAIL: $Name" -ForegroundColor Red
             $script:Failures++
@@ -45,7 +45,7 @@ function Test-SymlinkTarget {
 # ---------------------------------------------------------------------------- #
 # Symlinks
 # ---------------------------------------------------------------------------- #
-Write-Host "`nChecking symlinks..." -ForegroundColor Cyan
+Write-Host "`nChecking symlinks..." -ForegroundColor Green
 
 $RepoRoot = $PSScriptRoot | Split-Path -Parent
 
@@ -68,7 +68,7 @@ foreach ($link in $Symlinks) {
 # ---------------------------------------------------------------------------- #
 # One-time deploys
 # ---------------------------------------------------------------------------- #
-Write-Host "`nChecking one-time deploy targets..." -ForegroundColor Cyan
+Write-Host "`nChecking one-time deploy targets..." -ForegroundColor Green
 
 $Deploys = @(
     (Join-Path $HOME '.copilot\config.json')
@@ -87,7 +87,7 @@ foreach ($file in $Deploys) {
 # ---------------------------------------------------------------------------- #
 # Environment variables
 # ---------------------------------------------------------------------------- #
-Write-Host "`nChecking environment variables..." -ForegroundColor Cyan
+Write-Host "`nChecking environment variables..." -ForegroundColor Green
 
 $EnvVars = @(
     'DEVDRIVE'
@@ -112,7 +112,7 @@ foreach ($var in $EnvVars) {
 # ---------------------------------------------------------------------------- #
 # Key binaries on PATH
 # ---------------------------------------------------------------------------- #
-Write-Host "`nChecking key binaries on PATH..." -ForegroundColor Cyan
+Write-Host "`nChecking key binaries on PATH..." -ForegroundColor Green
 
 $Binaries = @(
     'git'
@@ -137,7 +137,7 @@ foreach ($bin in $Binaries) {
 # ---------------------------------------------------------------------------- #
 # Config file validity
 # ---------------------------------------------------------------------------- #
-Write-Host "`nChecking config file validity..." -ForegroundColor Cyan
+Write-Host "`nChecking config file validity..." -ForegroundColor Green
 
 $JsonFiles = @(
     (Join-Path $RepoRoot 'files\copilot\config.json')
@@ -165,7 +165,7 @@ Test-Check "PowerShell profile syntax" {
 # ---------------------------------------------------------------------------- #
 Write-Host ""
 if ($script:Failures -eq 0) {
-    Write-Host "All checks passed." -ForegroundColor Green
+    Write-Host "All checks passed." -ForegroundColor Magenta
 } else {
     Write-Host "$($script:Failures) check(s) failed." -ForegroundColor Red
     exit 1
