@@ -209,10 +209,7 @@ function Set-EnvironmentVariables {
     [System.Environment]::SetEnvironmentVariable('DOTNET_ENVIRONMENT', 'Development', 'Machine')
     [System.Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Development', 'Machine')
 
-    # Neovim
-    [System.Environment]::SetEnvironmentVariable('NVIM_ROOT', "$env:PROGRAMFILES\Neovim", 'Machine')
-
-    # Java — detect installed JDK versions dynamically
+    # Java— detect installed JDK versions dynamically
     $MsftDir = Join-Path $env:ProgramFiles 'Microsoft'
     foreach ($ver in @(17, 21, 25)) {
         $jdkDir = Get-ChildItem -Path $MsftDir -Filter "jdk-$ver*" -Directory -ErrorAction SilentlyContinue | Select-Object -First 1

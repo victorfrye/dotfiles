@@ -105,7 +105,7 @@ Set at Machine scope by `Install-Dotfiles.ps1`:
 | `JDK_21_HOME` | Microsoft OpenJDK 21 path |
 | `JDK_25_HOME` | Microsoft OpenJDK 25 path |
 | `JAVA_HOME` | `%JDK_25_HOME%` (default) |
-| `NVIM_ROOT` | `%PROGRAMFILES%\Neovim` |
+
 
 Session-scoped vars set in `files/powershell/profile.ps1`: `SRC_VFDOT`, `SRC_VFCOM`, `SRC_VFMSG`, `SRC_VFMIR`, `SRC_VFSHG`.
 
@@ -145,39 +145,3 @@ winget configure --file .config/configuration.winget --accept-configuration-agre
 ### Maintaining This File
 
 When introducing new scripts, configuration files, environment variable changes, or Copilot agent/config updates, update this `AGENTS.md` file to keep future sessions informed.
-
----
-
-## Personal Repo Ecosystem
-
-This dotfiles repo configures the machine that runs all personal repositories cloned under `%REPOS_VF%`. The other repos in this ecosystem share a common architecture; their `AGENTS.md` files are the authoritative reference for each.
-
-### VictorFrye/DotCom
-
-Personal portfolio and blog at [victorfrye.com](https://victorfrye.com). Deployed as an Azure Static Web App.
-
-- **`src/WebClient/`** — Next.js 16 app with static export (`output: 'export'`). No SSR or API routes.
-- **`src/AppHost/`** — .NET Aspire AppHost (net10.0) for local orchestration via `aspire run`. Not deployed.
-- **`infra/`** — Terraform for Azure infrastructure (Static Web App, DNS).
-- UI: **Fluent UI React v9** + **Griffel** (`makeStyles`) for CSS-in-JS. No CSS modules or Tailwind.
-- Blog posts are MDX with YAML frontmatter, file-based routing under `app/blog/posts/<slug>/`.
-- See [`%SRC_VFCOM%/AGENTS.md`](../DotCom/AGENTS.md) for full commands and conventions.
-
-### VictorFrye/MicrosoftGraveyard
-
-Open-source memorial site at [microsoftgraveyard.com](https://microsoftgraveyard.com). Deployed as an Azure Static Web App.
-
-- Identical stack to DotCom: Next.js 16 static export, .NET Aspire AppHost, Terraform infra.
-- Core feature: `corpses.json` data file + `use-corpse.ts` business logic (age calculation, obituary generation) + `headstone.tsx` card component.
-- UI: **Fluent UI React v9** + **Griffel** (`makeStyles`).
-- See [`%SRC_MSG%/AGENTS.md`](../MicrosoftGraveyard/AGENTS.md) for full commands and conventions.
-
-### Shared Conventions Across DotCom and MicrosoftGraveyard
-
-- **Biome** for linting and formatting (not ESLint/Prettier); `npm run lint:fix` to auto-fix
-- **Jest 30** + `@testing-library/react`; 80% coverage threshold; test files colocated with source
-- Path alias `@/*` → `./app/*` for all intra-app imports
-- `'use client'` on interactive components; pages/layouts are server components by default
-- Feature directories under `app/` use barrel exports (`index.ts`) and `strings.ts` for UI text
-- 2-space indent / LF for web files; 4-space indent / CRLF for C# files (EditorConfig enforced)
-- Conventional commits with feature scopes (e.g., `feat(blog):`, `fix(graveyard):`, `chore(infra):`)

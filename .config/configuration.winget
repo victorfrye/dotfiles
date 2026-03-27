@@ -96,13 +96,6 @@ properties:
 
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       directives:
-        description: Install Neovim
-      settings:
-        id: Neovim.Neovim
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
         description: Install Biome linter and formatter
       settings:
         id: BiomeJS.Biome
