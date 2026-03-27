@@ -36,7 +36,7 @@ properties:
         allowPrerelease: true
         securityContext: elevated
       settings:
-        IsEnabled: true
+        Enabled: true
 
     - resource: Microsoft.Windows.Developer/EnableDarkMode
       directives:
