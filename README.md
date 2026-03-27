@@ -101,3 +101,12 @@ Configuration files are symlinked from the repo to their system destinations rat
     $script = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/victorfrye/dotfiles/main/scripts/Install-Dotfiles.ps1'
     & ([scriptblock]::Create($script)) -DevDriveLetter 'D'
     ```
+
+### Post-Install — Configure Secrets
+
+After the install script completes, use the Copilot CLI to interactively scaffold your local `env.ps1` secrets file (Azure identities, org repos, navigation aliases, etc.):
+
+``` pwsh
+cd $env:SRC_VFDOT
+copilot -i "Help me create my env.ps1 file. This file is dot-sourced by my PowerShell profile to load secrets and org-specific configuration that must not be committed. Read AGENTS.md for the env.ps1 template and expected structure, then interview me to gather my Azure tenant IDs, subscription IDs, app client IDs, company/client org names, repo names, navigation aliases, solution context shortcuts, and any feed tokens or API keys. Generate the complete env.ps1 file when done."
+```

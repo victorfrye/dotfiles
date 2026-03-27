@@ -78,11 +78,11 @@ Set-Alias -Name inmyapp -Value Initialize-MyAppContext
 # $env:MY_FEED_TOKEN = '<your-token>'
 ```
 
-**Post-install step:** After the install script completes and `env.ps1` is created, run the Copilot CLI from the repo root to get guided assistance with any remaining workstation configuration:
+**Post-install step:** After the install script completes, run the Copilot CLI from the repo root to interactively scaffold your `env.ps1` secrets file:
 
 ```pwsh
 cd $env:SRC_VFDOT
-copilot
+copilot -i "Help me create my env.ps1 file. This file is dot-sourced by my PowerShell profile to load secrets and org-specific configuration that must not be committed. Read AGENTS.md for the env.ps1 template and expected structure, then interview me to gather my Azure tenant IDs, subscription IDs, app client IDs, company/client org names, repo names, navigation aliases, solution context shortcuts, and any feed tokens or API keys. Generate the complete env.ps1 file when done."
 ```
 
 ### Environment Variables
