@@ -1,103 +1,44 @@
 #Requires -RunAsAdministrator
+#Requires -Version 7.0
+
+<#
+.SYNOPSIS
+    Bootstrap script for Windows dotfiles.
+.DESCRIPTION
+    Initializes a Windows development machine by configuring Git,
+    setting up a Dev Drive, cloning the dotfiles repository, applying
+    WinGet Configuration, creating symlinks, deploying one-time config
+    templates, and setting environment variables.
+
+    All operations are idempotent — re-running safely skips or updates
+    existing installations.
+.PARAMETER Name
+    Full name for Git configuration. Defaults to 'Victor Frye'.
+.PARAMETER Email
+    Email address for Git configuration. Defaults to 'victorfrye@outlook.com'.
+.PARAMETER DevDriveLetter
+    Drive letter to use for the Dev Drive. Defaults to 'W'.
+    Ignored if a volume labeled DEVDRIVE already exists.
+.EXAMPLE
+    .\Install-Dotfiles.ps1
+.EXAMPLE
+    .\Install-Dotfiles.ps1 -Name 'Jane Doe' -Email 'jane@example.com' -DevDriveLetter 'D'
+#>
 
 param(
+    [string] $Name = 'Victor Frye',
+    [string] $Email = 'victorfrye@outlook.com',
     [string] $DevDriveLetter = 'W'
 )
 
 $ErrorActionPreference = 'Stop'
 
-$MyName = 'Victor Frye'
-$MyEmail = 'victorfrye@outlook.com'
-
 $RepoUrl = 'https://github.com/victorfrye/dotfiles'
-$RepoRoot = $null
 
 # ---------------------------------------------------------------------------- #
-# MARK: Git
+# Helpers
 # ---------------------------------------------------------------------------- #
-function Initialize-Git {
-    Write-Host 'Initializing Git...'
 
-    winget install --exact --id Git.Git --source winget --accept-source-agreements --accept-package-agreements
-
-    # Refresh PATH so git is available in this session
-    $env:PATH = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine') + ';' +
-                [System.Environment]::GetEnvironmentVariable('PATH', 'User')
-
-    git config --global user.name $MyName
-    git config --global user.email $MyEmail
-    git config --global core.editor edit
-    git config --global core.symlinks true
-    git config --global core.autocrlf false
-    git config --global core.hookspath '~/.githooks'
-    git config --global init.defaultBranch main
-    git config --global push.autoSetupRemote true
-
-    Write-Host 'Done. Git initialized.'
-}
-
-# ---------------------------------------------------------------------------- #
-# MARK: Dev Drive
-# ---------------------------------------------------------------------------- #
-function Format-DevDrive {
-    Write-Host 'Initializing Dev Drive...'
-
-    $ExistingDrive = Get-Volume | Where-Object { $_.FileSystemLabel -eq 'DEVDRIVE' } | Select-Object -First 1
-
-    if ($ExistingDrive) {
-        $script:DevDriveLetter = $ExistingDrive.DriveLetter
-        Write-Host "Skipped. Dev Drive already exists at $($script:DevDriveLetter):."
-        return
-    }
-
-    Format-Volume -DriveLetter $DevDriveLetter -DevDrive
-    Write-Host "Done. Dev Drive formatted at $($DevDriveLetter):."
-}
-
-# ---------------------------------------------------------------------------- #
-# MARK: Repository
-# ---------------------------------------------------------------------------- #
-function Get-Repository {
-    Write-Host 'Cloning dotfiles repository...'
-
-    $script:RepoRoot = "$($DevDriveLetter):\Source\Repos\VictorFrye\Dotfiles"
-
-    if (Test-Path -Path $script:RepoRoot) {
-        Write-Host "Repository exists at $script:RepoRoot. Fetching latest..."
-        Push-Location $script:RepoRoot
-        git fetch --all
-        git pull --ff-only origin main 2>$null
-        Write-Host 'Done. Repository updated.'
-        return
-    }
-
-    $ParentDir = Split-Path $script:RepoRoot -Parent
-    if (-not (Test-Path $ParentDir)) {
-        New-Item -ItemType Directory -Path $ParentDir -Force | Out-Null
-    }
-
-    git clone $RepoUrl $script:RepoRoot
-    Push-Location $script:RepoRoot
-
-    Write-Host "Done. Repository cloned to $script:RepoRoot."
-}
-
-# ---------------------------------------------------------------------------- #
-# MARK: WinGet Configuration
-# ---------------------------------------------------------------------------- #
-function Invoke-WinGetConfiguration {
-    Write-Host 'Applying WinGet Configuration...'
-
-    $ConfigFile = Join-Path $script:RepoRoot '.config\configuration.winget'
-
-    winget configure --file $ConfigFile --accept-configuration-agreements --disable-interactivity
-
-    Write-Host 'Done. WinGet Configuration applied.'
-}
-
-# ---------------------------------------------------------------------------- #
-# MARK: Symlinks
-# ---------------------------------------------------------------------------- #
 function New-SymlinkIfNeeded {
     param(
         [string] $Source,
@@ -107,12 +48,9 @@ function New-SymlinkIfNeeded {
 
     if (Test-Path -Path $Target) {
         $item = Get-Item $Target -Force
-        if ($item.LinkType -eq 'SymbolicLink') {
-            $existingTarget = $item.Target
-            if ($existingTarget -eq $Source) {
-                Write-Host "  Symlink already exists: $Target"
-                return
-            }
+        if ($item.LinkType -eq 'SymbolicLink' -and $item.Target -eq $Source) {
+            Write-Host "  Symlink already exists: $Target" -ForegroundColor Magenta
+            return
         }
         Remove-Item -Path $Target -Force -Recurse
     }
@@ -122,116 +60,203 @@ function New-SymlinkIfNeeded {
         New-Item -ItemType Directory -Path $TargetParent -Force | Out-Null
     }
 
-    if ($Directory) {
-        New-Item -ItemType SymbolicLink -Path $Target -Target $Source | Out-Null
-    } else {
-        New-Item -ItemType SymbolicLink -Path $Target -Target $Source | Out-Null
-    }
-
-    Write-Host "  Linked: $Target -> $Source"
+    New-Item -ItemType SymbolicLink -Path $Target -Target $Source | Out-Null
+    Write-Host "  Linked: $Target -> $Source" -ForegroundColor Magenta
 }
 
-function Set-Symlinks {
-    Write-Host 'Creating symlinks...'
+function Copy-IfNotExists {
+    param(
+        [string] $Source,
+        [string] $Target
+    )
 
-    # PowerShell profile
-    New-SymlinkIfNeeded `
-        -Source (Join-Path $script:RepoRoot 'files\powershell\profile.ps1') `
-        -Target $PROFILE.CurrentUserAllHosts
-
-    # Copilot CLI config files
-    $CopilotSource = Join-Path $script:RepoRoot 'files\copilot'
-    $CopilotDest = Join-Path $HOME '.copilot'
-
-    foreach ($file in @('config.json', 'copilot-instructions.md', 'mcp-config.json')) {
-        New-SymlinkIfNeeded `
-            -Source (Join-Path $CopilotSource $file) `
-            -Target (Join-Path $CopilotDest $file)
+    if (Test-Path -Path $Target) {
+        Write-Host "  Already exists (skipped): $Target" -ForegroundColor Magenta
+        return
     }
 
-    # Copilot agent definitions
-    $AgentsSource = Join-Path $CopilotSource 'agents'
-    $AgentsDest = Join-Path $CopilotDest 'agents'
-    foreach ($agent in Get-ChildItem -Path $AgentsSource -Filter '*.md') {
-        New-SymlinkIfNeeded `
-            -Source $agent.FullName `
-            -Target (Join-Path $AgentsDest $agent.Name)
+    $TargetParent = Split-Path $Target -Parent
+    if (-not (Test-Path $TargetParent)) {
+        New-Item -ItemType Directory -Path $TargetParent -Force | Out-Null
     }
 
-    # Azure CLI config
-    New-SymlinkIfNeeded `
-        -Source (Join-Path $script:RepoRoot 'files\az\config.json') `
-        -Target (Join-Path $HOME '.Azure\AzConfig.json')
-
-    # Git hooks directory
-    New-SymlinkIfNeeded `
-        -Source (Join-Path $script:RepoRoot 'files\githooks') `
-        -Target (Join-Path $HOME '.githooks') `
-        -Directory
-
-    # Windows Terminal Preview settings
-    $WtLocalState = Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe\LocalState'
-    if (Test-Path (Split-Path $WtLocalState -Parent)) {
-        New-SymlinkIfNeeded `
-            -Source (Join-Path $script:RepoRoot 'files\terminal\settings.json') `
-            -Target (Join-Path $WtLocalState 'settings.json')
-    } else {
-        Write-Host '  Skipped Windows Terminal symlink (package not yet installed).'
-    }
-
-    Write-Host 'Done. Symlinks created.'
+    Copy-Item -Path $Source -Destination $Target
+    Write-Host "  Deployed: $Target" -ForegroundColor Magenta
 }
 
 # ---------------------------------------------------------------------------- #
-# MARK: Environment Variables
+# Git
 # ---------------------------------------------------------------------------- #
-function Set-EnvironmentVariables {
-    Write-Host 'Setting environment variables...'
 
-    $Drive = "$($DevDriveLetter):"
+Write-Host "`n=== Installing dotfiles ===`n" -ForegroundColor Green
 
-    # Dev Drive
-    [System.Environment]::SetEnvironmentVariable('DEVDRIVE', $Drive, 'Machine')
+Write-Host 'Initializing Git...' -ForegroundColor Green
 
-    # Repository roots
-    [System.Environment]::SetEnvironmentVariable('REPOS_ROOT', "$Drive\Source\Repos", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('REPOS_VF', "$Drive\Source\Repos\VictorFrye", 'Machine')
+winget install --exact --id Git.Git --source winget --accept-source-agreements --accept-package-agreements
 
-    # Package manager caches on Dev Drive
-    [System.Environment]::SetEnvironmentVariable('PACKAGES_ROOT', "$Drive\Packages", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('NPM_CONFIG_CACHE', "$Drive\Packages\.npm", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('NUGET_PACKAGES', "$Drive\Packages\.nuget", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('PIP_CACHE_DIR', "$Drive\Packages\.pip", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('MAVEN_OPTS', "-Dmaven.repo.local=$Drive\Packages\.maven", 'Machine')
+$env:PATH = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine') + ';' +
+            [System.Environment]::GetEnvironmentVariable('PATH', 'User')
 
-    # .NET
-    [System.Environment]::SetEnvironmentVariable('DOTNET_ROOT', "$env:PROGRAMFILES\dotnet", 'Machine')
-    [System.Environment]::SetEnvironmentVariable('DOTNET_ENVIRONMENT', 'Development', 'Machine')
-    [System.Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Development', 'Machine')
+git config --global user.name $Name
+git config --global user.email $Email
+git config --global core.editor edit
+git config --global core.symlinks true
+git config --global core.autocrlf false
+git config --global core.hookspath '~/.githooks'
+git config --global init.defaultBranch main
+git config --global push.autoSetupRemote true
 
-    # Java— detect installed JDK versions dynamically
-    $MsftDir = Join-Path $env:ProgramFiles 'Microsoft'
-    foreach ($ver in @(17, 21, 25)) {
-        $jdkDir = Get-ChildItem -Path $MsftDir -Filter "jdk-$ver*" -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($jdkDir) {
-            [System.Environment]::SetEnvironmentVariable("JDK_${ver}_HOME", $jdkDir.FullName, 'Machine')
-        }
-    }
-    [System.Environment]::SetEnvironmentVariable('JAVA_HOME', "%JDK_25_HOME%", 'Machine')
+Write-Host 'Done. Git initialized.' -ForegroundColor Magenta
 
-    Write-Host 'Done. Environment variables set.'
+# ---------------------------------------------------------------------------- #
+# Dev Drive
+# ---------------------------------------------------------------------------- #
+
+Write-Host 'Initializing Dev Drive...' -ForegroundColor Green
+
+$ExistingDrive = Get-Volume | Where-Object { $_.FileSystemLabel -eq 'DEVDRIVE' } | Select-Object -First 1
+
+if ($ExistingDrive) {
+    $DevDriveLetter = "$($ExistingDrive.DriveLetter):"
+    Write-Host "Skipped. Dev Drive already exists at $DevDriveLetter." -ForegroundColor Magenta
+} else {
+    Format-Volume -DriveLetter $DevDriveLetter -DevDrive
+    $DevDriveLetter = "$($DevDriveLetter):"
+    Write-Host "Done. Dev Drive formatted at $DevDriveLetter." -ForegroundColor Magenta
 }
 
 # ---------------------------------------------------------------------------- #
-# MARK: Orchestration
+# Repository
 # ---------------------------------------------------------------------------- #
-Write-Host "`n=== Installing dotfiles ===`n" -ForegroundColor Cyan
 
-Initialize-Git
-Format-DevDrive
-Get-Repository
-Invoke-WinGetConfiguration
-Set-Symlinks
-Set-EnvironmentVariables
+Write-Host 'Cloning dotfiles repository...' -ForegroundColor Green
+
+$RepoRoot = Join-Path $DevDriveLetter 'Source\Repos\VictorFrye\Dotfiles'
+
+if (Test-Path -Path $RepoRoot) {
+    Write-Host "Repository exists at $RepoRoot. Fetching latest..." -ForegroundColor Green
+    Push-Location $RepoRoot
+    git fetch --all
+    git pull --ff-only origin main 2>$null
+    Write-Host 'Done. Repository updated.' -ForegroundColor Magenta
+} else {
+    $ParentDir = Split-Path $RepoRoot -Parent
+    if (-not (Test-Path $ParentDir)) {
+        New-Item -ItemType Directory -Path $ParentDir -Force | Out-Null
+    }
+
+    git clone $RepoUrl $RepoRoot
+    Push-Location $RepoRoot
+    Write-Host "Done. Repository cloned to $RepoRoot." -ForegroundColor Magenta
+}
+
+# ---------------------------------------------------------------------------- #
+# WinGet Configuration
+# ---------------------------------------------------------------------------- #
+
+Write-Host 'Applying WinGet Configuration...' -ForegroundColor Green
+
+$ConfigFile = Join-Path $RepoRoot '.config\configuration.winget'
+winget configure --file $ConfigFile --accept-configuration-agreements --disable-interactivity
+
+Write-Host 'Done. WinGet Configuration applied.' -ForegroundColor Magenta
+
+# ---------------------------------------------------------------------------- #
+# Symlinks
+# ---------------------------------------------------------------------------- #
+
+Write-Host 'Creating symlinks...' -ForegroundColor Green
+
+New-SymlinkIfNeeded `
+    -Source (Join-Path $RepoRoot 'files\powershell\profile.ps1') `
+    -Target $PROFILE.CurrentUserAllHosts
+
+New-SymlinkIfNeeded `
+    -Source (Join-Path $RepoRoot 'files\copilot\copilot-instructions.md') `
+    -Target (Join-Path $HOME '.copilot\copilot-instructions.md')
+
+New-SymlinkIfNeeded `
+    -Source (Join-Path $RepoRoot 'files\copilot\agents') `
+    -Target (Join-Path $HOME '.copilot\agents') `
+    -Directory
+
+New-SymlinkIfNeeded `
+    -Source (Join-Path $RepoRoot 'files\az\config.json') `
+    -Target (Join-Path $HOME '.Azure\AzConfig.json')
+
+New-SymlinkIfNeeded `
+    -Source (Join-Path $RepoRoot 'files\githooks') `
+    -Target (Join-Path $HOME '.githooks') `
+    -Directory
+
+New-SymlinkIfNeeded `
+    -Source (Join-Path $RepoRoot 'files\wsl\.wslconfig') `
+    -Target (Join-Path $HOME '.wslconfig')
+
+New-SymlinkIfNeeded `
+    -Source (Join-Path $RepoRoot 'files\docker\config.json') `
+    -Target (Join-Path $HOME '.docker\config.json')
+
+Write-Host 'Done. Symlinks created.' -ForegroundColor Magenta
+
+# ---------------------------------------------------------------------------- #
+# One-time config deploys
+# ---------------------------------------------------------------------------- #
+
+Write-Host 'Deploying one-time config files...' -ForegroundColor Green
+
+$CopilotSource = Join-Path $RepoRoot 'files\copilot'
+$CopilotDest = Join-Path $HOME '.copilot'
+
+foreach ($file in @('config.json', 'mcp-config.json')) {
+    Copy-IfNotExists `
+        -Source (Join-Path $CopilotSource $file) `
+        -Target (Join-Path $CopilotDest $file)
+}
+
+$WtLocalState = Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe\LocalState'
+if (Test-Path (Split-Path $WtLocalState -Parent)) {
+    Copy-IfNotExists `
+        -Source (Join-Path $RepoRoot 'files\terminal\settings.json') `
+        -Target (Join-Path $WtLocalState 'settings.json')
+} else {
+    Write-Host '  Skipped Windows Terminal (not yet installed).' -ForegroundColor Yellow
+}
+
+Write-Host 'Done. Config files deployed.' -ForegroundColor Magenta
+
+# ---------------------------------------------------------------------------- #
+# Environment variables
+# ---------------------------------------------------------------------------- #
+
+Write-Host 'Setting environment variables...' -ForegroundColor Green
+
+[System.Environment]::SetEnvironmentVariable('DEVDRIVE', $DevDriveLetter, 'Machine')
+
+[System.Environment]::SetEnvironmentVariable('REPOS_ROOT', "$DevDriveLetter\Source\Repos", 'Machine')
+[System.Environment]::SetEnvironmentVariable('REPOS_VF', "$DevDriveLetter\Source\Repos\VictorFrye", 'Machine')
+
+[System.Environment]::SetEnvironmentVariable('PACKAGES_ROOT', "$DevDriveLetter\Packages", 'Machine')
+[System.Environment]::SetEnvironmentVariable('NPM_CONFIG_CACHE', "$DevDriveLetter\Packages\.npm", 'Machine')
+[System.Environment]::SetEnvironmentVariable('NUGET_PACKAGES', "$DevDriveLetter\Packages\.nuget", 'Machine')
+[System.Environment]::SetEnvironmentVariable('PIP_CACHE_DIR', "$DevDriveLetter\Packages\.pip", 'Machine')
+[System.Environment]::SetEnvironmentVariable('MAVEN_OPTS', "-Dmaven.repo.local=$DevDriveLetter\Packages\.maven", 'Machine')
+
+[System.Environment]::SetEnvironmentVariable('DOTNET_ROOT', "$env:PROGRAMFILES\dotnet", 'Machine')
+[System.Environment]::SetEnvironmentVariable('DOTNET_ENVIRONMENT', 'Development', 'Machine')
+[System.Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Development', 'Machine')
+
+$MsftDir = Join-Path $env:ProgramFiles 'Microsoft'
+foreach ($ver in @(17, 21, 25)) {
+    $jdkDir = Get-ChildItem -Path $MsftDir -Filter "jdk-$ver*" -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($jdkDir) {
+        [System.Environment]::SetEnvironmentVariable("JDK_${ver}_HOME", $jdkDir.FullName, 'Machine')
+    }
+}
+[System.Environment]::SetEnvironmentVariable('JAVA_HOME', "%JDK_25_HOME%", 'Machine')
+
+Write-Host 'Done. Environment variables set.' -ForegroundColor Magenta
+
+# ---------------------------------------------------------------------------- #
 
 Write-Host "`n=== Dotfiles installed successfully ===`n" -ForegroundColor Green
