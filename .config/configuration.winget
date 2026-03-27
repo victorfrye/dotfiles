@@ -129,6 +129,13 @@ properties:
         id: Anchore.Syft
         source: winget
 
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Ubuntu 24.04 LTS (WSL)
+      settings:
+        id: Canonical.Ubuntu.2404
+        source: winget
+
     # =========================================================================
     # Packages — .NET Ecosystem
     # =========================================================================
