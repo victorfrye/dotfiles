@@ -129,13 +129,6 @@ properties:
         id: Canonical.Ubuntu.2404
         source: winget
 
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Podman Desktop
-      settings:
-        id: RedHat.Podman-Desktop
-        source: winget
-
     # =========================================================================
     # Packages — .NET Ecosystem
     # =========================================================================
@@ -374,6 +367,13 @@ properties:
         id: RedHat.Podman
         source: winget
 
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Podman Desktop
+      settings:
+        id: RedHat.Podman-Desktop
+        source: winget
+
     # =========================================================================
     # Packages — AI
     # =========================================================================
@@ -542,4 +542,3 @@ properties:
           $null -ne (Get-Module -Name PSScriptAnalyzer -ListAvailable)
         SetScript: |
           Install-Module -Name PSScriptAnalyzer -Scope AllUsers -Force -AllowClobber
-
