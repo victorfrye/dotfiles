@@ -4,7 +4,9 @@ This document provides context for AI coding agents working in this repository.
 
 ## Architecture
 
-This is a Windows dotfiles repository that partially automates the setup of a local Windows development machine. The single entry point is `scripts/Install-Dotfiles.ps1`, invoked remotely on a fresh machine via:
+This is a Windows dotfiles repository that automates the setup of a local Windows development machine using a **hybrid approach**: a declarative WinGet Configuration file (DSC) handles packages, Windows settings, PowerShell modules, and fonts, while a thin bootstrap script handles Git setup, Dev Drive, repo cloning, symlinks, and environment variables.
+
+The single entry point is `scripts/Install-Dotfiles.ps1`, invoked remotely on a fresh machine via:
 
 ```pwsh
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
@@ -15,13 +17,14 @@ The script is **idempotent** — re-running it on an already-configured machine 
 
 ### Repository Structure
 
-- **`scripts/Install-Dotfiles.ps1`** — master installation script; orchestrates all setup steps in order
-- **`files/winget/packages.json`** — WinGet package manifest, imported with `winget import`
-- **`files/powershell/profile.ps1`** — PowerShell profile, copied to `$PROFILE.CurrentUserAllHosts`
+- **`.config/configuration.winget`** — WinGet Configuration (DSC YAML): packages, Windows settings, PS modules, fonts
+- **`scripts/Install-Dotfiles.ps1`** — bootstrap script: Git init, Dev Drive, repo clone, `winget configure`, symlinks, env vars
+- **`files/powershell/profile.ps1`** — PowerShell profile, symlinked to `$PROFILE.CurrentUserAllHosts`
 - **`files/powershell/yfnd.omp.json`** — custom Oh My Posh theme (active theme, referenced from repo path)
-- **`files/az/config.json`** — Azure PowerShell config, imported via `Import-AzConfig`
-- **`files/fonts/`** — CaskaydiaCove Nerd Font `.otf` files, installed to `C:\Windows\Fonts`
-- **`files/copilot/`** — GitHub Copilot CLI configuration (see below)
+- **`files/az/config.json`** — Azure PowerShell config, symlinked to `~/.Azure/AzConfig.json`
+- **`files/copilot/`** — GitHub Copilot CLI configuration, symlinked to `~/.copilot/` (see below)
+- **`files/githooks/`** — Git hooks directory, symlinked to `~/.githooks`
+- **`files/terminal/settings.json`** — Windows Terminal Preview settings, symlinked to WT LocalState
 - **`env.ps1`** — local secrets file (**gitignored**, never committed; see below)
 
 ### Copilot CLI Configuration (`files/copilot/`)
@@ -88,7 +91,7 @@ Set at Machine scope by `Install-Dotfiles.ps1`:
 
 | Variable | Value |
 |---|---|
-| `DEVDRIVE` | Root of Dev Drive (e.g. `L:`) |
+| `DEVDRIVE` | Root of Dev Drive (e.g. `W:`) |
 | `REPOS_ROOT` | `<DEVDRIVE>\Source\Repos` |
 | `REPOS_VF` | `<DEVDRIVE>\Source\Repos\VictorFrye` |
 | `PACKAGES_ROOT` | `<DEVDRIVE>\Packages` |
@@ -100,10 +103,11 @@ Set at Machine scope by `Install-Dotfiles.ps1`:
 | `ASPNETCORE_ENVIRONMENT` | `Development` |
 | `JDK_17_HOME` | Microsoft OpenJDK 17 path |
 | `JDK_21_HOME` | Microsoft OpenJDK 21 path |
-| `JAVA_HOME` | `%JDK_21_HOME%` (default) |
+| `JDK_25_HOME` | Microsoft OpenJDK 25 path |
+| `JAVA_HOME` | `%JDK_25_HOME%` (default) |
 | `NVIM_ROOT` | `%PROGRAMFILES%\Neovim` |
 
-Session-scoped vars set in `files/powershell/profile.ps1`: `SRC_VFDOT`, `SRC_VFCOM`, `SRC_VFMSG`, `SRC_VFMIR`, `SRC_VFCNT`, `SRC_VFSHG`, `ANDROID_HOME`.
+Session-scoped vars set in `files/powershell/profile.ps1`: `SRC_VFDOT`, `SRC_VFCOM`, `SRC_VFMSG`, `SRC_VFMIR`, `SRC_VFSHG`.
 
 ### PowerShell Profile
 
@@ -111,7 +115,7 @@ Session-scoped vars set in `files/powershell/profile.ps1`: `SRC_VFDOT`, `SRC_VFC
 
 - Oh My Posh with custom `yfnd` theme (referenced from `$env:SRC_VFDOT\files\powershell\yfnd.omp.json`)
 - posh-git module for Git integration
-- Aliases: `sjh`/`rsjh` (Java home switching), `slvf`/`slcom`/`slmsg`/`slmir`/`slcnt`/`slshg` (quick `cd` to repos), `sacom`/`samsg`/`samir`/`sashg` (app launchers), `code` → `code-insiders`, `cthash` (SHA-256 hash), `clctx` (clear solution context)
+- Aliases: `sjh`/`rsjh` (Java home switching, supports JDK 11/17/21/25), `slvf`/`slcom`/`slmsg`/`slmir`/`slshg` (quick `cd` to repos), `sacom`/`samsg`/`samir`/`sashg` (app launchers), `code` → `code-insiders`, `cthash` (SHA-256 hash), `clctx` (clear solution context)
 - `Initialize-SolutionContext` — generic function to set ARM_* env vars; project-specific shortcuts defined in `env.ps1`
 - Placeholder comment blocks for company and client navigation/aliases (populated via `env.ps1`)
 
@@ -123,7 +127,13 @@ There is no build or test system — this is a pure configuration and scripting 
 .\scripts\Install-Dotfiles.ps1
 ```
 
-To add a new WinGet package, append its `PackageIdentifier` to `files/winget/packages.json` under `Sources[0].Packages`.
+To add a new WinGet package, add a `WinGetPackage` resource entry to `.config/configuration.winget`.
+
+To apply only the WinGet Configuration without running the full bootstrap:
+
+```pwsh
+winget configure --file .config/configuration.winget --accept-configuration-agreements
+```
 
 ## Conventions
 

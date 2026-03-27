@@ -27,27 +27,42 @@
     </a>
 </p>
 
-My Windows dotfiles are a collection of steps, scripts, and configuration files to initialize a Windows machine. The primary technologies attributed to this project are:
+My Windows dotfiles are a collection of configuration files and a bootstrap script to initialize a Windows development machine. The primary technologies attributed to this project are:
 
-- **PowerShell**: The primary scripting language used to automate the configuration of the local machine.
-- **GitHub**: The version control system and platform used to store and serve the distribution of the dotfiles.
+- **PowerShell**: The scripting language used to bootstrap the machine and configure the shell environment.
+- **WinGet Configuration**: Declarative YAML-based configuration (DSC) for packages, Windows settings, PowerShell modules, and fonts.
+- **GitHub**: The version control platform used to store and serve the dotfiles.
 - **Windows**: The intended operating system for the development environment.
-- **WinGet**: The package manager used to install software and tools on the destination machine.
 
 ## Overview
 
-This repository is a partially automated set up of local machine configuration on a Windows device. A few pre-requisite steps are outlined in the below set up guide. The final step is the download and invocation of the [Install-Dotfiles.ps1](./scripts/Install-Dotfiles.ps1) script. This script will do the following:
+This repository uses a **hybrid approach**: a declarative [WinGet Configuration](./.config/configuration.winget) file handles package installs, Windows settings, PowerShell modules, and fonts via DSC resources, while a thin [bootstrap script](./scripts/Install-Dotfiles.ps1) handles Git setup, Dev Drive creation, repo cloning, symlinks, and environment variables.
 
-- Install [Git for Windows](https://git-scm.com/)
-- Format a [Dev Drive](https://learn.microsoft.com/en-us/windows/dev-drive/) if one doesn't already exist
-- Clone repository to Dev Drive or fetch latest if already exists
-- Import [WinGet packages](./files/Packages.json)
-- Install a [Nerd Font](./files/Fonts)
-- Install [PoshGit](https://github.com/dahlbyk/posh-git)
-- Install [PoShFuck](https://github.com/mattparkes/PoShFuck)
-- Install [Azure PowerShell](https://learn.microsoft.com/en-us/powershell/azure/install-azps-windows)
-- Set [PowerShell Profile](./files/Profile.ps1)
-- Set Environment Variables
+The bootstrap script does the following:
+
+1. Install and configure [Git for Windows](https://git-scm.com/)
+2. Format a [Dev Drive](https://learn.microsoft.com/en-us/windows/dev-drive/) (or detect an existing one)
+3. Clone the dotfiles repository (or fetch latest if it exists)
+4. Apply [WinGet Configuration](./.config/configuration.winget) — installs packages, configures Windows settings, sets up PowerShell modules, and installs Nerd Fonts
+5. Create symlinks from repo files to their system destinations
+6. Set machine-level environment variables
+
+All operations are **idempotent** — re-running the script on an already-configured machine safely skips or updates existing installations.
+
+### Symlinked Configuration
+
+Configuration files are symlinked from the repo to their system destinations rather than copied. This means edits to the files on disk are automatically reflected in the repository:
+
+| Source (repo) | Target |
+|---|---|
+| `files/powershell/profile.ps1` | `$PROFILE.CurrentUserAllHosts` |
+| `files/copilot/config.json` | `~/.copilot/config.json` |
+| `files/copilot/copilot-instructions.md` | `~/.copilot/copilot-instructions.md` |
+| `files/copilot/mcp-config.json` | `~/.copilot/mcp-config.json` |
+| `files/copilot/agents/*.md` | `~/.copilot/agents/*.md` |
+| `files/az/config.json` | `~/.Azure/AzConfig.json` |
+| `files/githooks/` | `~/.githooks` (directory) |
+| `files/terminal/settings.json` | Windows Terminal Preview LocalState |
 
 ## Instructions
 
@@ -78,4 +93,11 @@ This repository is a partially automated set up of local machine configuration o
     ``` pwsh
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
     Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/victorfrye/dotfiles/main/scripts/Install-Dotfiles.ps1' | Invoke-Expression
+    ```
+
+    Optionally specify a custom Dev Drive letter (defaults to `W`):
+
+    ``` pwsh
+    $script = Invoke-RestMethod -Uri 'https://raw.githubusercontent.com/victorfrye/dotfiles/main/scripts/Install-Dotfiles.ps1'
+    & ([scriptblock]::Create($script)) -DevDriveLetter 'D'
     ```

@@ -3,7 +3,6 @@ $env:SRC_VFDOT = Join-Path $env:REPOS_VF 'Dotfiles'
 $env:SRC_VFCOM = Join-Path $env:REPOS_VF 'DotCom'
 $env:SRC_VFMSG = Join-Path $env:REPOS_VF 'MicrosoftGraveyard'
 $env:SRC_VFMIR = Join-Path $env:REPOS_VF 'MockingMirror'
-$env:SRC_VFCNT = Join-Path $env:REPOS_VF 'Counter'
 $env:SRC_VFSHG = Join-Path $env:REPOS_VF 'ShrugMan'
 
 # MARK: Secrets — loaded from env.ps1 (gitignored, never committed)
@@ -45,7 +44,7 @@ function Clear-Docker { docker image prune -a --filter 'until=12h'; docker syste
 
 # MARK: Java — JDK version management
 function Reset-JavaHome() {
-  $env:JAVA_HOME = $env:JDK_21_HOME
+  $env:JAVA_HOME = $env:JDK_25_HOME
   Write-Output "The JAVA_HOME environment variable is now set to $env:JAVA_HOME."
 }
 
@@ -80,6 +79,14 @@ function Set-JavaHome([int] $Version) {
         break
       }
       $CurrentJdk = $env:JDK_21_HOME
+      break
+    }
+    25 {
+      if (-not (Test-Path -Path $env:JDK_25_HOME)) {
+        Write-Output "No JDK configured for version $PSItem... Aborted."
+        break
+      }
+      $CurrentJdk = $env:JDK_25_HOME
       break
     }
     default { Write-Output "No JDK configured for version $PSItem... Aborted." }
@@ -139,14 +146,12 @@ function Set-LocationToVictorFryeDotfiles { Set-Location $env:SRC_VFDOT }
 function Set-LocationToVictorFryeDotCom { Set-Location $env:SRC_VFCOM }
 function Set-LocationToMicrosoftGraveyard { Set-Location $env:SRC_VFMSG }
 function Set-LocationToMockingMirror { Set-Location $env:SRC_VFMIR }
-function Set-LocationToCounter { Set-Location $env:SRC_VFCNT }
 function Set-LocationToShrugMan { Set-Location $env:SRC_VFSHG }
 
 Set-Alias -Name slvf -Value Set-LocationToVictorFryeRepositories
 Set-Alias -Name slcom -Value Set-LocationToVictorFryeDotCom
 Set-Alias -Name slmsg -Value Set-LocationToMicrosoftGraveyard
 Set-Alias -Name slmir -Value Set-LocationToMockingMirror
-Set-Alias -Name slcnt -Value Set-LocationToCounter
 Set-Alias -Name slshg -Value Set-LocationToShrugMan
 
 # MARK: Personal Projects — App Launchers
@@ -168,12 +173,7 @@ Set-Alias -Name sashg -Value Start-ShrugManApp
 ##   function Set-LocationToClientRepos { Set-Location $env:REPOS_CL }
 ##   Set-Alias -Name slcl -Value Set-LocationToClientRepos
 
-# MARK: Android SDK
-$env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"
-
 # MARK: Path
 function Get-Path() {
   Write-Output $Env:PATH.Split(';')
 }
-
-$env:PATH += ";$env:ANDROID_HOME\tools;$env:ANDROID_HOME\tools\bin;$env:ANDROID_HOME\platform-tools"

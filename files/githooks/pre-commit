@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+
+# Find a solution file in the repository root
+sln=$(find "$REPO_ROOT" -maxdepth 1 -type f -regex ".*\.slnx?$" | head -1)
+
+# Find a biome configuration file in the repository root
+biome_config=$(find "$REPO_ROOT" -maxdepth 1 -type f -name "biome.json" | head -1)
+
+# Get list of staged files
+staged=$(git diff --cached --name-only --diff-filter=d)
+
+# If a solution file is found and .cs files were changed, run dotnet format
+cs_files=$(echo "$staged" | grep -E "\.cs$" || true)
+
+if command -v dotnet &> /dev/null \
+    && [ -f "$sln" ] \
+    && [ -n "$cs_files" ]; then
+    dotnet format $sln --verbosity normal
+fi
+
+# If biome config is found and JS/TS files were changed, run biome
+js_files=$(echo "$staged" | grep -E "\.(jsx?|tsx?|jsonc?|html|css)$" || true)
+
+if command -v biome &> /dev/null \
+    && [ -f "$biome_config" ] \
+    && [ -n "$js_files" ]; then
+    biome check --fix --changed
+fi
+
+# Re-stage any files that were modified by this hook
+if [ -n "$staged" ]; then
+    echo $staged | xargs git add
+fi
