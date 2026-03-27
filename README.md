@@ -43,25 +43,35 @@ The bootstrap script does the following:
 1. Install and configure [Git for Windows](https://git-scm.com/)
 2. Format a [Dev Drive](https://learn.microsoft.com/en-us/windows/dev-drive/) (or detect an existing one)
 3. Clone the dotfiles repository (or fetch latest if it exists)
-4. Apply [WinGet Configuration](./.config/configuration.winget) — installs packages, configures Windows settings, sets up PowerShell modules, and installs Nerd Fonts
+4. Apply [WinGet Configuration](./.config/configuration.winget) — installs packages, configures Windows settings, and sets up PowerShell modules
 5. Create symlinks from repo files to their system destinations
-6. Set machine-level environment variables
+6. Deploy one-time config templates (copied only if target doesn't already exist)
+7. Set machine-level environment variables
 
 All operations are **idempotent** — re-running the script on an already-configured machine safely skips or updates existing installations.
 
 ### Symlinked Configuration
 
-Configuration files are symlinked from the repo to their system destinations rather than copied. This means edits to the files on disk are automatically reflected in the repository:
+Configuration files are symlinked from the repo to their system destinations. Edits on disk are automatically reflected in the repository:
 
 | Source (repo) | Target |
 |---|---|
 | `files/powershell/profile.ps1` | `$PROFILE.CurrentUserAllHosts` |
-| `files/copilot/config.json` | `~/.copilot/config.json` |
 | `files/copilot/copilot-instructions.md` | `~/.copilot/copilot-instructions.md` |
-| `files/copilot/mcp-config.json` | `~/.copilot/mcp-config.json` |
-| `files/copilot/agents/*.md` | `~/.copilot/agents/*.md` |
+| `files/copilot/agents/` | `~/.copilot/agents/` (directory) |
 | `files/az/config.json` | `~/.Azure/AzConfig.json` |
 | `files/githooks/` | `~/.githooks` (directory) |
+| `files/wsl/.wslconfig` | `~/.wslconfig` |
+| `files/docker/config.json` | `~/.docker/config.json` |
+
+### One-Time Config Templates
+
+These files are copied to their targets **only if the target doesn't already exist**. Tools write runtime state to these files, so they are not symlinked to avoid git noise:
+
+| Source (repo) | Target |
+|---|---|
+| `files/copilot/config.json` | `~/.copilot/config.json` |
+| `files/copilot/mcp-config.json` | `~/.copilot/mcp-config.json` |
 | `files/terminal/settings.json` | Windows Terminal Preview LocalState |
 
 ## Instructions

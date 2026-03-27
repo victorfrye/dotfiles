@@ -17,14 +17,18 @@ The script is **idempotent** — re-running it on an already-configured machine 
 
 ### Repository Structure
 
-- **`.config/configuration.winget`** — WinGet Configuration (DSC YAML): packages, Windows settings, PS modules, fonts
-- **`scripts/Install-Dotfiles.ps1`** — bootstrap script: Git init, Dev Drive, repo clone, `winget configure`, symlinks, env vars
+- **`.config/configuration.winget`** — WinGet Configuration (DSC YAML): packages, Windows settings, PS modules
+- **`scripts/Install-Dotfiles.ps1`** — bootstrap script: Git init, Dev Drive, repo clone, `winget configure`, symlinks, one-time deploys, env vars
+- **`scripts/Test-Dotfiles.ps1`** — post-install verification: checks symlinks, binaries, env vars, config validity
+- **`tests/Install-Dotfiles.Tests.ps1`** — Pester tests for CI: config validation, linting, JSON parsing
 - **`files/powershell/profile.ps1`** — PowerShell profile, symlinked to `$PROFILE.CurrentUserAllHosts`
 - **`files/powershell/yfnd.omp.json`** — custom Oh My Posh theme (active theme, referenced from repo path)
 - **`files/az/config.json`** — Azure PowerShell config, symlinked to `~/.Azure/AzConfig.json`
-- **`files/copilot/`** — GitHub Copilot CLI configuration, symlinked to `~/.copilot/` (see below)
+- **`files/copilot/`** — GitHub Copilot CLI configuration (see below)
 - **`files/githooks/`** — Git hooks directory, symlinked to `~/.githooks`
-- **`files/terminal/settings.json`** — Windows Terminal Preview settings, symlinked to WT LocalState
+- **`files/terminal/settings.json`** — Windows Terminal Preview settings, deployed as one-time template
+- **`files/wsl/.wslconfig`** — WSL configuration, symlinked to `~/.wslconfig`
+- **`files/docker/config.json`** — Docker config, symlinked to `~/.docker/config.json`
 - **`env.ps1`** — local secrets file (**gitignored**, never committed; see below)
 
 ### Copilot CLI Configuration (`files/copilot/`)
@@ -32,9 +36,9 @@ The script is **idempotent** — re-running it on an already-configured machine 
 Deployed to `~/.copilot/` by the install script. Contains:
 
 - **`config.json`** — portable Copilot CLI settings (banner, theme, model preference)
-- **`copilot-instructions.md`** — personal coding instructions, engineering philosophy, device repo map with placeholder sections for company/client orgs
-- **`mcp-config.json`** — MCP server definitions: Aspire, Playwright, Context7, and Azure DevOps (placeholder org — configure the `<YOUR_ORG>` value in `~/.copilot/mcp-config.json` after install)
-- **`agents/`** — custom agent definitions: `dotnet-developer`, `interviewer`, `react-developer`, `terraform-developer`
+- **`copilot-instructions.md`** — personal coding instructions and engineering philosophy, symlinked to `~/.copilot/copilot-instructions.md`
+- **`mcp-config.json`** — MCP server definitions: Aspire, Playwright, Context7, WinGet. Deployed as one-time template — add org-specific servers (e.g., Azure DevOps) post-install.
+- **`agents/`** — custom agent definitions directory, symlinked to `~/.copilot/agents/`: `dotnet-developer`, `interviewer`, `react-developer`, `storywriter`, `terraform-developer`
 
 ### Dev Drive
 
@@ -121,15 +125,50 @@ Session-scoped vars set in `files/powershell/profile.ps1`: `SRC_VFDOT`, `SRC_VFC
 
 ## Commands
 
-There is no build or test system — this is a pure configuration and scripting repository. Changes are validated by running the install script on a target machine:
+### Install
+
+Run the full bootstrap (requires admin):
 
 ```pwsh
 .\scripts\Install-Dotfiles.ps1
 ```
 
-To add a new WinGet package, add a `WinGetPackage` resource entry to `.config/configuration.winget`.
+### Validate
 
-To apply only the WinGet Configuration without running the full bootstrap:
+Validate the WinGet Configuration without applying:
+
+```pwsh
+winget configure validate --file .config/configuration.winget
+```
+
+### Test
+
+Run the post-install verification script (checks symlinks, binaries, env vars):
+
+```pwsh
+.\scripts\Test-Dotfiles.ps1
+```
+
+Run Pester tests (config validation, linting, JSON parsing):
+
+```pwsh
+Invoke-Pester .\tests\
+```
+
+### CI
+
+GitHub Actions CI runs on `windows-2025` and validates:
+- WinGet Configuration schema (`winget configure validate`)
+- PSScriptAnalyzer lint on all `.ps1` files
+- Pester tests (config structure, JSON parsing, syntax checks)
+
+CI cannot test symlinks, env vars, or package installs (no Dev Drive or admin on runners).
+
+### Add a Package
+
+Add a `WinGetPackage` resource entry to `.config/configuration.winget`.
+
+### Apply WinGet Config Only
 
 ```pwsh
 winget configure --file .config/configuration.winget --accept-configuration-agreements
