@@ -17,18 +17,23 @@
 .PARAMETER Email
     Email address for Git configuration. Defaults to 'victorfrye@outlook.com'.
 .PARAMETER DevDriveLetter
-    Drive letter to use for the Dev Drive. Defaults to 'W'.
-    Ignored if a volume labeled DEVDRIVE already exists.
+    Drive letter to assign when creating a new Dev Drive. Defaults to 'W'.
+    Ignored if an existing ReFS Dev Drive is detected.
+.PARAMETER DevDriveSizeGB
+    Size in GB for a new Dev Drive VHD. Defaults to 100.
+    Minimum is 50 GB per Microsoft requirements.
 .EXAMPLE
     .\Install-Dotfiles.ps1
 .EXAMPLE
-    .\Install-Dotfiles.ps1 -Name 'Jane Doe' -Email 'jane@example.com' -DevDriveLetter 'D'
+    .\Install-Dotfiles.ps1 -Name 'Jane Doe' -Email 'jane@example.com' -DevDriveLetter 'D' -DevDriveSizeGB 200
 #>
 
 param(
     [string] $Name = 'Victor Frye',
     [string] $Email = 'victorfrye@outlook.com',
-    [string] $DevDriveLetter = 'W'
+    [string] $DevDriveLetter = 'W',
+    [ValidateRange(50, 2048)]
+    [int] $DevDriveSizeGB = 100
 )
 
 $ErrorActionPreference = 'Stop'
@@ -49,7 +54,7 @@ function New-SymlinkIfNeeded {
     if (Test-Path -Path $Target) {
         $item = Get-Item $Target -Force
         if ($item.LinkType -eq 'SymbolicLink' -and $item.Target -eq $Source) {
-            Write-Host "  Symlink already exists: $Target" -ForegroundColor Magenta
+            Write-Host "  Symlink already exists: $Target" -ForegroundColor Gray
             return
         }
         Remove-Item -Path $Target -Force -Recurse
@@ -71,7 +76,7 @@ function Copy-IfNotExists {
     )
 
     if (Test-Path -Path $Target) {
-        Write-Host "  Already exists (skipped): $Target" -ForegroundColor Magenta
+        Write-Host "  Already exists (skipped): $Target" -ForegroundColor Gray
         return
     }
 
@@ -114,15 +119,26 @@ Write-Host 'Done. Git initialized.' -ForegroundColor Magenta
 
 Write-Host 'Initializing Dev Drive...' -ForegroundColor Green
 
-$ExistingDrive = Get-Volume | Where-Object { $_.FileSystemLabel -eq 'DEVDRIVE' } | Select-Object -First 1
+$ScriptDriveLetter = if ($PSScriptRoot) { (Split-Path $PSScriptRoot -Qualifier) -replace ':$', '' } else { $null }
+$ScriptVolume = if ($ScriptDriveLetter) { Get-Volume -DriveLetter $ScriptDriveLetter -ErrorAction SilentlyContinue } else { $null }
 
-if ($ExistingDrive) {
-    $DevDriveLetter = "$($ExistingDrive.DriveLetter):"
-    Write-Host "Skipped. Dev Drive already exists at $DevDriveLetter." -ForegroundColor Magenta
+if ($ScriptVolume -and $ScriptVolume.FileSystemType -eq 'ReFS') {
+    $DevDriveLetter = "$($ScriptDriveLetter):"
+    Write-Host "Detected Dev Drive from script location at $DevDriveLetter." -ForegroundColor Magenta
+} elseif (($RefsVolume = Get-Volume | Where-Object { $_.FileSystemType -eq 'ReFS' } | Select-Object -First 1)) {
+    $DevDriveLetter = "$($RefsVolume.DriveLetter):"
+    Write-Host "Detected existing Dev Drive at $DevDriveLetter." -ForegroundColor Magenta
 } else {
-    Format-Volume -DriveLetter $DevDriveLetter -DevDrive
+    $VhdPath = 'C:\DevDrives\DevDrive.vhdx'
+    New-Item -Path 'C:\DevDrives' -ItemType Directory -Force | Out-Null
+    Write-Host "Creating $DevDriveSizeGB GB Dev Drive VHD at $VhdPath..." -ForegroundColor Green
+    New-VHD -Path $VhdPath -SizeBytes ($DevDriveSizeGB * 1GB) -Dynamic -ErrorAction Stop |
+        Mount-VHD -Passthru |
+        Initialize-Disk -Passthru |
+        New-Partition -DriveLetter $DevDriveLetter -UseMaximumSize |
+        Format-Volume -DevDrive -FileSystem ReFS -NewFileSystemLabel 'DevDrive' -Confirm:$false -ErrorAction Stop
     $DevDriveLetter = "$($DevDriveLetter):"
-    Write-Host "Done. Dev Drive formatted at $DevDriveLetter." -ForegroundColor Magenta
+    Write-Host "Done. Dev Drive created at $DevDriveLetter." -ForegroundColor Magenta
 }
 
 # ---------------------------------------------------------------------------- #
@@ -220,7 +236,7 @@ if (Test-Path (Split-Path $WtLocalState -Parent)) {
         -Source (Join-Path $RepoRoot 'files\terminal\settings.json') `
         -Target (Join-Path $WtLocalState 'settings.json')
 } else {
-    Write-Host '  Skipped Windows Terminal (not yet installed).' -ForegroundColor Yellow
+    Write-Host '  Skipped Windows Terminal (not yet installed).' -ForegroundColor Gray
 }
 
 Write-Host 'Done. Config files deployed.' -ForegroundColor Magenta
