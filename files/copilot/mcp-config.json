@@ -22,18 +22,6 @@
         "@playwright/mcp@latest"
       ]
     },
-    "azdo": {
-      "tools": [
-        "*"
-      ],
-      "type": "local",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@azure-devops/mcp",
-        "<YOUR_ORG>"
-      ]
-    },
     "context7": {
       "type": "http",
       "url": "https://mcp.context7.com/mcp",
@@ -42,6 +30,14 @@
         "query-docs",
         "resolve-library-id"
       ]
+    },
+    "winget": {
+      "type": "stdio",
+      "command": "WindowsPackageManagerMCPServer.exe",
+      "tools": [
+        "*"
+      ],
+      "args": []
     }
   }
 }

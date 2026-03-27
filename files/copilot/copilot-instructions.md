@@ -24,47 +24,9 @@ All work follows the EDJE philosophy: **"Do the right thing, not the right now t
 - **Code reviews:** All changes go through pull requests with meaningful review.
 - **Documentation:** Update docs alongside code changes. Keep READMEs, ADRs, and inline docs current.
 
-**Tools:** PowerShell, VS Code. Cross-platform by default. Prefer canary and prerelease builds to dogfood Microsoft products.
+**Tools:** PowerShell, VS Code, Microsoft Edit (default git editor). Cross-platform by default. Prefer canary and prerelease builds to dogfood Microsoft products.
 
 **Git:** Trunk-based development with short-lived PR branches. Conventional commit format (`feat:`, `fix:`, `chore:`, etc.). Commits must compile, pass linting, and pass tests before pushing. Default to logical, atomic commits and commit often — especially at checkpoints such as completing a feature, fixing a bug, or reaching a stable state.
-
-## Device Repo Map
-
-All repositories are cloned under `$env:REPOS_ROOT` (typically `<DEVDRIVE>\Source\Repos`).
-
-### Personal — GitHub (`victorfrye`)
-
-| Repo | Description |
-|------|-------------|
-| DotCom | Personal website |
-| Dotfiles | Dev environment configuration |
-| MicrosoftGraveyard | OSS project |
-| ShrugMan | OSS project |
-| MockingMirror | OSS project |
-| Counter | OSS project |
-
-### Company — GitHub (`<org>`)
-
-<!-- Replace with your company's GitHub org and repo details -->
-
-| Repo | Description |
-|------|-------------|
-| <!-- Repo name --> | <!-- Description --> |
-
-### Client — Azure DevOps (`<org>`)
-
-<!-- Replace with your active client's Azure DevOps org and repo details -->
-<!-- Shared repos (e.g., Common, DevOps.Common) are cross-repo dependencies within this org -->
-
-| Repo | Description |
-|------|-------------|
-| <!-- Repo name --> | <!-- Description --> |
-
-## Cross-Repo Boundary Rules
-
-- Implementations must only depend on code within the **same client/org**
-- Code from other orgs may be referenced for **patterns only** — never imported or depended upon
-- Shared repos within a client org are valid dependencies for all repos in that org
 
 ## Interview-First Planning (Hard Rule)
 
