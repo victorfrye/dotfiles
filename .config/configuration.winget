@@ -510,3 +510,29 @@ properties:
         SetScript: |
           Install-Module -Name Az -Repository PSGallery -Scope AllUsers -Force -AllowClobber
 
+    - resource: PSDscResources/Script
+      id: pesterModule
+      directives:
+        description: Install Pester PowerShell module
+        securityContext: elevated
+      settings:
+        GetScript: |
+          @{ Result = (Get-Module -Name Pester -ListAvailable | Select-Object -First 1).Version }
+        TestScript: |
+          $null -ne (Get-Module -Name Pester -ListAvailable | Where-Object { $_.Version -ge '5.0.0' })
+        SetScript: |
+          Install-Module -Name Pester -Scope AllUsers -Force -AllowClobber -SkipPublisherCheck
+
+    - resource: PSDscResources/Script
+      id: psScriptAnalyzerModule
+      directives:
+        description: Install PSScriptAnalyzer PowerShell module
+        securityContext: elevated
+      settings:
+        GetScript: |
+          @{ Result = (Get-Module -Name PSScriptAnalyzer -ListAvailable | Select-Object -First 1).Version }
+        TestScript: |
+          $null -ne (Get-Module -Name PSScriptAnalyzer -ListAvailable)
+        SetScript: |
+          Install-Module -Name PSScriptAnalyzer -Scope AllUsers -Force -AllowClobber
+
