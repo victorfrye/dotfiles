@@ -1,38 +1,9 @@
-<div align="center">
-    <img src="https://raw.githubusercontent.com/victorfrye/victorfrye/main/images/windows.svg" alt="Windows" height="64" width="64" />
-    <h1>My Windows Dotfiles</h1>
-    <p>My personal dotfiles to initialize Windows machine configuration</p>
-</div>
+# My Windows Dotfiles
 
-<div align="center">
+Personal dotfiles to bootstrap and configure a Windows development machine
 
+[![CI](https://github.com/victorfrye/dotfiles/actions/workflows/ci.yml/badge.svg)](https://github.com/victorfrye/dotfiles/actions/workflows/ci.yml)
 [![Unlicense license](https://img.shields.io/badge/License-Unlicense-blue.svg)](/LICENSE)
-
-</div>
-
-## Technology Stack
-
-<p align="left">
-    <a href="https://learn.microsoft.com/en-us/powershell/"target="_blank" rel="noreferrer noopener" style="text-decoration: none;">
-        <img src="https://raw.githubusercontent.com/victorfrye/victorfrye/main/images/powershell.svg" width="36" height="36" alt="PowerShell" />
-    </a>
-    <a href="https://git-scm.com/" target="_blank" rel="noreferrer noopener" style="text-decoration: none;">
-        <img src="https://raw.githubusercontent.com/victorfrye/victorfrye/main/images/git.svg" width="36" height="36" alt="Git" />
-    </a>
-    <a href="https://github.com/victorfrye" target="_blank" rel="noreferrer noopener" style="text-decoration: none;">
-        <img src="https://raw.githubusercontent.com/victorfrye/victorfrye/main/images/github.svg" width="36" height="36" alt="GitHub" />
-    </a>
-        <a href="https://www.microsoft.com/en-us/windows/" target="_blank" rel="noreferrer noopener" style="text-decoration: none;">
-        <img src="https://raw.githubusercontent.com/victorfrye/victorfrye/main/images/windows.svg" width="36" height="36" alt="Windows" >
-    </a>
-</p>
-
-My Windows dotfiles are a collection of configuration files and a bootstrap script to initialize a Windows development machine. The primary technologies attributed to this project are:
-
-- **PowerShell**: The scripting language used to bootstrap the machine and configure the shell environment.
-- **WinGet Configuration**: Declarative YAML-based configuration (DSC) for packages, Windows settings, PowerShell modules, and fonts.
-- **GitHub**: The version control platform used to store and serve the dotfiles.
-- **Windows**: The intended operating system for the development environment.
 
 ## Overview
 
