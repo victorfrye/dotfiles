@@ -1,0 +1,544 @@
+# yaml-language-server: $schema=https://aka.ms/configuration-dsc-schema/0.2
+properties:
+  configurationVersion: 0.2.0
+
+  assertions:
+    - resource: Microsoft.Windows.Developer/OsVersion
+      directives:
+        description: Verify minimum OS version (Windows 11 23H2+)
+        allowPrerelease: true
+      settings:
+        MinVersion: "10.0.22631"
+
+  resources:
+    # =========================================================================
+    # Windows Settings
+    # =========================================================================
+    - resource: Microsoft.Windows.Developer/DeveloperMode
+      directives:
+        description: Enable Developer Mode
+        allowPrerelease: true
+        securityContext: elevated
+      settings:
+        Ensure: Present
+
+    - resource: Microsoft.Windows.Developer/WindowsExplorer
+      directives:
+        description: Configure File Explorer defaults
+        allowPrerelease: true
+      settings:
+        FileExtensions: Show
+        HiddenFiles: Show
+
+    - resource: Microsoft.Windows.Developer/EnableLongPathSupport
+      directives:
+        description: Enable Win32 long path support
+        allowPrerelease: true
+        securityContext: elevated
+      settings:
+        Enabled: true
+
+    - resource: Microsoft.Windows.Developer/EnableDarkMode
+      directives:
+        description: Enable system dark mode
+        allowPrerelease: true
+      settings:
+        Ensure: Present
+        RestartExplorer: true
+
+    - resource: Microsoft.Windows.Developer/Taskbar
+      directives:
+        description: Configure taskbar alignment
+        allowPrerelease: true
+      settings:
+        Alignment: Middle
+
+    # =========================================================================
+    # Packages — Developer Tools
+    # =========================================================================
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: git
+      directives:
+        description: Install Git
+        securityContext: elevated
+      settings:
+        id: Git.Git
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install GitHub CLI
+      settings:
+        id: GitHub.cli
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install GitHub Copilot CLI (Prerelease)
+        allowPrerelease: true
+      settings:
+        id: GitHub.Copilot.Prerelease
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Microsoft Edit
+      settings:
+        id: Microsoft.Edit
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Visual Studio Code Insiders
+      settings:
+        id: Microsoft.VisualStudioCode.Insiders
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Biome linter and formatter
+      settings:
+        id: BiomeJS.Biome
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Hugo Extended
+      settings:
+        id: Hugo.Hugo.Extended
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install mkcert for local HTTPS
+      settings:
+        id: FiloSottile.mkcert
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Syft SBOM generator
+      settings:
+        id: Anchore.Syft
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Ubuntu 24.04 LTS (WSL)
+      settings:
+        id: Canonical.Ubuntu.2404
+        source: winget
+
+    # =========================================================================
+    # Packages — .NET Ecosystem
+    # =========================================================================
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install .NET SDK 8.0 (LTS)
+        securityContext: elevated
+      settings:
+        id: Microsoft.DotNet.SDK.8
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install .NET SDK 9.0 (STS)
+        securityContext: elevated
+      settings:
+        id: Microsoft.DotNet.SDK.9
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install .NET SDK 10.0
+        securityContext: elevated
+      settings:
+        id: Microsoft.DotNet.SDK.10
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install .NET SDK 11.0 Preview
+        allowPrerelease: true
+        securityContext: elevated
+      settings:
+        id: Microsoft.DotNet.SDK.Preview
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install ASP.NET Core Runtime 8.0 (LTS)
+        securityContext: elevated
+      settings:
+        id: Microsoft.DotNet.AspNetCore.8
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install ASP.NET Core Runtime 9.0 (STS)
+        securityContext: elevated
+      settings:
+        id: Microsoft.DotNet.AspNetCore.9
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install ASP.NET Core Runtime 10.0
+        securityContext: elevated
+      settings:
+        id: Microsoft.DotNet.AspNetCore.10
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install ASP.NET Core Runtime 11.0 Preview
+        allowPrerelease: true
+        securityContext: elevated
+      settings:
+        id: Microsoft.DotNet.AspNetCore.Preview
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install NuGet CLI
+      settings:
+        id: Microsoft.NuGet
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Aspire CLI (Prerelease)
+        allowPrerelease: true
+      settings:
+        id: Microsoft.Aspire.Prerelease
+        source: winget
+
+    # =========================================================================
+    # Packages — Java
+    # =========================================================================
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Microsoft OpenJDK 17 (LTS)
+        securityContext: elevated
+      settings:
+        id: Microsoft.OpenJDK.17
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Microsoft OpenJDK 21 (LTS)
+        securityContext: elevated
+      settings:
+        id: Microsoft.OpenJDK.21
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Microsoft OpenJDK 25
+        securityContext: elevated
+      settings:
+        id: Microsoft.OpenJDK.25
+        source: winget
+
+    # =========================================================================
+    # Packages — Python & Node
+    # =========================================================================
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install uv (Python package manager)
+      settings:
+        id: astral-sh.uv
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install NVM for Windows
+      settings:
+        id: CoreyButler.NVMforWindows
+        source: winget
+
+    # =========================================================================
+    # Packages — PowerShell
+    # =========================================================================
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install PowerShell (stable)
+        securityContext: elevated
+      settings:
+        id: Microsoft.PowerShell
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install PowerShell Preview
+        allowPrerelease: true
+        securityContext: elevated
+      settings:
+        id: Microsoft.PowerShell.Preview
+        source: winget
+
+    # =========================================================================
+    # Packages — Cloud & Infrastructure
+    # =========================================================================
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Azure CLI
+      settings:
+        id: Microsoft.AzureCLI
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Azure Developer CLI
+      settings:
+        id: Microsoft.Azd
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Azure Functions Core Tools
+      settings:
+        id: Microsoft.Azure.FunctionsCoreTools
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Azure Storage Explorer
+      settings:
+        id: Microsoft.Azure.StorageExplorer
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Terraform
+      settings:
+        id: Hashicorp.Terraform
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install kubectl
+      settings:
+        id: Kubernetes.kubectl
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Helm
+      settings:
+        id: Helm.Helm
+        source: winget
+
+    # =========================================================================
+    # Packages — Containers
+    # =========================================================================
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Docker CLI
+      settings:
+        id: Docker.DockerCLI
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Docker Compose
+      settings:
+        id: Docker.DockerCompose
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Docker Buildx
+      settings:
+        id: Docker.Buildx
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Docker Credential Helper for Windows
+      settings:
+        id: Docker.docker-credential-wincred
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Podman
+      settings:
+        id: RedHat.Podman
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Podman Desktop
+      settings:
+        id: RedHat.Podman-Desktop
+        source: winget
+
+    # =========================================================================
+    # Packages — AI
+    # =========================================================================
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Foundry Local
+      settings:
+        id: Microsoft.FoundryLocal
+        source: winget
+
+    # =========================================================================
+    # Packages — Database
+    # =========================================================================
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install sqlcmd CLI
+      settings:
+        id: Microsoft.Sqlcmd
+        source: winget
+
+    # =========================================================================
+    # Packages — Shell & Terminal
+    # =========================================================================
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Windows Terminal Preview
+        allowPrerelease: true
+      settings:
+        id: Microsoft.WindowsTerminal.Preview
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Oh My Posh
+      settings:
+        id: JanDeDobbeleer.OhMyPosh
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install PowerToys
+      settings:
+        id: Microsoft.PowerToys
+        source: winget
+
+    # =========================================================================
+    # Packages — Browsers
+    # =========================================================================
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Microsoft Edge Beta
+        allowPrerelease: true
+      settings:
+        id: Microsoft.Edge.Beta
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Microsoft Edge Canary
+        allowPrerelease: true
+      settings:
+        id: Microsoft.Edge.Canary
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Mozilla Firefox
+      settings:
+        id: Mozilla.Firefox
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Google Chrome
+      settings:
+        id: Google.Chrome
+        source: winget
+
+    # =========================================================================
+    # Packages — Communication
+    # =========================================================================
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Slack
+      settings:
+        id: SlackTechnologies.Slack
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Discord
+      settings:
+        id: Discord.Discord
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Microsoft Teams
+      settings:
+        id: Microsoft.Teams
+        source: winget
+
+    # =========================================================================
+    # Packages — Other
+    # =========================================================================
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Bing Wallpaper
+      settings:
+        id: Microsoft.BingWallpaper
+        source: winget
+
+    # =========================================================================
+    # PowerShell Modules
+    # =========================================================================
+    - resource: PSDscResources/Script
+      id: poshGitModule
+      dependsOn:
+        - git
+      directives:
+        description: Install posh-git PowerShell module
+        securityContext: elevated
+      settings:
+        GetScript: |
+          @{ Result = (Get-Module -Name posh-git -ListAvailable | Select-Object -First 1).Version }
+        TestScript: |
+          $null -ne (Get-Module -Name posh-git -ListAvailable)
+        SetScript: |
+          Install-Module -Name posh-git -Scope AllUsers -Force -AllowClobber
+
+    - resource: PSDscResources/Script
+      id: azModule
+      directives:
+        description: Install Az PowerShell module
+        securityContext: elevated
+      settings:
+        GetScript: |
+          @{ Result = (Get-Module -Name Az -ListAvailable | Select-Object -First 1).Version }
+        TestScript: |
+          $null -ne (Get-Module -Name Az -ListAvailable)
+        SetScript: |
+          Install-Module -Name Az -Repository PSGallery -Scope AllUsers -Force -AllowClobber
+
+    - resource: PSDscResources/Script
+      id: pesterModule
+      directives:
+        description: Install Pester PowerShell module
+        securityContext: elevated
+      settings:
+        GetScript: |
+          @{ Result = (Get-Module -Name Pester -ListAvailable | Select-Object -First 1).Version }
+        TestScript: |
+          $null -ne (Get-Module -Name Pester -ListAvailable | Where-Object { $_.Version -ge '5.0.0' })
+        SetScript: |
+          Install-Module -Name Pester -Scope AllUsers -Force -AllowClobber -SkipPublisherCheck
+
+    - resource: PSDscResources/Script
+      id: psScriptAnalyzerModule
+      directives:
+        description: Install PSScriptAnalyzer PowerShell module
+        securityContext: elevated
+      settings:
+        GetScript: |
+          @{ Result = (Get-Module -Name PSScriptAnalyzer -ListAvailable | Select-Object -First 1).Version }
+        TestScript: |
+          $null -ne (Get-Module -Name PSScriptAnalyzer -ListAvailable)
+        SetScript: |
+          Install-Module -Name PSScriptAnalyzer -Scope AllUsers -Force -AllowClobber
