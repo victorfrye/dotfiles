@@ -26,6 +26,9 @@ Import-Module posh-git
 # MARK: Aliases
 Set-Alias -Name code -Value code-insiders
 
+function Invoke-DotfilesDoctor { & (Join-Path $env:SRC_VFDOT 'scripts\Test-Dotfiles.ps1') }
+Set-Alias -Name dotdoc -Value Invoke-DotfilesDoctor
+
 # MARK: Navigation — Personal Projects
 function Set-LocationToVictorFryeRepositories { Set-Location $env:REPOS_VF }
 function Set-LocationToVictorFryeDotfiles { Set-Location $env:SRC_VFDOT }

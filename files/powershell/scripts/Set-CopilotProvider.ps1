@@ -127,9 +127,11 @@ function Build-ProviderEntries {
     $entries += [PSCustomObject]@{ Provider = 'GitHub'; Model = $null; BaseUrl = $null; ApiKey = $null }
 
     $litellmBase = [System.Environment]::GetEnvironmentVariable('LITELLM_BASE_URL')
-    $litellmKey = [System.Environment]::GetEnvironmentVariable('LITELLM_API_KEY')
-    foreach ($model in $script:LiteLLMModels) {
-        $entries += [PSCustomObject]@{ Provider = 'LiteLLM'; Model = $model; BaseUrl = $litellmBase; ApiKey = $litellmKey }
+    $litellmKey  = [System.Environment]::GetEnvironmentVariable('LITELLM_API_KEY')
+    if (-not [string]::IsNullOrWhiteSpace($litellmBase)) {
+        foreach ($model in $script:LiteLLMModels) {
+            $entries += [PSCustomObject]@{ Provider = 'LiteLLM'; Model = $model; BaseUrl = $litellmBase; ApiKey = $litellmKey }
+        }
     }
 
     $foundryModels = Get-FoundryLocalModels
