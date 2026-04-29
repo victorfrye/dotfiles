@@ -65,7 +65,18 @@ function Set-NodeVersion {
         Write-Host "$($configured.Count + 1)) Exit" -ForegroundColor DarkGray
 
         Write-Host ''
-        $raw = Read-Host "Enter number (1-$($configured.Count + 1))"
+        Write-Host -NoNewline "Enter number (1-$($configured.Count + 1)) [Esc to cancel]: "
+        $raw = ''
+        while ($true) {
+            $key = [Console]::ReadKey($true)
+            if ($key.Key -eq 'Escape') { Write-Host ''; return }
+            if ($key.Key -eq 'Enter') { Write-Host ''; break }
+            if ($key.Key -eq 'Backspace') {
+                if ($raw.Length -gt 0) { $raw = $raw.Substring(0, $raw.Length - 1); [Console]::Write("`b `b") }
+                continue
+            }
+            if ($key.KeyChar -match '\d') { $raw += $key.KeyChar; [Console]::Write($key.KeyChar) }
+        }
         $idx = 0
         if (-not [int]::TryParse($raw.Trim(), [ref]$idx) -or $idx -lt 1 -or $idx -gt ($configured.Count + 1)) {
             Write-Warning "Invalid selection '$raw'. Aborting."
