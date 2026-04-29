@@ -138,6 +138,30 @@ foreach ($bin in $Binaries) {
 }
 
 # ---------------------------------------------------------------------------- #
+# Fonts
+# ---------------------------------------------------------------------------- #
+Write-Host "`nChecking fonts..." -ForegroundColor Green
+
+$Fonts = @(
+    'CascadiaCode.ttf'
+    'CascadiaCodeItalic.ttf'
+    'CascadiaMono.ttf'
+    'CascadiaMonoItalic.ttf'
+    'CascadiaCodePL.ttf'
+    'CascadiaCodePLItalic.ttf'
+    'CascadiaMonoPL.ttf'
+    'CascadiaMonoPLItalic.ttf'
+    'CascadiaCodeNF.ttf'
+    'CascadiaCodeNFItalic.ttf'
+    'CascadiaMonoNF.ttf'
+    'CascadiaMonoNFItalic.ttf'
+)
+
+foreach ($font in $Fonts) {
+    Test-Check "Font: $font" { Test-Path (Join-Path $env:SystemRoot "Fonts\$font") }
+}
+
+# ---------------------------------------------------------------------------- #
 # Config file validity
 # ---------------------------------------------------------------------------- #
 Write-Host "`nChecking config file validity..." -ForegroundColor Green
