@@ -5,12 +5,13 @@
     GitHub Copilot provider and model management.
 .DESCRIPTION
     Provides interactive and parameterized switching between GitHub Copilot
-    providers: GitHub-hosted (default), LiteLLM BYOK proxy, and Azure AI
-    Foundry Local. Sets the COPILOT_PROVIDER_BASE_URL, COPILOT_PROVIDER_API_KEY,
+    providers: GitHub-hosted (default), LiteLLM BYOK proxy, Azure AI Foundry
+    Local, and Ollama. Sets the COPILOT_PROVIDER_BASE_URL, COPILOT_PROVIDER_API_KEY,
     and COPILOT_MODEL environment variables consumed by the Copilot CLI.
 
     LiteLLM requires LITELLM_BASE_URL and LITELLM_API_KEY environment variables.
     FoundryLocal requires the 'foundry' CLI and a running local inference service.
+    Ollama requires the 'ollama' CLI with at least one model pulled locally.
 #>
 
 $script:LiteLLMModels = @(
