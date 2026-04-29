@@ -404,6 +404,13 @@ properties:
         id: Microsoft.FoundryLocal
         source: winget
 
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Ollama
+      settings:
+        id: Ollama.Ollama
+        source: winget
+
     # =========================================================================
     # Packages — Database
     # =========================================================================

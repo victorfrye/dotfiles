@@ -297,3 +297,46 @@ Describe 'Get-CopilotProvider' {
         $output | Should -Match 'LiteLLM'
     }
 }
+
+# ---------------------------------------------------------------------------- #
+# Get-OllamaModels
+# ---------------------------------------------------------------------------- #
+
+Describe 'Get-OllamaModels' {
+    It 'returns an array (possibly empty) without throwing' {
+        { Get-OllamaModels } | Should -Not -Throw
+    }
+
+    It 'returns an empty array when ollama is not installed' {
+        Mock Get-Command { $null } -ParameterFilter { $Name -eq 'ollama' } -ModuleName ''
+        $result = Get-OllamaModels
+        $result.Count | Should -Be 0
+    }
+}
+
+# ---------------------------------------------------------------------------- #
+# Build-ProviderEntries (Ollama)
+# ---------------------------------------------------------------------------- #
+
+Describe 'Build-ProviderEntries Ollama' {
+    It 'includes Ollama entries when ollama returns models' {
+        Mock Get-OllamaModels { return @('llama3.2:latest', 'mistral:latest') }
+        $entries = Build-ProviderEntries
+        $ollama  = $entries | Where-Object { $_.Provider -eq 'Ollama' }
+        $ollama | Should -Not -BeNullOrEmpty
+    }
+
+    It 'sets BaseUrl to localhost:11434 for Ollama entries' {
+        Mock Get-OllamaModels { return @('llama3.2:latest') }
+        $entries = Build-ProviderEntries
+        $entry   = $entries | Where-Object { $_.Provider -eq 'Ollama' } | Select-Object -First 1
+        $entry.BaseUrl | Should -Be 'http://localhost:11434/v1'
+    }
+
+    It 'does not include Ollama entries when no models are available' {
+        Mock Get-OllamaModels { return @() }
+        $entries = Build-ProviderEntries
+        $ollama  = $entries | Where-Object { $_.Provider -eq 'Ollama' }
+        $ollama | Should -BeNullOrEmpty
+    }
+}

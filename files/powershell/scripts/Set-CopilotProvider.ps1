@@ -108,7 +108,7 @@ function Reset-CopilotProvider {
     param()
 
     foreach ($var in @('COPILOT_PROVIDER_BASE_URL', 'COPILOT_PROVIDER_API_KEY', 'COPILOT_MODEL',
-                       'COPILOT_PROVIDER_MAX_PROMPT_TOKENS', 'COPILOT_PROVIDER_MAX_OUTPUT_TOKENS')) {
+                       'COPILOT_PROVIDER_WIRE_API', 'COPILOT_PROVIDER_MAX_PROMPT_TOKENS', 'COPILOT_PROVIDER_MAX_OUTPUT_TOKENS')) {
         [System.Environment]::SetEnvironmentVariable($var, $null, 'Process')
     }
     Write-Host 'GitHub Copilot provider restored (BYOK variables cleared).' -ForegroundColor Green
@@ -120,8 +120,8 @@ function Build-ProviderEntries {
         Builds the flat list of selectable provider/model entries.
     .DESCRIPTION
         Always includes the GitHub entry first, then LiteLLM models (when
-        LITELLM_BASE_URL is configured), then any models loaded in a running
-        FoundryLocal service.
+        LITELLM_BASE_URL is configured), then cached FoundryLocal models,
+        then locally available Ollama models.
     #>
     [CmdletBinding()]
     param()
@@ -140,6 +140,11 @@ function Build-ProviderEntries {
     $foundryModels = Get-FoundryLocalModels
     foreach ($model in $foundryModels) {
         $entries += [PSCustomObject]@{ Provider = 'FoundryLocal'; Model = $model.ModelId; Label = $model.Alias; BaseUrl = $null; ApiKey = $null }
+    }
+
+    $ollamaModels = Get-OllamaModels
+    foreach ($model in $ollamaModels) {
+        $entries += [PSCustomObject]@{ Provider = 'Ollama'; Model = $model; Label = $null; BaseUrl = 'http://localhost:11434/v1'; ApiKey = $null }
     }
 
     return $entries
@@ -210,6 +215,27 @@ function Get-FoundryLocalEndpoint {
     return $null
 }
 
+function Get-OllamaModels {
+    <#
+    .SYNOPSIS
+        Returns models available in the local Ollama installation.
+    .DESCRIPTION
+        Parses 'ollama list' to enumerate locally pulled models. Returns an empty
+        array silently if Ollama is not installed or no models are present.
+    #>
+    [CmdletBinding()]
+    param()
+
+    try {
+        $ollamaCmd = Get-Command ollama -ErrorAction Stop
+        if (-not $ollamaCmd) { return @() }
+        $lines = ollama list 2>&1 | Select-Object -Skip 1 | Where-Object { $_ -match '\S' }
+        return $lines | ForEach-Object { ($_ -split '\s+')[0] } | Where-Object { $_ }
+    } catch {
+        return @()
+    }
+}
+
 function Get-CopilotProvider {
     <#
     .SYNOPSIS
@@ -239,7 +265,9 @@ function Get-CopilotProvider {
     } else {
         $provider = if (-not [string]::IsNullOrWhiteSpace($baseUrl)) {
             $litellmBase = [System.Environment]::GetEnvironmentVariable('LITELLM_BASE_URL')
-            if ($baseUrl -eq $litellmBase) { 'LiteLLM' } else { 'FoundryLocal' }
+            if ($baseUrl -eq $litellmBase) { 'LiteLLM' }
+            elseif ($baseUrl -like '*11434*') { 'Ollama' }
+            else { 'FoundryLocal' }
         } else { 'GitHub (custom model)' }
 
         Write-Host "  Provider  : $provider" -ForegroundColor Green
@@ -250,6 +278,9 @@ function Get-CopilotProvider {
         }
         if (-not [string]::IsNullOrWhiteSpace($apiKey)) {
             Write-Host "  API Key   : $(Get-MaskedKey $apiKey)" -ForegroundColor Green
+        }
+        if (-not [string]::IsNullOrWhiteSpace($env:COPILOT_PROVIDER_WIRE_API)) {
+            Write-Host "  Wire API  : $env:COPILOT_PROVIDER_WIRE_API" -ForegroundColor Green
         }
     }
 
@@ -273,7 +304,7 @@ function Set-CopilotEnvironmentVariables {
     )
 
     $byokVars = @('COPILOT_PROVIDER_BASE_URL', 'COPILOT_PROVIDER_API_KEY', 'COPILOT_MODEL',
-                  'COPILOT_PROVIDER_MAX_PROMPT_TOKENS', 'COPILOT_PROVIDER_MAX_OUTPUT_TOKENS')
+                  'COPILOT_PROVIDER_WIRE_API', 'COPILOT_PROVIDER_MAX_PROMPT_TOKENS', 'COPILOT_PROVIDER_MAX_OUTPUT_TOKENS')
 
     if ($Entry.Provider -eq 'GitHub') {
         foreach ($var in $byokVars) {
@@ -291,17 +322,23 @@ function Set-CopilotEnvironmentVariables {
         $Entry.BaseUrl = "$endpoint/v1"
 
         try {
-            $models   = Invoke-RestMethod -Uri "$endpoint/v1/models" -ErrorAction Stop
+            $models    = Invoke-RestMethod -Uri "$endpoint/v1/models" -ErrorAction Stop
             $modelInfo = $models.data | Where-Object { $_.id -eq $Entry.Model } | Select-Object -First 1
             if ($modelInfo) {
-                $env:COPILOT_PROVIDER_MAX_PROMPT_TOKENS  = [string]$modelInfo.maxInputTokens
-                $env:COPILOT_PROVIDER_MAX_OUTPUT_TOKENS  = [string]$modelInfo.maxOutputTokens
+                $env:COPILOT_PROVIDER_MAX_PROMPT_TOKENS = [string]$modelInfo.maxInputTokens
+                $env:COPILOT_PROVIDER_MAX_OUTPUT_TOKENS = [string]$modelInfo.maxOutputTokens
             }
         } catch {
             [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_PROMPT_TOKENS', $null, 'Process')
             [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_OUTPUT_TOKENS', $null, 'Process')
         }
+        [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_WIRE_API', $null, 'Process')
+    } elseif ($Entry.Provider -eq 'Ollama') {
+        $env:COPILOT_PROVIDER_WIRE_API = 'responses'
+        [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_PROMPT_TOKENS', $null, 'Process')
+        [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_OUTPUT_TOKENS', $null, 'Process')
     } else {
+        [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_WIRE_API', $null, 'Process')
         [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_PROMPT_TOKENS', $null, 'Process')
         [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_OUTPUT_TOKENS', $null, 'Process')
     }
@@ -318,6 +355,9 @@ function Set-CopilotEnvironmentVariables {
     if ($Entry.Provider -eq 'LiteLLM') {
         $masked = Get-MaskedKey $Entry.ApiKey
         Write-Host "  COPILOT_PROVIDER_API_KEY   = $masked" -ForegroundColor Green
+    }
+    if ($Entry.Provider -eq 'Ollama') {
+        Write-Host "  COPILOT_PROVIDER_WIRE_API  = $env:COPILOT_PROVIDER_WIRE_API" -ForegroundColor Green
     }
     if ($env:COPILOT_PROVIDER_MAX_PROMPT_TOKENS) {
         Write-Host "  COPILOT_PROVIDER_MAX_PROMPT_TOKENS  = $env:COPILOT_PROVIDER_MAX_PROMPT_TOKENS" -ForegroundColor Green

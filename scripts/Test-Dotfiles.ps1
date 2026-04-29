@@ -128,6 +128,8 @@ $Binaries = @(
     'node'
     'python'
     'java'
+    'foundry'
+    'ollama'
 )
 
 foreach ($bin in $Binaries) {
