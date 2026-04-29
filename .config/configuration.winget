@@ -134,18 +134,11 @@ properties:
     # =========================================================================
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       directives:
-        description: Install .NET SDK 8.0 (LTS)
+        description: Install .NET SDK 11.0 Preview
+        allowPrerelease: true
         securityContext: elevated
       settings:
-        id: Microsoft.DotNet.SDK.8
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install .NET SDK 9.0 (STS)
-        securityContext: elevated
-      settings:
-        id: Microsoft.DotNet.SDK.9
+        id: Microsoft.DotNet.SDK.Preview
         source: winget
 
     - resource: Microsoft.WinGet.DSC/WinGetPackage
@@ -158,27 +151,27 @@ properties:
 
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       directives:
-        description: Install .NET SDK 11.0 Preview
+        description: Install .NET SDK 9.0 (STS)
+        securityContext: elevated
+      settings:
+        id: Microsoft.DotNet.SDK.9
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install .NET SDK 8.0 (LTS)
+        securityContext: elevated
+      settings:
+        id: Microsoft.DotNet.SDK.8
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install ASP.NET Core Runtime 11.0 Preview
         allowPrerelease: true
         securityContext: elevated
       settings:
-        id: Microsoft.DotNet.SDK.Preview
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install ASP.NET Core Runtime 8.0 (LTS)
-        securityContext: elevated
-      settings:
-        id: Microsoft.DotNet.AspNetCore.8
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install ASP.NET Core Runtime 9.0 (STS)
-        securityContext: elevated
-      settings:
-        id: Microsoft.DotNet.AspNetCore.9
+        id: Microsoft.DotNet.AspNetCore.Preview
         source: winget
 
     - resource: Microsoft.WinGet.DSC/WinGetPackage
@@ -191,11 +184,18 @@ properties:
 
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       directives:
-        description: Install ASP.NET Core Runtime 11.0 Preview
-        allowPrerelease: true
+        description: Install ASP.NET Core Runtime 9.0 (STS)
         securityContext: elevated
       settings:
-        id: Microsoft.DotNet.AspNetCore.Preview
+        id: Microsoft.DotNet.AspNetCore.9
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install ASP.NET Core Runtime 8.0 (LTS)
+        securityContext: elevated
+      settings:
+        id: Microsoft.DotNet.AspNetCore.8
         source: winget
 
     - resource: Microsoft.WinGet.DSC/WinGetPackage
@@ -218,10 +218,10 @@ properties:
     # =========================================================================
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       directives:
-        description: Install Microsoft OpenJDK 17 (LTS)
+        description: Install Microsoft OpenJDK 25
         securityContext: elevated
       settings:
-        id: Microsoft.OpenJDK.17
+        id: Microsoft.OpenJDK.25
         source: winget
 
     - resource: Microsoft.WinGet.DSC/WinGetPackage
@@ -234,10 +234,10 @@ properties:
 
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       directives:
-        description: Install Microsoft OpenJDK 25
+        description: Install Microsoft OpenJDK 17 (LTS)
         securityContext: elevated
       settings:
-        id: Microsoft.OpenJDK.25
+        id: Microsoft.OpenJDK.17
         source: winget
 
     # =========================================================================
@@ -255,10 +255,10 @@ properties:
     # =========================================================================
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       directives:
-        description: Install Node.js 20 (LTS)
+        description: Install Node.js 24 (LTS)
         securityContext: elevated
       settings:
-        id: OpenJS.NodeJS.20
+        id: OpenJS.NodeJS.LTS
         source: winget
 
     - resource: Microsoft.WinGet.DSC/WinGetPackage
@@ -271,10 +271,10 @@ properties:
 
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       directives:
-        description: Install Node.js 24 (LTS)
+        description: Install Node.js 20 (LTS)
         securityContext: elevated
       settings:
-        id: OpenJS.NodeJS.LTS
+        id: OpenJS.NodeJS.20
         source: winget
 
     # =========================================================================
