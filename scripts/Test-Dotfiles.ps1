@@ -130,6 +130,7 @@ $Binaries = @(
     'java'
     'foundry'
     'ollama'
+    'copilot'
 )
 
 foreach ($bin in $Binaries) {
