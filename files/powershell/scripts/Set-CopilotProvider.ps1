@@ -136,7 +136,7 @@ function Build-ProviderEntries {
 
     $foundryModels = Get-FoundryLocalModels
     foreach ($model in $foundryModels) {
-        $entries += [PSCustomObject]@{ Provider = 'FoundryLocal'; Model = $model.Id; BaseUrl = $model.Endpoint; ApiKey = $null }
+        $entries += [PSCustomObject]@{ Provider = 'FoundryLocal'; Model = $model.Alias; BaseUrl = $null; ApiKey = $null }
     }
 
     return $entries
@@ -145,28 +145,62 @@ function Build-ProviderEntries {
 function Get-FoundryLocalModels {
     <#
     .SYNOPSIS
-        Returns models currently loaded in the running FoundryLocal service.
+        Returns models available in the local FoundryLocal cache.
     .DESCRIPTION
-        Queries 'foundry service status' to discover the local endpoint, then
-        calls /foundry/list to enumerate loaded models. Returns an empty array
-        silently if the service is not running or unreachable.
+        Parses 'foundry cache list' to enumerate locally downloaded models.
+        Returns results without requiring the service to be running — the
+        service is started on demand when a model is selected.
     #>
     [CmdletBinding()]
     param()
 
     try {
-        $statusOutput = foundry service status 2>&1 | Out-String
-        $endpointMatch = [regex]::Match($statusOutput, 'https?://[^\s]+')
-        if (-not $endpointMatch.Success) { return @() }
-
-        $endpoint = $endpointMatch.Value.TrimEnd('/')
-        $response = Invoke-RestMethod -Uri "$endpoint/foundry/list" -Method Get -ErrorAction Stop
-        return $response | ForEach-Object {
-            [PSCustomObject]@{ Id = $_.modelId; Endpoint = "$endpoint/v1" }
+        $lines = foundry cache list 2>&1 | Where-Object { $_ -match '\S' }
+        $models = @()
+        foreach ($line in $lines) {
+            $clean = $line -replace '[^\x20-\x7E]', '' # strip non-ASCII (emoji)
+            if ($clean -match '^\s+(\S+)\s{2,}(\S+)\s*$') {
+                $models += [PSCustomObject]@{ Alias = $Matches[1]; ModelId = $Matches[2] }
+            }
         }
+        return $models
     } catch {
         return @()
     }
+}
+
+function Get-FoundryLocalEndpoint {
+    <#
+    .SYNOPSIS
+        Returns the running FoundryLocal service endpoint, starting it if needed.
+    .DESCRIPTION
+        Checks 'foundry service status' for a running endpoint. If the service is
+        not running, calls 'foundry service start' and waits up to 30 seconds for
+        it to become available. Returns $null if startup fails.
+    #>
+    [CmdletBinding()]
+    param()
+
+    $statusOutput = foundry service status 2>&1 | Out-String
+    $match = [regex]::Match($statusOutput, 'https?://[^\s]+')
+    if ($match.Success) { return $match.Value.TrimEnd('/') }
+
+    Write-Host '  FoundryLocal service is not running. Starting...' -ForegroundColor Yellow
+    foundry service start 2>&1 | Out-Null
+
+    $deadline = (Get-Date).AddSeconds(30)
+    while ((Get-Date) -lt $deadline) {
+        Start-Sleep -Seconds 2
+        $statusOutput = foundry service status 2>&1 | Out-String
+        $match = [regex]::Match($statusOutput, 'https?://[^\s]+')
+        if ($match.Success) {
+            Write-Host '  FoundryLocal service started.' -ForegroundColor Green
+            return $match.Value.TrimEnd('/')
+        }
+    }
+
+    Write-Warning 'FoundryLocal service did not start within 30 seconds.'
+    return $null
 }
 
 function Get-CopilotProvider {
@@ -241,6 +275,12 @@ function Set-CopilotEnvironmentVariables {
         Write-Host 'Applying: GitHub Copilot' -ForegroundColor Cyan
         Write-Host 'BYOK variables cleared. GitHub-hosted routing will be used.' -ForegroundColor Green
         return
+    }
+
+    if ($Entry.Provider -eq 'FoundryLocal') {
+        $endpoint = Get-FoundryLocalEndpoint
+        if (-not $endpoint) { return }
+        $Entry.BaseUrl = "$endpoint/v1"
     }
 
     $env:COPILOT_PROVIDER_BASE_URL = $Entry.BaseUrl
