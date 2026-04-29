@@ -37,12 +37,8 @@ Describe 'PowerShell scripts' {
         'scripts\Test-Dotfiles.ps1'
         'files\powershell\profile.ps1'
         'files\powershell\scripts\copilot.ps1'
-        'files\powershell\scripts\docker.ps1'
-        'files\powershell\scripts\git.ps1'
         'files\powershell\scripts\java.ps1'
-        'files\powershell\scripts\navigation.ps1'
         'files\powershell\scripts\node.ps1'
-        'files\powershell\scripts\solution-context.ps1'
         'files\powershell\scripts\utilities.ps1'
     )
 
@@ -61,12 +57,8 @@ Describe 'PSScriptAnalyzer' {
         'scripts\Test-Dotfiles.ps1'
         'files\powershell\profile.ps1'
         'files\powershell\scripts\copilot.ps1'
-        'files\powershell\scripts\docker.ps1'
-        'files\powershell\scripts\git.ps1'
         'files\powershell\scripts\java.ps1'
-        'files\powershell\scripts\navigation.ps1'
         'files\powershell\scripts\node.ps1'
-        'files\powershell\scripts\solution-context.ps1'
         'files\powershell\scripts\utilities.ps1'
     )
 
@@ -89,12 +81,8 @@ Describe 'Repository structure' {
         'files\powershell\profile.ps1'
         'files\powershell\yfnd.omp.json'
         'files\powershell\scripts\copilot.ps1'
-        'files\powershell\scripts\docker.ps1'
-        'files\powershell\scripts\git.ps1'
         'files\powershell\scripts\java.ps1'
-        'files\powershell\scripts\navigation.ps1'
         'files\powershell\scripts\node.ps1'
-        'files\powershell\scripts\solution-context.ps1'
         'files\powershell\scripts\utilities.ps1'
         'files\az\config.json'
         'files\copilot\config.json'
