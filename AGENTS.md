@@ -118,10 +118,7 @@ Set at Machine scope by `Install-Dotfiles.ps1`:
 | `JDK_21_HOME` | Microsoft OpenJDK 21 path |
 | `JDK_25_HOME` | Microsoft OpenJDK 25 path |
 | `JAVA_HOME` | `%JDK_25_HOME%` (default) |
-| `NODE_20_HOME` | Node.js 20 install path |
-| `NODE_22_HOME` | Node.js 22 install path |
-| `NODE_24_HOME` | Node.js 24 (LTS) install path |
-| `NODE_HOME` | `%NODE_24_HOME%` (default) |
+| `NODE_HOME` | `%ProgramFiles%\nodejs` |
 
 
 Session-scoped vars set in `files/powershell/profile.ps1`: `SRC_VFDOT`, `SRC_VFCOM`, `SRC_VFMSG`, `SRC_VFMIR`, `SRC_VFSHG`.
@@ -139,7 +136,7 @@ Session-scoped vars set in `files/powershell/profile.ps1`: `SRC_VFDOT`, `SRC_VFC
 | `git.ps1` | — | `Reset-AllRepositories`, `Get-AllRepositories`, `Clear-RepositoryBranches`. |
 | `java.ps1` | `sjv`, `rsjv` | `Set-JavaVersion` — interactive JDK menu or `-Version` param (11/17/21/25). Updates `JAVA_HOME`. |
 | `navigation.ps1` | `slvf`, `slcom`, `slmsg`, `slmir`, `slshg`, `sacom`, `samsg`, `samir`, `sashg` | Quick `cd` and `dotnet run` shortcuts for personal repos. |
-| `node.ps1` | `snv`, `rsnv` | `Set-NodeVersion` — interactive Node.js menu or `-Version` param (20/22/24). Updates `NODE_HOME` and `PATH`. Reads `NODE_20_HOME`, `NODE_22_HOME`, `NODE_24_HOME` from Machine env (set by `Install-Dotfiles.ps1`). |
+| `Set-NodeVersion.ps1` | `snv`, `rsnv` | `Set-NodeVersion` — interactive Node.js menu or `-Version` param (20/22/24). Updates `NODE_HOME` and `PATH`. Reads `NODE_X_HOME` vars if manually configured. |
 | `solution-context.ps1` | `clctx` | `Initialize-SolutionContext` (sets ARM_* env vars), `Clear-SolutionContext`. |
 | `utilities.ps1` | `cthash`, `code` | `ConvertTo-Sha256Hash`, `Get-Path`, `code` → `code-insiders`. |
 

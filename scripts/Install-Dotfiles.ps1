@@ -271,13 +271,10 @@ foreach ($ver in @(17, 21, 25)) {
 }
 [System.Environment]::SetEnvironmentVariable('JAVA_HOME', "%JDK_25_HOME%", 'Machine')
 
-foreach ($ver in @(20, 22, 24)) {
-    $nodeDir = Get-ChildItem -Path $env:ProgramFiles -Filter "*node*$ver*" -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($nodeDir) {
-        [System.Environment]::SetEnvironmentVariable("NODE_${ver}_HOME", $nodeDir.FullName, 'Machine')
-    }
+$nodejsPath = Join-Path $env:ProgramFiles 'nodejs'
+if (Test-Path $nodejsPath) {
+    [System.Environment]::SetEnvironmentVariable('NODE_HOME', $nodejsPath, 'Machine')
 }
-[System.Environment]::SetEnvironmentVariable('NODE_HOME', '%NODE_24_HOME%', 'Machine')
 
 Write-Host 'Done. Environment variables set.' -ForegroundColor Magenta
 
