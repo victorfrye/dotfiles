@@ -273,6 +273,14 @@ foreach ($ver in @(17, 21, 25)) {
 
 $nodejsPath = Join-Path $env:ProgramFiles 'nodejs'
 if (Test-Path $nodejsPath) {
+    $nodeExe = Join-Path $nodejsPath 'node.exe'
+    if (Test-Path $nodeExe) {
+        $nodeVersion = & $nodeExe --version 2>$null
+        if ($nodeVersion -match 'v(\d+)\.') {
+            $nodeMajor = [int]$Matches[1]
+            [System.Environment]::SetEnvironmentVariable("NODE_${nodeMajor}_HOME", $nodejsPath, 'Machine')
+        }
+    }
     [System.Environment]::SetEnvironmentVariable('NODE_HOME', $nodejsPath, 'Machine')
 }
 
