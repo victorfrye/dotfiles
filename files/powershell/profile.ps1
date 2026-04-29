@@ -34,7 +34,8 @@ function Set-LocationToMicrosoftGraveyard { Set-Location $env:SRC_VFMSG }
 function Set-LocationToMockingMirror { Set-Location $env:SRC_VFMIR }
 function Set-LocationToShrugMan { Set-Location $env:SRC_VFSHG }
 
-Set-Alias -Name slvf -Value Set-LocationToVictorFryeRepositories
+Set-Alias -Name slvf  -Value Set-LocationToVictorFryeRepositories
+Set-Alias -Name sldot -Value Set-LocationToVictorFryeDotfiles
 Set-Alias -Name slcom -Value Set-LocationToVictorFryeDotCom
 Set-Alias -Name slmsg -Value Set-LocationToMicrosoftGraveyard
 Set-Alias -Name slmir -Value Set-LocationToMockingMirror
