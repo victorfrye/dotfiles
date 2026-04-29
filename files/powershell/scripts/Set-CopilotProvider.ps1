@@ -169,6 +169,52 @@ function Get-FoundryLocalModels {
     }
 }
 
+function Get-CopilotProvider {
+    <#
+    .SYNOPSIS
+        Displays the currently active GitHub Copilot provider and model.
+    .DESCRIPTION
+        Reads COPILOT_PROVIDER_BASE_URL, COPILOT_PROVIDER_API_KEY, and
+        COPILOT_MODEL from the current session and outputs a formatted summary.
+        When no BYOK variables are set, reports GitHub-hosted as the active provider.
+    .EXAMPLE
+        Get-CopilotProvider
+    #>
+    [CmdletBinding()]
+    param()
+
+    $baseUrl = $env:COPILOT_PROVIDER_BASE_URL
+    $apiKey  = $env:COPILOT_PROVIDER_API_KEY
+    $model   = $env:COPILOT_MODEL
+
+    Write-Host ''
+    Write-Host ('─' * 70) -ForegroundColor DarkCyan
+    Write-Host 'GitHub Copilot — Active Provider' -ForegroundColor Cyan
+    Write-Host ('─' * 70) -ForegroundColor DarkCyan
+
+    if ([string]::IsNullOrWhiteSpace($baseUrl) -and [string]::IsNullOrWhiteSpace($model)) {
+        Write-Host '  Provider  : GitHub (default)' -ForegroundColor Green
+        Write-Host '  Model     : (GitHub-routed)' -ForegroundColor Green
+    } else {
+        $provider = if (-not [string]::IsNullOrWhiteSpace($baseUrl)) {
+            $litellmBase = [System.Environment]::GetEnvironmentVariable('LITELLM_BASE_URL')
+            if ($baseUrl -eq $litellmBase) { 'LiteLLM' } else { 'FoundryLocal' }
+        } else { 'GitHub (custom model)' }
+
+        Write-Host "  Provider  : $provider" -ForegroundColor Green
+        Write-Host "  Model     : $model" -ForegroundColor Green
+
+        if (-not [string]::IsNullOrWhiteSpace($baseUrl)) {
+            Write-Host "  Base URL  : $baseUrl" -ForegroundColor Green
+        }
+        if (-not [string]::IsNullOrWhiteSpace($apiKey)) {
+            Write-Host "  API Key   : $(Get-MaskedKey $apiKey)" -ForegroundColor Green
+        }
+    }
+
+    Write-Host ''
+}
+
 function Set-CopilotEnvironmentVariables {
     <#
     .SYNOPSIS
@@ -234,5 +280,6 @@ function Get-MaskedKey {
     return ($Key.Substring(0, 4) + ('*' * ($Key.Length - 8)) + $Key.Substring($Key.Length - 4))
 }
 
-Set-Alias -Name scp -Value Set-CopilotProvider
+Set-Alias -Name scp  -Value Set-CopilotProvider
 Set-Alias -Name rscp -Value Reset-CopilotProvider
+Set-Alias -Name gcp  -Value Get-CopilotProvider

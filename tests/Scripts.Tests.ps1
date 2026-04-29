@@ -255,3 +255,45 @@ Describe 'Build-ProviderEntries' {
         $litellm.Count | Should -Be $script:LiteLLMModels.Count
     }
 }
+
+# ---------------------------------------------------------------------------- #
+# Get-CopilotProvider
+# ---------------------------------------------------------------------------- #
+
+Describe 'Get-CopilotProvider' {
+    BeforeEach {
+        $env:COPILOT_PROVIDER_BASE_URL = $null
+        $env:COPILOT_PROVIDER_API_KEY  = $null
+        $env:COPILOT_MODEL             = $null
+    }
+
+    AfterEach {
+        $env:COPILOT_PROVIDER_BASE_URL = $null
+        $env:COPILOT_PROVIDER_API_KEY  = $null
+        $env:COPILOT_MODEL             = $null
+    }
+
+    It 'runs without error when no BYOK vars are set' {
+        { Get-CopilotProvider } | Should -Not -Throw
+    }
+
+    It 'runs without error when BYOK vars are set' {
+        $env:COPILOT_PROVIDER_BASE_URL = 'https://litellm.example.com'
+        $env:COPILOT_PROVIDER_API_KEY  = 'sk-testkey12345678'
+        $env:COPILOT_MODEL             = 'claude-sonnet-4.6'
+        { Get-CopilotProvider } | Should -Not -Throw
+    }
+
+    It 'reports GitHub provider when no vars are set' {
+        $output = Get-CopilotProvider *>&1 | Out-String
+        $output | Should -Match 'GitHub'
+    }
+
+    It 'reports LiteLLM provider when BYOK URL matches LITELLM_BASE_URL' {
+        $env:LITELLM_BASE_URL          = 'https://litellm.example.com'
+        $env:COPILOT_PROVIDER_BASE_URL = 'https://litellm.example.com'
+        $env:COPILOT_MODEL             = 'claude-sonnet-4.6'
+        $output = Get-CopilotProvider *>&1 | Out-String
+        $output | Should -Match 'LiteLLM'
+    }
+}
