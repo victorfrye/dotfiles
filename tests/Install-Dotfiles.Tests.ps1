@@ -36,10 +36,11 @@ Describe 'PowerShell scripts' {
         'scripts\Install-Dotfiles.ps1'
         'scripts\Test-Dotfiles.ps1'
         'files\powershell\profile.ps1'
-        'files\powershell\scripts\copilot.ps1'
-        'files\powershell\scripts\java.ps1'
-        'files\powershell\scripts\node.ps1'
-        'files\powershell\scripts\utilities.ps1'
+        'files\powershell\scripts\ConvertTo-Sha256Hash.ps1'
+        'files\powershell\scripts\Get-Path.ps1'
+        'files\powershell\scripts\Set-CopilotProvider.ps1'
+        'files\powershell\scripts\Set-JavaVersion.ps1'
+        'files\powershell\scripts\Set-NodeVersion.ps1'
     )
 
     It 'has valid syntax in <_>' -ForEach $psFiles {
@@ -56,10 +57,11 @@ Describe 'PSScriptAnalyzer' {
         'scripts\Install-Dotfiles.ps1'
         'scripts\Test-Dotfiles.ps1'
         'files\powershell\profile.ps1'
-        'files\powershell\scripts\copilot.ps1'
-        'files\powershell\scripts\java.ps1'
-        'files\powershell\scripts\node.ps1'
-        'files\powershell\scripts\utilities.ps1'
+        'files\powershell\scripts\ConvertTo-Sha256Hash.ps1'
+        'files\powershell\scripts\Get-Path.ps1'
+        'files\powershell\scripts\Set-CopilotProvider.ps1'
+        'files\powershell\scripts\Set-JavaVersion.ps1'
+        'files\powershell\scripts\Set-NodeVersion.ps1'
     )
 
     It 'passes lint for <_>' -ForEach $psFiles {
@@ -80,10 +82,11 @@ Describe 'Repository structure' {
         'scripts\Test-Dotfiles.ps1'
         'files\powershell\profile.ps1'
         'files\powershell\yfnd.omp.json'
-        'files\powershell\scripts\copilot.ps1'
-        'files\powershell\scripts\java.ps1'
-        'files\powershell\scripts\node.ps1'
-        'files\powershell\scripts\utilities.ps1'
+        'files\powershell\scripts\ConvertTo-Sha256Hash.ps1'
+        'files\powershell\scripts\Get-Path.ps1'
+        'files\powershell\scripts\Set-CopilotProvider.ps1'
+        'files\powershell\scripts\Set-JavaVersion.ps1'
+        'files\powershell\scripts\Set-NodeVersion.ps1'
         'files\az\config.json'
         'files\copilot\config.json'
         'files\copilot\copilot-instructions.md'
