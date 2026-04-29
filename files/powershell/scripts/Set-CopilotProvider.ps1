@@ -346,8 +346,22 @@ function Set-CopilotEnvironmentVariables {
         [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_WIRE_API', $null, 'Process')
     } elseif ($Entry.Provider -eq 'Ollama') {
         $env:COPILOT_PROVIDER_WIRE_API = 'responses'
-        [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_PROMPT_TOKENS', $null, 'Process')
-        [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_OUTPUT_TOKENS', $null, 'Process')
+        try {
+            $body      = "{`"name`":`"$($Entry.Model)`"}"
+            $modelInfo = Invoke-RestMethod -Method Post -Uri 'http://localhost:11434/api/show' -Body $body -ContentType 'application/json' -ErrorAction Stop
+            $ctxProp   = $modelInfo.model_info.PSObject.Properties | Where-Object { $_.Name -like '*.context_length' } | Select-Object -First 1
+            if ($ctxProp) {
+                $ctx = [int]$ctxProp.Value
+                $env:COPILOT_PROVIDER_MAX_PROMPT_TOKENS  = [string]$ctx
+                $env:COPILOT_PROVIDER_MAX_OUTPUT_TOKENS  = [string][Math]::Min($ctx, 8192)
+            } else {
+                [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_PROMPT_TOKENS', $null, 'Process')
+                [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_OUTPUT_TOKENS', $null, 'Process')
+            }
+        } catch {
+            [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_PROMPT_TOKENS', $null, 'Process')
+            [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_OUTPUT_TOKENS', $null, 'Process')
+        }
     } else {
         [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_WIRE_API', $null, 'Process')
         [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_PROMPT_TOKENS', $null, 'Process')
