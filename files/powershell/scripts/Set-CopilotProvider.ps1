@@ -185,7 +185,10 @@ function Get-FoundryLocalEndpoint {
 
     $statusOutput = foundry service status 2>&1 | Out-String
     $match = [regex]::Match($statusOutput, 'https?://[^\s]+')
-    if ($match.Success) { return $match.Value.TrimEnd('/') }
+    if ($match.Success) {
+        $uri = [System.Uri]$match.Value
+        return "$($uri.Scheme)://$($uri.Authority)"
+    }
 
     Write-Host '  FoundryLocal service is not running. Starting...' -ForegroundColor Yellow
     foundry service start 2>&1 | Out-Null
@@ -197,7 +200,8 @@ function Get-FoundryLocalEndpoint {
         $match = [regex]::Match($statusOutput, 'https?://[^\s]+')
         if ($match.Success) {
             Write-Host '  FoundryLocal service started.' -ForegroundColor Green
-            return $match.Value.TrimEnd('/')
+            $uri = [System.Uri]$match.Value
+            return "$($uri.Scheme)://$($uri.Authority)"
         }
     }
 
