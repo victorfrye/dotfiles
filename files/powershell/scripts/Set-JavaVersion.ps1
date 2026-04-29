@@ -60,14 +60,16 @@ function Set-JavaVersion {
             Write-Host "$($i + 1)) JDK $($entry.Version)$current" -ForegroundColor Yellow -NoNewline
             Write-Host "  — $($entry.Path)" -ForegroundColor DarkGray
         }
+        Write-Host "$($configured.Count + 1)) Exit" -ForegroundColor DarkGray
 
         Write-Host ''
-        $raw = Read-Host "Enter number (1-$($configured.Count))"
+        $raw = Read-Host "Enter number (1-$($configured.Count + 1))"
         $idx = 0
-        if (-not [int]::TryParse($raw.Trim(), [ref]$idx) -or $idx -lt 1 -or $idx -gt $configured.Count) {
+        if (-not [int]::TryParse($raw.Trim(), [ref]$idx) -or $idx -lt 1 -or $idx -gt ($configured.Count + 1)) {
             Write-Warning "Invalid selection '$raw'. Aborting."
             return
         }
+        if ($idx -eq ($configured.Count + 1)) { return }
 
         $selected = $configured[$idx - 1]
         $env:JAVA_HOME = $selected.Path

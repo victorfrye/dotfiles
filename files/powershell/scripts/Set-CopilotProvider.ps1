@@ -77,14 +77,16 @@ function Set-CopilotProvider {
             $current = if (($entry.Provider -eq 'GitHub' -and -not $env:COPILOT_MODEL) -or ($entry.Model -and $env:COPILOT_MODEL -ieq $entry.Model)) { ' [current]' } else { '' }
             Write-Host "$($i + 1)) $label$current" -ForegroundColor Yellow
         }
+        Write-Host "$($entries.Count + 1)) Exit" -ForegroundColor DarkGray
 
         Write-Host ''
-        $raw = Read-Host "Enter number (1-$($entries.Count))"
+        $raw = Read-Host "Enter number (1-$($entries.Count + 1))"
         $idx = 0
-        if (-not [int]::TryParse($raw.Trim(), [ref]$idx) -or $idx -lt 1 -or $idx -gt $entries.Count) {
+        if (-not [int]::TryParse($raw.Trim(), [ref]$idx) -or $idx -lt 1 -or $idx -gt ($entries.Count + 1)) {
             Write-Warning "Invalid selection '$raw'. Aborting."
             return
         }
+        if ($idx -eq ($entries.Count + 1)) { return }
         $selected = $entries[$idx - 1]
     }
 
