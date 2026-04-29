@@ -73,7 +73,7 @@ function Set-CopilotProvider {
 
         for ($i = 0; $i -lt $entries.Count; $i++) {
             $entry = $entries[$i]
-            $label = if ($entry.Model) { "[$($entry.Provider)] $($entry.Model)" } else { $entry.Provider }
+            $label = if ($entry.Model) { "[$($entry.Provider)] $($entry.Label ?? $entry.Model)" } else { $entry.Provider }
             $current = if (($entry.Provider -eq 'GitHub' -and -not $env:COPILOT_MODEL) -or ($entry.Model -and $env:COPILOT_MODEL -ieq $entry.Model)) { ' [current]' } else { '' }
             Write-Host "$($i + 1)) $label$current" -ForegroundColor Yellow
         }
@@ -126,19 +126,19 @@ function Build-ProviderEntries {
     param()
 
     $entries = @()
-    $entries += [PSCustomObject]@{ Provider = 'GitHub'; Model = $null; BaseUrl = $null; ApiKey = $null }
+    $entries += [PSCustomObject]@{ Provider = 'GitHub'; Model = $null; Label = $null; BaseUrl = $null; ApiKey = $null }
 
     $litellmBase = [System.Environment]::GetEnvironmentVariable('LITELLM_BASE_URL')
     $litellmKey  = [System.Environment]::GetEnvironmentVariable('LITELLM_API_KEY')
     if (-not [string]::IsNullOrWhiteSpace($litellmBase)) {
         foreach ($model in $script:LiteLLMModels) {
-            $entries += [PSCustomObject]@{ Provider = 'LiteLLM'; Model = $model; BaseUrl = $litellmBase; ApiKey = $litellmKey }
+            $entries += [PSCustomObject]@{ Provider = 'LiteLLM'; Model = $model; Label = $null; BaseUrl = $litellmBase; ApiKey = $litellmKey }
         }
     }
 
     $foundryModels = Get-FoundryLocalModels
     foreach ($model in $foundryModels) {
-        $entries += [PSCustomObject]@{ Provider = 'FoundryLocal'; Model = $model.Alias; BaseUrl = $null; ApiKey = $null }
+        $entries += [PSCustomObject]@{ Provider = 'FoundryLocal'; Model = $model.ModelId; Label = $model.Alias; BaseUrl = $null; ApiKey = $null }
     }
 
     return $entries
