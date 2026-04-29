@@ -89,6 +89,47 @@ function Copy-IfNotExists {
     Write-Host "  Deployed: $Target" -ForegroundColor Magenta
 }
 
+function Install-CascadiaCodeFont {
+    $fontsDir = "$env:SystemRoot\Fonts"
+    $sentinel = Join-Path $fontsDir 'CascadiaCode.ttf'
+
+    if (Test-Path $sentinel) {
+        Write-Host '  Cascadia Code fonts already installed. Skipping.' -ForegroundColor Gray
+        return
+    }
+
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+    $release = Invoke-RestMethod -Uri 'https://api.github.com/repos/microsoft/cascadia-code/releases/latest' -ErrorAction Stop
+    $asset   = $release.assets | Where-Object { $_.name -like 'CascadiaCode*.zip' } | Select-Object -First 1
+    $zipPath = Join-Path $env:TEMP $asset.name
+
+    Write-Host "  Downloading $($asset.name)..." -ForegroundColor Green
+    Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zipPath -ErrorAction Stop
+
+    $extractDir = Join-Path $env:TEMP 'CascadiaCodeFonts'
+    if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }
+    New-Item -ItemType Directory -Path $extractDir | Out-Null
+
+    $zip = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
+    foreach ($entry in $zip.Entries) {
+        if ($entry.FullName -match '^ttf/[^/]+\.ttf$') {
+            [System.IO.Compression.ZipFileExtensions]::ExtractToFile($entry, (Join-Path $extractDir $entry.Name), $true)
+        }
+    }
+    $zip.Dispose()
+
+    $regPath = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
+    foreach ($ttf in Get-ChildItem -Path $extractDir -Filter '*.ttf') {
+        Copy-Item -Path $ttf.FullName -Destination (Join-Path $fontsDir $ttf.Name) -Force
+        Set-ItemProperty -Path $regPath -Name "$($ttf.BaseName) (TrueType)" -Value $ttf.Name -Force
+        Write-Host "  Installed: $($ttf.Name)" -ForegroundColor Magenta
+    }
+
+    Remove-Item $zipPath -Force -ErrorAction SilentlyContinue
+    Remove-Item $extractDir -Recurse -Force -ErrorAction SilentlyContinue
+}
+
 # ---------------------------------------------------------------------------- #
 # Git
 # ---------------------------------------------------------------------------- #
@@ -176,6 +217,16 @@ $ConfigFile = Join-Path $RepoRoot '.config\configuration.winget'
 winget configure --file $ConfigFile --accept-configuration-agreements --disable-interactivity
 
 Write-Host 'Done. WinGet Configuration applied.' -ForegroundColor Magenta
+
+# ---------------------------------------------------------------------------- #
+# Fonts
+# ---------------------------------------------------------------------------- #
+
+Write-Host 'Installing fonts...' -ForegroundColor Green
+
+Install-CascadiaCodeFont
+
+Write-Host 'Done. Fonts installed.' -ForegroundColor Magenta
 
 # ---------------------------------------------------------------------------- #
 # Symlinks
