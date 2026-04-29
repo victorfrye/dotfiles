@@ -241,7 +241,7 @@ properties:
         source: winget
 
     # =========================================================================
-    # Packages — Python & Node
+    # Packages — Python
     # =========================================================================
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       directives:
@@ -250,11 +250,31 @@ properties:
         id: astral-sh.uv
         source: winget
 
+    # =========================================================================
+    # Packages — Node
+    # =========================================================================
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       directives:
-        description: Install NVM for Windows
+        description: Install Node.js 20 (LTS)
+        securityContext: elevated
       settings:
-        id: CoreyButler.NVMforWindows
+        id: OpenJS.NodeJS.20
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Node.js 22 (LTS)
+        securityContext: elevated
+      settings:
+        id: OpenJS.NodeJS.22
+        source: winget
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      directives:
+        description: Install Node.js 24 (LTS)
+        securityContext: elevated
+      settings:
+        id: OpenJS.NodeJS.LTS
         source: winget
 
     # =========================================================================

@@ -21,8 +21,17 @@ The script is **idempotent** — re-running it on an already-configured machine 
 - **`scripts/Install-Dotfiles.ps1`** — bootstrap script: Git init, Dev Drive, repo clone, `winget configure`, symlinks, one-time deploys, env vars
 - **`scripts/Test-Dotfiles.ps1`** — post-install verification: checks symlinks, binaries, env vars, config validity
 - **`tests/Install-Dotfiles.Tests.ps1`** — Pester tests for CI: config validation, linting, JSON parsing
-- **`files/powershell/profile.ps1`** — PowerShell profile, symlinked to `$PROFILE.CurrentUserAllHosts`
+- **`files/powershell/profile.ps1`** — PowerShell profile, symlinked to `$PROFILE.CurrentUserAllHosts`; sets env vars, loads Oh My Posh and posh-git, then dot-sources all scripts in `files/powershell/scripts/`
 - **`files/powershell/yfnd.omp.json`** — custom Oh My Posh theme (active theme, referenced from repo path)
+- **`files/powershell/scripts/`** — modular profile scripts, dot-sourced dynamically at profile load:
+  - `copilot.ps1` — `Set-CopilotProvider`/`Reset-CopilotProvider` (GitHub / LiteLLM / FoundryLocal), aliases `scp`/`rscp`
+  - `docker.ps1` — `Clear-Docker`
+  - `git.ps1` — `Reset-AllRepositories`, `Get-AllRepositories`, `Clear-RepositoryBranches`
+  - `java.ps1` — `Set-JavaVersion`/`Reset-JavaVersion` (interactive or `-Version` param), aliases `sjv`/`rsjv`
+  - `navigation.ps1` — `Set-LocationTo*` and `Start-*App` functions + aliases
+  - `node.ps1` — `Set-NodeVersion`/`Reset-NodeVersion` (interactive or `-Version` param), aliases `snv`/`rsnv`
+  - `solution-context.ps1` — `Initialize-SolutionContext`, `Clear-SolutionContext`, alias `clctx`
+  - `utilities.ps1` — `ConvertTo-Sha256Hash`, `Get-Path`, aliases `cthash`/`code`
 - **`files/az/config.json`** — Azure PowerShell config, symlinked to `~/.Azure/AzConfig.json`
 - **`files/copilot/`** — GitHub Copilot CLI configuration (see below)
 - **`files/githooks/`** — Git hooks directory, symlinked to `~/.githooks`
@@ -109,19 +118,30 @@ Set at Machine scope by `Install-Dotfiles.ps1`:
 | `JDK_21_HOME` | Microsoft OpenJDK 21 path |
 | `JDK_25_HOME` | Microsoft OpenJDK 25 path |
 | `JAVA_HOME` | `%JDK_25_HOME%` (default) |
+| `NODE_20_HOME` | Node.js 20 install path |
+| `NODE_22_HOME` | Node.js 22 install path |
+| `NODE_24_HOME` | Node.js 24 (LTS) install path |
+| `NODE_HOME` | `%NODE_24_HOME%` (default) |
 
 
 Session-scoped vars set in `files/powershell/profile.ps1`: `SRC_VFDOT`, `SRC_VFCOM`, `SRC_VFMSG`, `SRC_VFMIR`, `SRC_VFSHG`.
 
 ### PowerShell Profile
 
-`files/powershell/profile.ps1` configures the shell environment:
+`files/powershell/profile.ps1` sets session env vars, initializes Oh My Posh and posh-git, then dot-sources all `*.ps1` files from `files/powershell/scripts/` dynamically.
 
-- Oh My Posh with custom `yfnd` theme (referenced from `$env:SRC_VFDOT\files\powershell\yfnd.omp.json`)
-- posh-git module for Git integration
-- Aliases: `sjh`/`rsjh` (Java home switching, supports JDK 11/17/21/25), `slvf`/`slcom`/`slmsg`/`slmir`/`slshg` (quick `cd` to repos), `sacom`/`samsg`/`samir`/`sashg` (app launchers), `code` → `code-insiders`, `cthash` (SHA-256 hash), `clctx` (clear solution context)
-- `Initialize-SolutionContext` — generic function to set ARM_* env vars; project-specific shortcuts defined in `env.ps1`
-- Placeholder comment blocks for company and client navigation/aliases (populated via `env.ps1`)
+#### Profile Scripts (`files/powershell/scripts/`)
+
+| Script | Aliases | Description |
+|---|---|---|
+| `copilot.ps1` | `scp`, `rscp` | Switch Copilot provider interactively (GitHub / LiteLLM BYOK / FoundryLocal). `scp` shows a menu; `-Model` and `-Provider` params for non-interactive use. Reads `LITELLM_BASE_URL`/`LITELLM_API_KEY` from env; queries `foundry service status` for FoundryLocal. |
+| `docker.ps1` | — | `Clear-Docker` — prunes old images and system resources. |
+| `git.ps1` | — | `Reset-AllRepositories`, `Get-AllRepositories`, `Clear-RepositoryBranches`. |
+| `java.ps1` | `sjv`, `rsjv` | `Set-JavaVersion` — interactive JDK menu or `-Version` param (11/17/21/25). Updates `JAVA_HOME`. |
+| `navigation.ps1` | `slvf`, `slcom`, `slmsg`, `slmir`, `slshg`, `sacom`, `samsg`, `samir`, `sashg` | Quick `cd` and `dotnet run` shortcuts for personal repos. |
+| `node.ps1` | `snv`, `rsnv` | `Set-NodeVersion` — interactive Node.js menu or `-Version` param (20/22/24). Updates `NODE_HOME` and `PATH`. Reads `NODE_20_HOME`, `NODE_22_HOME`, `NODE_24_HOME` from Machine env (set by `Install-Dotfiles.ps1`). |
+| `solution-context.ps1` | `clctx` | `Initialize-SolutionContext` (sets ARM_* env vars), `Clear-SolutionContext`. |
+| `utilities.ps1` | `cthash`, `code` | `ConvertTo-Sha256Hash`, `Get-Path`, `code` → `code-insiders`. |
 
 ## Commands
 
