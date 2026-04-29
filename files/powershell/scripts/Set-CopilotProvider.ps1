@@ -107,7 +107,8 @@ function Reset-CopilotProvider {
     [CmdletBinding()]
     param()
 
-    foreach ($var in @('COPILOT_PROVIDER_BASE_URL', 'COPILOT_PROVIDER_API_KEY', 'COPILOT_MODEL')) {
+    foreach ($var in @('COPILOT_PROVIDER_BASE_URL', 'COPILOT_PROVIDER_API_KEY', 'COPILOT_MODEL',
+                       'COPILOT_PROVIDER_MAX_PROMPT_TOKENS', 'COPILOT_PROVIDER_MAX_OUTPUT_TOKENS')) {
         [System.Environment]::SetEnvironmentVariable($var, $null, 'Process')
     }
     Write-Host 'GitHub Copilot provider restored (BYOK variables cleared).' -ForegroundColor Green
@@ -271,7 +272,8 @@ function Set-CopilotEnvironmentVariables {
         [PSCustomObject] $Entry
     )
 
-    $byokVars = @('COPILOT_PROVIDER_BASE_URL', 'COPILOT_PROVIDER_API_KEY', 'COPILOT_MODEL')
+    $byokVars = @('COPILOT_PROVIDER_BASE_URL', 'COPILOT_PROVIDER_API_KEY', 'COPILOT_MODEL',
+                  'COPILOT_PROVIDER_MAX_PROMPT_TOKENS', 'COPILOT_PROVIDER_MAX_OUTPUT_TOKENS')
 
     if ($Entry.Provider -eq 'GitHub') {
         foreach ($var in $byokVars) {
@@ -287,20 +289,39 @@ function Set-CopilotEnvironmentVariables {
         $endpoint = Get-FoundryLocalEndpoint
         if (-not $endpoint) { return }
         $Entry.BaseUrl = "$endpoint/v1"
+
+        try {
+            $models   = Invoke-RestMethod -Uri "$endpoint/v1/models" -ErrorAction Stop
+            $modelInfo = $models.data | Where-Object { $_.id -eq $Entry.Model } | Select-Object -First 1
+            if ($modelInfo) {
+                $env:COPILOT_PROVIDER_MAX_PROMPT_TOKENS  = [string]$modelInfo.maxInputTokens
+                $env:COPILOT_PROVIDER_MAX_OUTPUT_TOKENS  = [string]$modelInfo.maxOutputTokens
+            }
+        } catch {
+            [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_PROMPT_TOKENS', $null, 'Process')
+            [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_OUTPUT_TOKENS', $null, 'Process')
+        }
+    } else {
+        [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_PROMPT_TOKENS', $null, 'Process')
+        [System.Environment]::SetEnvironmentVariable('COPILOT_PROVIDER_MAX_OUTPUT_TOKENS', $null, 'Process')
     }
 
     $env:COPILOT_PROVIDER_BASE_URL = $Entry.BaseUrl
-    $env:COPILOT_PROVIDER_API_KEY = $Entry.ApiKey
-    $env:COPILOT_MODEL = $Entry.Model
+    $env:COPILOT_PROVIDER_API_KEY  = $Entry.ApiKey
+    $env:COPILOT_MODEL             = $Entry.Model
 
     Write-Host ''
-    Write-Host "Applying: [$($Entry.Provider)] $($Entry.Model)" -ForegroundColor Cyan
+    Write-Host "Applying: [$($Entry.Provider)] $($Entry.Label ?? $Entry.Model)" -ForegroundColor Cyan
     Write-Host "  COPILOT_PROVIDER_BASE_URL  = $($Entry.BaseUrl)" -ForegroundColor Green
     Write-Host "  COPILOT_MODEL              = $($Entry.Model)" -ForegroundColor Green
 
     if ($Entry.Provider -eq 'LiteLLM') {
         $masked = Get-MaskedKey $Entry.ApiKey
         Write-Host "  COPILOT_PROVIDER_API_KEY   = $masked" -ForegroundColor Green
+    }
+    if ($env:COPILOT_PROVIDER_MAX_PROMPT_TOKENS) {
+        Write-Host "  COPILOT_PROVIDER_MAX_PROMPT_TOKENS  = $env:COPILOT_PROVIDER_MAX_PROMPT_TOKENS" -ForegroundColor Green
+        Write-Host "  COPILOT_PROVIDER_MAX_OUTPUT_TOKENS  = $env:COPILOT_PROVIDER_MAX_OUTPUT_TOKENS" -ForegroundColor Green
     }
 }
 
