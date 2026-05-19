@@ -53,6 +53,7 @@ $Symlinks = @(
     @{ Target = $PROFILE.CurrentUserAllHosts;                       Source = (Join-Path $RepoRoot 'files\powershell\profile.ps1') }
     @{ Target = (Join-Path $HOME '.copilot\copilot-instructions.md'); Source = (Join-Path $RepoRoot 'files\copilot\copilot-instructions.md') }
     @{ Target = (Join-Path $HOME '.copilot\agents');                Source = (Join-Path $RepoRoot 'files\copilot\agents') }
+    @{ Target = (Join-Path $HOME '.copilot\skills');                Source = (Join-Path $RepoRoot 'files\copilot\skills') }
     @{ Target = (Join-Path $HOME '.Azure\AzConfig.json');           Source = (Join-Path $RepoRoot 'files\az\config.json') }
     @{ Target = (Join-Path $HOME '.githooks');                      Source = (Join-Path $RepoRoot 'files\githooks') }
     @{ Target = (Join-Path $HOME '.wslconfig');                     Source = (Join-Path $RepoRoot 'files\wsl\.wslconfig') }

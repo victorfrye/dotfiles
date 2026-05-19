@@ -48,7 +48,8 @@ Deployed to `~/.copilot/` by the install script. Contains:
 - **`config.json`** — portable Copilot CLI settings (banner, theme, model preference)
 - **`copilot-instructions.md`** — personal coding instructions and engineering philosophy, symlinked to `~/.copilot/copilot-instructions.md`
 - **`mcp-config.json`** — MCP server definitions: Aspire, Playwright, Context7, WinGet. Deployed as one-time template — add org-specific servers (e.g., Azure DevOps) post-install.
-- **`agents/`** — custom agent definitions directory, symlinked to `~/.copilot/agents/`: `dotnet-developer`, `interviewer`, `react-developer`, `storywriter`, `terraform-developer`
+- **`agents/`** — custom agent definitions directory, symlinked to `~/.copilot/agents/`: reserved for future custom agents
+- **`skills/`** — custom skill definitions directory, symlinked to `~/.copilot/skills/`: `interviewer`, `storywriter`
 
 ### Dev Drive
 
