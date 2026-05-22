@@ -30,7 +30,7 @@ All work follows the EDJE philosophy: **"Do the right thing, not the right now t
 
 ## Interview-First Planning (Hard Rule)
 
-**Plans MUST NOT be finalized until a requirements interview is complete.** See the `interviewer` agent definition (`~/.copilot/agents/interviewer.agent.md`) for the full framework.
+**Plans MUST NOT be finalized until a requirements interview is complete.** See the `interviewer` skill (`~/.copilot/skills/interviewer/SKILL.md`) for the full framework.
 
 - **When planning any non-trivial task**, conduct a structured requirements interview using the `ask_user` tool before creating the plan. A task is non-trivial if it involves multi-file changes, new features, refactors, architectural decisions, or any work where scope could be misunderstood.
 - **Auto-skip exception:** If the request is clearly scoped and unambiguous — a single file, a single well-defined change — skip the interview and proceed directly to planning.

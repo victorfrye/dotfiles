@@ -256,6 +256,11 @@ New-SymlinkIfNeeded `
     -Directory
 
 New-SymlinkIfNeeded `
+    -Source (Join-Path $RepoRoot 'files\copilot\skills') `
+    -Target (Join-Path $HOME '.copilot\skills') `
+    -Directory
+
+New-SymlinkIfNeeded `
     -Source (Join-Path $RepoRoot 'files\az\config.json') `
     -Target (Join-Path $HOME '.Azure\AzConfig.json')
 
