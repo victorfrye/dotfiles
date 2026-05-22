@@ -309,14 +309,13 @@ foreach ($file in @('config.json', 'mcp-config.json')) {
 }
 
 $DockerSource = Join-Path $RepoRoot 'files\docker'
+$DockerConfigJson = Join-Path $DockerSource 'config.json'
 Copy-IfNotExists `
-    -Source (Join-Path $DockerSource 'config.json') `
+    -Source $DockerConfigJson `
     -Target (Join-Path $HOME '.docker\config.json') `
     -Force:$Force
-
-$PodmanSource = Join-Path $RepoRoot 'files\podman'
 Copy-IfNotExists `
-    -Source (Join-Path $PodmanSource 'auth.json') `
+    -Source $DockerConfigJson `
     -Target (Join-Path $env:APPDATA 'containers\auth.json') `
     -Force:$Force
 

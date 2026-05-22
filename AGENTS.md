@@ -38,7 +38,7 @@ The script is **idempotent** — re-running it on an already-configured machine 
 - **`files/terminal/settings.json`** — Windows Terminal Preview settings, deployed as one-time template
 - **`files/wsl/.wslconfig`** — WSL configuration, symlinked to `~/.wslconfig`
 - **`files/docker/config.json`** — Docker credential store config (`credsStore: wincred`), deployed as one-time template to `~/.docker/config.json` — NOT symlinked, to prevent client-specific auth entries and runtime writes from propagating into the repo
-- **`files/podman/auth.json`** — Podman credential store config (`credsStore: wincred`), deployed as one-time template to `%APPDATA%\containers\auth.json` — NOT symlinked, same reasoning as Docker config
+- **`files/docker/config.json`** also copied to `%APPDATA%\containers\auth.json` (Podman credential store) — same `credsStore: wincred` content, single source for both runtimes
 - **`env.ps1`** — local secrets file (**gitignored**, never committed; see below)
 
 ### Copilot CLI Configuration (`files/copilot/`)

@@ -176,7 +176,6 @@ $JsonFiles = @(
     (Join-Path $RepoRoot 'files\copilot\mcp-config.json')
     (Join-Path $RepoRoot 'files\az\config.json')
     (Join-Path $RepoRoot 'files\docker\config.json')
-    (Join-Path $RepoRoot 'files\podman\auth.json')
     (Join-Path $RepoRoot 'files\terminal\settings.json')
 )
 
