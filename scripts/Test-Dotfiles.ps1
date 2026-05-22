@@ -56,7 +56,6 @@ $Symlinks = @(
     @{ Target = (Join-Path $HOME '.Azure\AzConfig.json');           Source = (Join-Path $RepoRoot 'files\az\config.json') }
     @{ Target = (Join-Path $HOME '.githooks');                      Source = (Join-Path $RepoRoot 'files\githooks') }
     @{ Target = (Join-Path $HOME '.wslconfig');                     Source = (Join-Path $RepoRoot 'files\wsl\.wslconfig') }
-    @{ Target = (Join-Path $HOME '.docker\config.json');            Source = (Join-Path $RepoRoot 'files\docker\config.json') }
     @{ Target = (Join-Path $HOME '.docker\cli-plugins\docker-buildx.exe');  Source = (Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links\docker-buildx.exe') }
     @{ Target = (Join-Path $HOME '.docker\cli-plugins\docker-compose.exe'); Source = (Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links\docker-compose.exe') }
 )
