@@ -1,4 +1,4 @@
-#Requires -RunAsAdministrator
+﻿#Requires -RunAsAdministrator
 #Requires -Version 7.0
 
 <#
@@ -22,8 +22,14 @@
 .PARAMETER DevDriveSizeGB
     Size in GB for a new Dev Drive VHD. Defaults to 100.
     Minimum is 50 GB per Microsoft requirements.
+.PARAMETER Force
+    When specified, overwrites one-time deploy targets (Docker config, Podman auth,
+    Copilot config, Windows Terminal settings) even if they already exist.
+    Useful for resetting templates to the repo's current version.
 .EXAMPLE
     .\Install-Dotfiles.ps1
+.EXAMPLE
+    .\Install-Dotfiles.ps1 -Force
 .EXAMPLE
     .\Install-Dotfiles.ps1 -Name 'Jane Doe' -Email 'jane@example.com' -DevDriveLetter 'D' -DevDriveSizeGB 200
 #>
@@ -33,7 +39,8 @@ param(
     [string] $Email = 'victorfrye@outlook.com',
     [string] $DevDriveLetter = 'W',
     [ValidateRange(50, 2048)]
-    [int] $DevDriveSizeGB = 100
+    [int] $DevDriveSizeGB = 100,
+    [switch] $Force
 )
 
 $ErrorActionPreference = 'Stop'
@@ -72,10 +79,11 @@ function New-SymlinkIfNeeded {
 function Copy-IfNotExists {
     param(
         [string] $Source,
-        [string] $Target
+        [string] $Target,
+        [switch] $Force
     )
 
-    if (Test-Path -Path $Target) {
+    if ((Test-Path -Path $Target) -and -not $Force) {
         Write-Host "  Already exists (skipped): $Target" -ForegroundColor Gray
         return
     }
@@ -85,7 +93,7 @@ function Copy-IfNotExists {
         New-Item -ItemType Directory -Path $TargetParent -Force | Out-Null
     }
 
-    Copy-Item -Path $Source -Destination $Target
+    Copy-Item -Path $Source -Destination $Target -Force
     Write-Host "  Deployed: $Target" -ForegroundColor Magenta
 }
 
@@ -260,14 +268,32 @@ New-SymlinkIfNeeded `
     -Source (Join-Path $RepoRoot 'files\wsl\.wslconfig') `
     -Target (Join-Path $HOME '.wslconfig')
 
-New-SymlinkIfNeeded `
-    -Source (Join-Path $RepoRoot 'files\docker\config.json') `
-    -Target (Join-Path $HOME '.docker\config.json')
-
 Write-Host 'Done. Symlinks created.' -ForegroundColor Magenta
 
 # ---------------------------------------------------------------------------- #
-# One-time config deploys
+# Docker CLI plugins
+# ---------------------------------------------------------------------------- #
+
+Write-Host 'Configuring Docker CLI plugins...' -ForegroundColor Green
+
+$DockerPluginsDir = Join-Path $HOME '.docker\cli-plugins'
+if (-not (Test-Path $DockerPluginsDir)) {
+    New-Item -ItemType Directory -Path $DockerPluginsDir -Force | Out-Null
+}
+
+$WinGetLinks = Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links'
+foreach ($plugin in @('docker-buildx.exe', 'docker-compose.exe')) {
+    $pluginSource = Join-Path $WinGetLinks $plugin
+    if (Test-Path $pluginSource) {
+        New-SymlinkIfNeeded `
+            -Source $pluginSource `
+            -Target (Join-Path $DockerPluginsDir $plugin)
+    } else {
+        Write-Host "  Skipped $plugin (not in WinGet Links - install Docker.Buildx / Docker.DockerCompose)." -ForegroundColor Gray
+    }
+}
+
+Write-Host 'Done. Docker CLI plugins configured.' -ForegroundColor Magenta
 # ---------------------------------------------------------------------------- #
 
 Write-Host 'Deploying one-time config files...' -ForegroundColor Green
@@ -278,14 +304,28 @@ $CopilotDest = Join-Path $HOME '.copilot'
 foreach ($file in @('config.json', 'mcp-config.json')) {
     Copy-IfNotExists `
         -Source (Join-Path $CopilotSource $file) `
-        -Target (Join-Path $CopilotDest $file)
+        -Target (Join-Path $CopilotDest $file) `
+        -Force:$Force
 }
+
+$DockerSource = Join-Path $RepoRoot 'files\docker'
+Copy-IfNotExists `
+    -Source (Join-Path $DockerSource 'config.json') `
+    -Target (Join-Path $HOME '.docker\config.json') `
+    -Force:$Force
+
+$PodmanSource = Join-Path $RepoRoot 'files\podman'
+Copy-IfNotExists `
+    -Source (Join-Path $PodmanSource 'auth.json') `
+    -Target (Join-Path $env:APPDATA 'containers\auth.json') `
+    -Force:$Force
 
 $WtLocalState = Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe\LocalState'
 if (Test-Path (Split-Path $WtLocalState -Parent)) {
     Copy-IfNotExists `
         -Source (Join-Path $RepoRoot 'files\terminal\settings.json') `
-        -Target (Join-Path $WtLocalState 'settings.json')
+        -Target (Join-Path $WtLocalState 'settings.json') `
+        -Force:$Force
 } else {
     Write-Host '  Skipped Windows Terminal (not yet installed).' -ForegroundColor Gray
 }

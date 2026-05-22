@@ -57,6 +57,8 @@ $Symlinks = @(
     @{ Target = (Join-Path $HOME '.githooks');                      Source = (Join-Path $RepoRoot 'files\githooks') }
     @{ Target = (Join-Path $HOME '.wslconfig');                     Source = (Join-Path $RepoRoot 'files\wsl\.wslconfig') }
     @{ Target = (Join-Path $HOME '.docker\config.json');            Source = (Join-Path $RepoRoot 'files\docker\config.json') }
+    @{ Target = (Join-Path $HOME '.docker\cli-plugins\docker-buildx.exe');  Source = (Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links\docker-buildx.exe') }
+    @{ Target = (Join-Path $HOME '.docker\cli-plugins\docker-compose.exe'); Source = (Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links\docker-compose.exe') }
 )
 
 foreach ($link in $Symlinks) {
@@ -73,6 +75,8 @@ Write-Host "`nChecking one-time deploy targets..." -ForegroundColor Green
 $Deploys = @(
     (Join-Path $HOME '.copilot\config.json')
     (Join-Path $HOME '.copilot\mcp-config.json')
+    (Join-Path $HOME '.docker\config.json')
+    (Join-Path $env:APPDATA 'containers\auth.json')
 )
 
 $WtSettings = Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe\LocalState\settings.json'
@@ -123,6 +127,7 @@ $Binaries = @(
     'terraform'
     'kubectl'
     'docker'
+    'docker-credential-wincred'
     'helm'
     'oh-my-posh'
     'node'
@@ -171,6 +176,7 @@ $JsonFiles = @(
     (Join-Path $RepoRoot 'files\copilot\mcp-config.json')
     (Join-Path $RepoRoot 'files\az\config.json')
     (Join-Path $RepoRoot 'files\docker\config.json')
+    (Join-Path $RepoRoot 'files\podman\auth.json')
     (Join-Path $RepoRoot 'files\terminal\settings.json')
 )
 

@@ -18,14 +18,14 @@ The script is **idempotent** — re-running it on an already-configured machine 
 ### Repository Structure
 
 - **`.config/configuration.winget`** — WinGet Configuration (DSC YAML): packages, Windows settings, PS modules
-- **`scripts/Install-Dotfiles.ps1`** — bootstrap script: Git init, Dev Drive, repo clone, `winget configure`, symlinks, one-time deploys, env vars
+- **`scripts/Install-Dotfiles.ps1`** — bootstrap script: Git init, Dev Drive, repo clone, `winget configure`, symlinks, Docker CLI plugins, one-time deploys, env vars
 - **`scripts/Test-Dotfiles.ps1`** — post-install verification: checks symlinks, binaries, env vars, config validity
 - **`tests/Install-Dotfiles.Tests.ps1`** — Pester tests for CI: config validation, linting, JSON parsing
 - **`files/powershell/profile.ps1`** — PowerShell profile, symlinked to `$PROFILE.CurrentUserAllHosts`; sets env vars, loads Oh My Posh and posh-git, then dot-sources all scripts in `files/powershell/scripts/`
 - **`files/powershell/yfnd.omp.json`** — custom Oh My Posh theme (active theme, referenced from repo path)
 - **`files/powershell/scripts/`** — modular profile scripts, dot-sourced dynamically at profile load:
   - `copilot.ps1` — `Set-CopilotProvider`/`Reset-CopilotProvider` (GitHub / LiteLLM / FoundryLocal), aliases `scp`/`rscp`
-  - `docker.ps1` — `Clear-Docker`
+  - `docker.ps1` — `Clear-Docker` (prune images and system resources), `Connect-ContainerRegistry` (az acr login wrapper — authenticates to ACR using current az login session, no plaintext creds), alias `ccreg`
   - `git.ps1` — `Reset-AllRepositories`, `Get-AllRepositories`, `Clear-RepositoryBranches`
   - `java.ps1` — `Set-JavaVersion`/`Reset-JavaVersion` (interactive or `-Version` param), aliases `sjv`/`rsjv`
   - `navigation.ps1` — `Set-LocationTo*` and `Start-*App` functions + aliases
@@ -37,7 +37,8 @@ The script is **idempotent** — re-running it on an already-configured machine 
 - **`files/githooks/`** — Git hooks directory, symlinked to `~/.githooks`
 - **`files/terminal/settings.json`** — Windows Terminal Preview settings, deployed as one-time template
 - **`files/wsl/.wslconfig`** — WSL configuration, symlinked to `~/.wslconfig`
-- **`files/docker/config.json`** — Docker config, symlinked to `~/.docker/config.json`
+- **`files/docker/config.json`** — Docker credential store config (`credsStore: wincred`), deployed as one-time template to `~/.docker/config.json` — NOT symlinked, to prevent client-specific auth entries and runtime writes from propagating into the repo
+- **`files/podman/auth.json`** — Podman credential store config (`credsStore: wincred`), deployed as one-time template to `%APPDATA%\containers\auth.json` — NOT symlinked, same reasoning as Docker config
 - **`env.ps1`** — local secrets file (**gitignored**, never committed; see below)
 
 ### Copilot CLI Configuration (`files/copilot/`)
@@ -132,7 +133,7 @@ Session-scoped vars set in `files/powershell/profile.ps1`: `SRC_VFDOT`, `SRC_VFC
 | Script | Aliases | Description |
 |---|---|---|
 | `copilot.ps1` | `scp`, `rscp` | Switch Copilot provider interactively (GitHub / LiteLLM BYOK / FoundryLocal). `scp` shows a menu; `-Model` and `-Provider` params for non-interactive use. Reads `LITELLM_BASE_URL`/`LITELLM_API_KEY` from env; queries `foundry service status` for FoundryLocal. |
-| `docker.ps1` | — | `Clear-Docker` — prunes old images and system resources. |
+| `docker.ps1` | `ccreg` | `Clear-Docker` — prune images and system resources. `Connect-ContainerRegistry` — authenticate to ACR via `az acr login` (uses current az login session, no plaintext creds). |
 | `git.ps1` | — | `Reset-AllRepositories`, `Get-AllRepositories`, `Clear-RepositoryBranches`. |
 | `java.ps1` | `sjv`, `rsjv` | `Set-JavaVersion` — interactive JDK menu or `-Version` param (11/17/21/25). Updates `JAVA_HOME`. |
 | `navigation.ps1` | `slvf`, `slcom`, `slmsg`, `slmir`, `slshg`, `sacom`, `samsg`, `samir`, `sashg` | Quick `cd` and `dotnet run` shortcuts for personal repos. |
@@ -148,6 +149,12 @@ Run the full bootstrap (requires admin):
 
 ```pwsh
 .\scripts\Install-Dotfiles.ps1
+```
+
+Force-refresh all one-time config templates (Docker config, Podman auth, Copilot config, Windows Terminal settings):
+
+```pwsh
+.\scripts\Install-Dotfiles.ps1 -Force
 ```
 
 ### Validate
