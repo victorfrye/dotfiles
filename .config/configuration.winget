@@ -906,15 +906,23 @@ resources:
                 $entry = $zip.Entries | Where-Object { $_.Name -eq $name } | Select-Object -First 1
                 if (-not $entry) { Write-Warning "Not found in archive: $name"; continue }
                 $dest = Join-Path $fontsDir $name
-                [System.IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $dest, $true)
+                if (Test-Path $dest) {
+                    Write-Host "  Already installed: $name"
+                } else {
+                    [System.IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $dest, $false)
+                    Write-Host "  Extracted: $name"
+                }
                 $pfc = New-Object System.Drawing.Text.PrivateFontCollection
                 try {
                     $pfc.AddFontFile($dest)
                     $family = $pfc.Families[0].Name
                 } finally { $pfc.Dispose() }
                 $regName = "$family (TrueType)"
-                New-ItemProperty -Path $regPath -Name $regName -Value $dest -PropertyType String -Force | Out-Null
-                Write-Host "  Installed: $name as '$regName'"
+                $existing = Get-ItemProperty -Path $regPath -Name $regName -ErrorAction SilentlyContinue
+                if (-not $existing) {
+                    New-ItemProperty -Path $regPath -Name $regName -Value $dest -PropertyType String -Force | Out-Null
+                    Write-Host "  Registered: '$regName'"
+                }
             }
         } finally {
             $zip.Dispose()
@@ -1157,7 +1165,7 @@ resources:
       getScript: |
         $repo = $env:DOTFILES_ROOT
         if ([string]::IsNullOrWhiteSpace($repo)) { return @{ error = 'DOTFILES_ROOT not set' } }
-        $profilePath = $PROFILE.CurrentUserAllHosts
+        $profilePath = Join-Path $HOME 'Documents\PowerShell\profile.ps1'
         $links = @(
             @{ Src = Join-Path $repo 'files\powershell\profile.ps1';          Tgt = $profilePath }
             @{ Src = Join-Path $repo 'files\copilot\copilot-instructions.md'; Tgt = Join-Path $HOME '.copilot\copilot-instructions.md' }
@@ -1176,7 +1184,7 @@ resources:
       testScript: |
         $repo = $env:DOTFILES_ROOT
         if ([string]::IsNullOrWhiteSpace($repo)) { return $false }
-        $profilePath = $PROFILE.CurrentUserAllHosts
+        $profilePath = Join-Path $HOME 'Documents\PowerShell\profile.ps1'
         $links = @(
             @{ Src = Join-Path $repo 'files\powershell\profile.ps1';          Tgt = $profilePath }
             @{ Src = Join-Path $repo 'files\copilot\copilot-instructions.md'; Tgt = Join-Path $HOME '.copilot\copilot-instructions.md' }
@@ -1196,7 +1204,7 @@ resources:
       setScript: |
         $repo = $env:DOTFILES_ROOT
         if ([string]::IsNullOrWhiteSpace($repo)) { throw 'DOTFILES_ROOT environment variable is not set.' }
-        $profilePath = $PROFILE.CurrentUserAllHosts
+        $profilePath = Join-Path $HOME 'Documents\PowerShell\profile.ps1'
         $links = @(
             @{ Src = Join-Path $repo 'files\powershell\profile.ps1';          Tgt = $profilePath }
             @{ Src = Join-Path $repo 'files\copilot\copilot-instructions.md'; Tgt = Join-Path $HOME '.copilot\copilot-instructions.md' }
