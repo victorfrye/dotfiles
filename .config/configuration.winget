@@ -1334,31 +1334,44 @@ resources:
   # ===========================================================================
 
   - type: Microsoft.DSC.Transitional/PowerShellScript
-    name: CopilotConfigPatch
+    name: CopilotSettingsPatch
     properties:
       getScript: |
-        $dest = Join-Path $env:USERPROFILE '.copilot\config.json'
+        $dest = Join-Path $env:USERPROFILE '.copilot\settings.json'
         if (-not (Test-Path $dest)) { return @{ exists = $false } }
         $json = Get-Content $dest -Raw | ConvertFrom-Json
-        return @{ banner = $json.banner; theme = $json.theme; model = $json.model; render_markdown = $json.render_markdown }
+        return @{ banner = $json.banner; theme = $json.theme; model = $json.model; renderMarkdown = $json.renderMarkdown }
       testScript: |
-        $dest = Join-Path $env:USERPROFILE '.copilot\config.json'
+        $dest = Join-Path $env:USERPROFILE '.copilot\settings.json'
         if (-not (Test-Path $dest)) { return $false }
         $json = Get-Content $dest -Raw | ConvertFrom-Json
         return ($json.banner -eq 'always' -and $json.theme -eq 'auto' -and
-                $json.model -eq 'claude-sonnet-4.6' -and $json.render_markdown -eq $true)
+                $json.model -eq 'claude-sonnet-4.6' -and $json.renderMarkdown -eq $true -and
+                $json.footer.showContextWindow -eq $true)
       setScript: |
-        $dest = Join-Path $env:USERPROFILE '.copilot\config.json'
+        $dest = Join-Path $env:USERPROFILE '.copilot\settings.json'
         New-Item -ItemType Directory -Path (Split-Path $dest -Parent) -Force | Out-Null
         $json = if (Test-Path $dest) { Get-Content $dest -Raw | ConvertFrom-Json -AsHashtable } else { @{} }
-        $json['banner']          = 'always'
-        $json['render_markdown'] = $true
-        $json['theme']           = 'auto'
-        $json['model']           = 'claude-sonnet-4.6'
+        $json['banner']         = 'always'
+        $json['renderMarkdown'] = $true
+        $json['theme']          = 'auto'
+        $json['model']          = 'claude-sonnet-4.6'
+        if (-not $json.ContainsKey('footer')) { $json['footer'] = @{} }
+        $json['footer']['showModelEffort']   = $true
+        $json['footer']['showDirectory']     = $true
+        $json['footer']['showBranch']        = $true
+        $json['footer']['showContextWindow'] = $true
+        $json['footer']['showQuota']         = $true
+        $json['footer']['showAiUsed']        = $true
+        $json['footer']['showAgent']         = $true
+        $json['footer']['showCodeChanges']   = $true
+        $json['footer']['showUsername']      = $true
+        $json['footer']['showSandbox']       = $true
+        $json['footer']['showCustom']        = $false
         $json | ConvertTo-Json -Depth 10 | Set-Content $dest -Encoding UTF8
-        Write-Host "Copilot config.json patched."
+        Write-Host "Copilot settings.json patched."
     metadata:
-      description: Patch Copilot CLI config.json
+      description: Patch Copilot CLI settings.json
 
   - type: Microsoft.DSC.Transitional/PowerShellScript
     name: CopilotMcpConfigPatch

@@ -1,0 +1,19 @@
+{
+  "banner": "always",
+  "renderMarkdown": true,
+  "theme": "auto",
+  "footer": {
+    "showModelEffort": true,
+    "showDirectory": true,
+    "showBranch": true,
+    "showContextWindow": true,
+    "showQuota": true,
+    "showAiUsed": true,
+    "showAgent": true,
+    "showCodeChanges": true,
+    "showUsername": true,
+    "showSandbox": true,
+    "showCustom": false
+  },
+  "model": "claude-sonnet-4.6"
+}

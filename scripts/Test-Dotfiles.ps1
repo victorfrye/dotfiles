@@ -156,13 +156,14 @@ foreach ($var in $EnvVars) {
 # ---------------------------------------------------------------------------- #
 Write-Section 'Configuration Files'
 
-$copilotConfig = Join-Path $HOME '.copilot\config.json'
-if (Test-Path $copilotConfig) {
-    $c = Get-Content $copilotConfig -Raw | ConvertFrom-Json
-    Test-Check 'Copilot — banner = always'         { $c.banner -eq 'always' }
-    Test-Check 'Copilot — theme = auto'            { $c.theme -eq 'auto' }
-    Test-Check 'Copilot — render_markdown = true'  { $c.render_markdown -eq $true }
-} else { Test-Check 'Copilot config.json' { $false } }
+$copilotSettings = Join-Path $HOME '.copilot\settings.json'
+if (Test-Path $copilotSettings) {
+    $c = Get-Content $copilotSettings -Raw | ConvertFrom-Json
+    Test-Check 'Copilot — banner = always'          { $c.banner -eq 'always' }
+    Test-Check 'Copilot — theme = auto'             { $c.theme -eq 'auto' }
+    Test-Check 'Copilot — renderMarkdown = true'    { $c.renderMarkdown -eq $true }
+    Test-Check 'Copilot — footer configured'        { $null -ne $c.footer -and $c.footer.showContextWindow -eq $true }
+} else { Test-Check 'Copilot settings.json' { $false } }
 
 $mcpConfig = Join-Path $HOME '.copilot\mcp-config.json'
 if (Test-Path $mcpConfig) {
@@ -268,7 +269,7 @@ Test-Check 'vmcompute service' {
 Write-Section 'Repository'
 
 $JsonFiles = @(
-    Join-Path $RepoRoot 'files\copilot\config.json'
+    Join-Path $RepoRoot 'files\copilot\settings.json'
     Join-Path $RepoRoot 'files\copilot\mcp-config.json'
     Join-Path $RepoRoot 'files\az\config.json'
     Join-Path $RepoRoot 'files\docker\config.json'
@@ -330,8 +331,8 @@ if ($azAccount) {
 # ---------------------------------------------------------------------------- #
 Write-Section 'Copilot'
 
-if (Test-Path $copilotConfig) {
-    $c = Get-Content $copilotConfig -Raw | ConvertFrom-Json
+if (Test-Path $copilotSettings) {
+    $c = Get-Content $copilotSettings -Raw | ConvertFrom-Json
     Write-StateRow 'Model' $c.model
 }
 

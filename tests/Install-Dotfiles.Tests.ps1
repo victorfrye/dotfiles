@@ -148,7 +148,7 @@ Describe 'WinGet Configuration — DSC script resources' {
         'Symlinks'
         'FileExplorerVersionControlRoot'
         'DockerCLIPlugins'
-        'CopilotConfigPatch'
+        'CopilotSettingsPatch'
         'CopilotMcpConfigPatch'
         'DockerConfigPatch'
         'PodmanAuthPatch'
@@ -192,7 +192,7 @@ Describe 'WinGet Configuration — DSC script resource patterns' {
 
 Describe 'JSON config files' {
     $jsonFiles = @(
-        'files\copilot\config.json'
+        'files\copilot\settings.json'
         'files\copilot\mcp-config.json'
         'files\az\config.json'
         'files\docker\config.json'
@@ -284,7 +284,7 @@ Describe 'Repository structure' {
         'files\powershell\scripts\Set-NodeVersion.ps1'
         'files\powershell\scripts\docker.ps1'
         'files\az\config.json'
-        'files\copilot\config.json'
+        'files\copilot\settings.json'
         'files\copilot\copilot-instructions.md'
         'files\copilot\mcp-config.json'
         'files\githooks\pre-commit'
