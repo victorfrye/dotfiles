@@ -175,6 +175,48 @@ resources:
     metadata:
       description: Disable Start menu recommendations
       securityContext: elevated
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: FileExplorerVersionControlRoot
+    properties:
+      getScript: |
+        $root = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\PerFolderRoots'
+        if (-not (Test-Path $root)) { return @{ path = $null } }
+        $found = Get-ChildItem $root -ErrorAction SilentlyContinue |
+            ForEach-Object { Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue } |
+            Where-Object { $_.Path -eq $env:REPOS_ROOT } |
+            Select-Object -First 1
+        return @{ path = if ($found) { $found.Path } else { $null } }
+      testScript: |
+        if ([string]::IsNullOrWhiteSpace($env:REPOS_ROOT)) { return $false }
+        $root = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\PerFolderRoots'
+        if (-not (Test-Path $root)) { return $false }
+        $found = Get-ChildItem $root -ErrorAction SilentlyContinue |
+            ForEach-Object { Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue } |
+            Where-Object { $_.Path -eq $env:REPOS_ROOT } |
+            Select-Object -First 1
+        return [bool]$found
+      setScript: |
+        if ([string]::IsNullOrWhiteSpace($env:REPOS_ROOT)) { throw 'REPOS_ROOT environment variable is not set.' }
+        $root = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\PerFolderRoots'
+        $existing = if (Test-Path $root) {
+            Get-ChildItem $root -ErrorAction SilentlyContinue |
+                ForEach-Object { Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue } |
+                Where-Object { $_.Path -eq $env:REPOS_ROOT } |
+                Select-Object -First 1
+        }
+        if ($existing) { Write-Host "  Already registered: $($env:REPOS_ROOT)"; return }
+        $guid   = '{2F4B7E9A-3C5D-4E8F-B1A2-6D8E0F2C4A7B}'
+        $keyPath = Join-Path $root $guid
+        New-Item -Path $keyPath -Force | Out-Null
+        New-ItemProperty -Path $keyPath -Name 'Path'             -Value $env:REPOS_ROOT                                                             -PropertyType String -Force | Out-Null
+        New-ItemProperty -Path $keyPath -Name 'FolderType'       -Value '{69F1E26B-EC64-4280-BC83-F1EB887EC35A}'                                     -PropertyType String -Force | Out-Null
+        New-ItemProperty -Path $keyPath -Name 'PropertyProvider' -Value '{1212F95B-257E-414E-B44F-F26634BD2627}'                                     -PropertyType String -Force | Out-Null
+        New-ItemProperty -Path $keyPath -Name 'RegisteredAppID'  -Value 'windows.immersivecontrolpanel_cw5n1h2txyewy!microsoft.windows.immersivecontrolpanel' -PropertyType String -Force | Out-Null
+        Write-Host "  Registered version control root: $($env:REPOS_ROOT)"
+    metadata:
+      description: Register REPOS_ROOT as a File Explorer version control root
+
   # ===========================================================================
   # Packages — Developer Tools
   # ===========================================================================

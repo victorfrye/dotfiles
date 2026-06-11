@@ -146,6 +146,7 @@ Describe 'WinGet Configuration — DSC script resources' {
         'CopilotTerminalFragment'
         'GitGlobalConfig'
         'Symlinks'
+        'FileExplorerVersionControlRoot'
         'DockerCLIPlugins'
         'CopilotConfigPatch'
         'CopilotMcpConfigPatch'
