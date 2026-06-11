@@ -117,6 +117,7 @@ $RegistryChecks = @(
     @{ Name = 'Explorer Git integration';    Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced';  ValueName = 'NavPaneShowVersionControl';         Expected = 1 }
     @{ Name = 'Start — no web search';       Path = 'HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer';                 ValueName = 'DisableSearchBoxSuggestions';      Expected = 1 }
     @{ Name = 'Start — no recommendations'; Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced';  ValueName = 'Start_IrisRecommendations';        Expected = 0 }
+    @{ Name = 'Taskbar End Task';           Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced';  ValueName = 'TaskbarEndTask';                   Expected = 1 }
 )
 
 foreach ($reg in $RegistryChecks) {

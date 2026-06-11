@@ -120,6 +120,7 @@ Describe 'WinGet Configuration — registry resources' {
         'ExplorerGitIntegration'
         'StartNoWebSearch'
         'StartNoRecommendations'
+        'TaskbarEndTask'
     )
 
     It 'declares registry resource <_>' -ForEach $requiredRegistryNames {

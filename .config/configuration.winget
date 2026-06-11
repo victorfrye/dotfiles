@@ -153,6 +153,17 @@ resources:
     metadata:
       description: Disable Start menu recommendations
       securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
+    name: TaskbarEndTask
+    properties:
+      keyPath: HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+      valueName: TaskbarEndTask
+      valueData:
+        DWord: 1
+    metadata:
+      description: Enable End Task option on taskbar right-click
+      securityContext: elevated
   # ===========================================================================
   # Packages — Developer Tools
   # ===========================================================================
