@@ -112,7 +112,7 @@ $RegistryChecks = @(
     @{ Name = 'Show file extensions';        Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced';  ValueName = 'HideFileExt';                      Expected = 0 }
     @{ Name = 'Show hidden files';           Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced';  ValueName = 'Hidden';                           Expected = 1 }
     @{ Name = 'Taskbar centered';            Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced';  ValueName = 'TaskbarAl';                        Expected = 1 }
-    @{ Name = 'Taskbar End Task';            Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced';  ValueName = 'TaskbarEndTask';                   Expected = 1 }
+    @{ Name = 'Taskbar end task';            Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced';  ValueName = 'TaskbarEndTask';                   Expected = 1 }
     @{ Name = 'Explorer full path titlebar'; Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced';  ValueName = 'FullPathAddress';                  Expected = 1 }
     @{ Name = 'Explorer opens to This PC';   Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced';  ValueName = 'LaunchTo';                         Expected = 1 }
     @{ Name = 'Explorer Git integration';    Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced';  ValueName = 'NavPaneShowVersionControl';         Expected = 1 }
