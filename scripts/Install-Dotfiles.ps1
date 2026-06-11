@@ -171,4 +171,9 @@ Write-Host 'Done. Environment variables set.' -ForegroundColor Magenta
 
 # ---------------------------------------------------------------------------- #
 
+Write-Host 'Restarting Explorer to apply registry changes...' -ForegroundColor Cyan
+Stop-Process -Name explorer -ErrorAction SilentlyContinue
+
+# ---------------------------------------------------------------------------- #
+
 Write-Host "`n=== Dotfiles installed successfully ===`n" -ForegroundColor Green
