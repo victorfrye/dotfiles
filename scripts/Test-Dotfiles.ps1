@@ -121,9 +121,10 @@ $RegistryChecks = @(
 )
 
 foreach ($reg in $RegistryChecks) {
-    $regPath = $reg.Path; $regVal = $reg.ValueName; $regExp = $reg.Expected
-    $actual  = (Get-ItemProperty $regPath -Name $regVal -ErrorAction SilentlyContinue).$regVal
-    Test-Check $reg.Name { $actual -eq $regExp } -Detail "$actual"
+    $regPath   = $reg.Path; $regVal = $reg.ValueName; $regExp = $reg.Expected
+    $actual    = (Get-ItemProperty $regPath -Name $regVal -ErrorAction SilentlyContinue).$regVal
+    $detailStr = if ($null -ne $actual) { "$actual" } else { '(not set)' }
+    Test-Check $reg.Name { $actual -eq $regExp } -Detail $detailStr
 }
 
 # ---------------------------------------------------------------------------- #
