@@ -128,6 +128,16 @@ foreach ($reg in $RegistryChecks) {
     Test-Check $reg.Name { $actual -eq $regExp } -Detail $detailStr
 }
 
+$vcRootRegPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\PerFolderRoots'
+$vcRootEntry   = if (Test-Path $vcRootRegPath) {
+    Get-ChildItem $vcRootRegPath -ErrorAction SilentlyContinue |
+        ForEach-Object { Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue } |
+        Where-Object { $_.Path -eq $env:REPOS_ROOT } |
+        Select-Object -First 1
+}
+$vcRootDetail  = if ($vcRootEntry) { $env:REPOS_ROOT } else { '(not set)' }
+Test-Check 'Explorer version control root' { $null -ne $vcRootEntry } -Detail $vcRootDetail
+
 # ---------------------------------------------------------------------------- #
 Write-Section 'Environment Variables'
 
