@@ -319,9 +319,7 @@ Write-Section 'Copilot'
 
 if (Test-Path $copilotConfig) {
     $c = Get-Content $copilotConfig -Raw | ConvertFrom-Json
-    Write-StateRow 'Model'           $c.model
-    Write-StateRow 'Theme'           $c.theme
-    Write-StateRow 'Render Markdown' $c.render_markdown
+    Write-StateRow 'Model' $c.model
 }
 
 if (Test-Path $mcpConfig) {
