@@ -230,9 +230,9 @@ foreach ($mod in @('Az', 'Pester', 'PSScriptAnalyzer', 'posh-git')) {
 Write-Section 'Binaries'
 
 $Binaries = @(
-    'git', 'gh', 'az', 'dotnet', 'pwsh', 'code-insiders', 'winget',
-    'terraform', 'kubectl', 'docker', 'docker-credential-wincred',
-    'helm', 'oh-my-posh', 'node', 'python', 'java', 'foundry', 'ollama', 'copilot'
+    'aspire', 'az', 'code-insiders', 'copilot', 'docker', 'docker-credential-wincred',
+    'dotnet', 'foundry', 'gh', 'git', 'helm', 'java', 'kubectl',
+    'node', 'oh-my-posh', 'ollama', 'pwsh', 'python', 'terraform', 'winget'
 )
 
 foreach ($bin in $Binaries) {
