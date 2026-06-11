@@ -121,6 +121,7 @@ Describe 'WinGet Configuration — registry resources' {
         'StartNoWebSearch'
         'StartNoRecommendations'
         'TaskbarEndTask'
+        'HideDesktopIcons'
     )
 
     It 'declares registry resource <_>' -ForEach $requiredRegistryNames {

@@ -111,6 +111,17 @@ resources:
       securityContext: elevated
 
   - type: Microsoft.Windows/Registry
+    name: HideDesktopIcons
+    properties:
+      keyPath: HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+      valueName: HideIcons
+      valueData:
+        DWord: 1
+    metadata:
+      description: Hide all desktop icons
+      securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
     name: ExplorerFullPath
     properties:
       keyPath: HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
