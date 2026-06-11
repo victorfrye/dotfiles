@@ -47,7 +47,7 @@ function Test-Check {
             Write-Host "    [+] $Name" -NoNewline -ForegroundColor Green
             if ($suffix) { Write-Host $suffix -ForegroundColor DarkGray } else { Write-Host '' }
         } else {
-            $suffix = if ($Detail) { "  (got: $Detail)" } else { '' }
+            $suffix = if ($Detail) { "  $Detail" } else { '' }
             Write-Host "    [-] $Name$suffix" -ForegroundColor Red
             $script:Failures++
         }
