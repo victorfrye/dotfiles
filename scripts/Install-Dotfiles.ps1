@@ -171,9 +171,10 @@ Write-Host 'Done. Environment variables set.' -ForegroundColor Magenta
 
 # ---------------------------------------------------------------------------- #
 
-Write-Host 'Restarting Explorer to apply registry changes...' -ForegroundColor Cyan
-Stop-Process -Name explorer -ErrorAction SilentlyContinue
-
-# ---------------------------------------------------------------------------- #
-
 Write-Host "`n=== Dotfiles installed successfully ===`n" -ForegroundColor Green
+
+Write-Host 'A restart is required to apply all registry changes (LongPathsEnabled, TaskbarEndTask, etc.).' -ForegroundColor Yellow
+$restart = Read-Host 'Restart now? [y/N]'
+if ($restart -eq 'y' -or $restart -eq 'Y') {
+    Restart-Computer -Force
+}
