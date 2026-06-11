@@ -1187,7 +1187,7 @@ resources:
             @{ Src = Join-Path $repo 'files\wsl\.wslconfig';                  Tgt = Join-Path $HOME '.wslconfig' }
         )
         foreach ($link in $links) {
-            if (-not (Test-Path $link.Tgt -Force)) { return $false }
+            if (-not (Test-Path $link.Tgt)) { return $false }
             $item = Get-Item $link.Tgt -Force
             if ($item.LinkType -ne 'SymbolicLink') { return $false }
             if ($item.Target -ne $link.Src) { return $false }
@@ -1209,7 +1209,7 @@ resources:
         foreach ($link in $links) {
             $src = $link.Src
             $tgt = $link.Tgt
-            if (Test-Path $tgt -Force) {
+            if (Test-Path $tgt) {
                 $item = Get-Item $tgt -Force
                 if ($item.LinkType -eq 'SymbolicLink' -and $item.Target -eq $src) {
                     Write-Host "  Already linked: $tgt"
@@ -1254,7 +1254,7 @@ resources:
             $src = Join-Path $winGetLinks $plugin
             if (-not (Test-Path $src)) { continue }
             $dst = Join-Path $pluginsDir $plugin
-            if (-not (Test-Path $dst -Force)) { return $false }
+            if (-not (Test-Path $dst)) { return $false }
             $item = Get-Item $dst -Force
             if ($item.LinkType -ne 'SymbolicLink') { return $false }
             if ($item.Target -ne $src) { return $false }
@@ -1271,7 +1271,7 @@ resources:
                 continue
             }
             $dst = Join-Path $pluginsDir $plugin
-            if (Test-Path $dst -Force) { Remove-Item $dst -Force }
+            if (Test-Path $dst) { Remove-Item $dst -Force }
             New-Item -ItemType SymbolicLink -Path $dst -Target $src | Out-Null
             Write-Host "  Linked: $dst -> $src"
         }
