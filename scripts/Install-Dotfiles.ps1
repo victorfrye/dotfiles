@@ -1,4 +1,4 @@
-﻿#Requires -RunAsAdministrator
+#Requires -RunAsAdministrator
 #Requires -Version 7.0
 
 <#
@@ -7,29 +7,26 @@
 .DESCRIPTION
     Initializes a Windows development machine by configuring Git,
     setting up a Dev Drive, cloning the dotfiles repository, applying
-    WinGet Configuration, creating symlinks, deploying one-time config
-    templates, and setting environment variables.
+    WinGet Configuration, and setting environment variables.
 
     All operations are idempotent — re-running safely skips or updates
     existing installations.
+
+    WinGet Configuration handles fonts, symlinks, Git global config,
+    Docker CLI plugins, config file patching, PowerShell modules,
+    Windows settings, and WSL installation as idempotent DSC resources.
 .PARAMETER Name
-    Full name for Git configuration. Defaults to 'Victor Frye'.
+    Full name for Git user.name configuration. Defaults to 'Victor Frye'.
 .PARAMETER Email
-    Email address for Git configuration. Defaults to 'victorfrye@outlook.com'.
+    Email address for Git user.email configuration. Defaults to 'victorfrye@outlook.com'.
 .PARAMETER DevDriveLetter
     Drive letter to assign when creating a new Dev Drive. Defaults to 'W'.
     Ignored if an existing ReFS Dev Drive is detected.
 .PARAMETER DevDriveSizeGB
     Size in GB for a new Dev Drive VHD. Defaults to 100.
     Minimum is 50 GB per Microsoft requirements.
-.PARAMETER Force
-    When specified, overwrites one-time deploy targets (Docker config, Podman auth,
-    Copilot config, Windows Terminal settings) even if they already exist.
-    Useful for resetting templates to the repo's current version.
 .EXAMPLE
     .\Install-Dotfiles.ps1
-.EXAMPLE
-    .\Install-Dotfiles.ps1 -Force
 .EXAMPLE
     .\Install-Dotfiles.ps1 -Name 'Jane Doe' -Email 'jane@example.com' -DevDriveLetter 'D' -DevDriveSizeGB 200
 #>
@@ -39,104 +36,12 @@ param(
     [string] $Email = 'victorfrye@outlook.com',
     [string] $DevDriveLetter = 'W',
     [ValidateRange(50, 2048)]
-    [int] $DevDriveSizeGB = 100,
-    [switch] $Force
+    [int] $DevDriveSizeGB = 100
 )
 
 $ErrorActionPreference = 'Stop'
 
 $RepoUrl = 'https://github.com/victorfrye/dotfiles'
-
-# ---------------------------------------------------------------------------- #
-# Helpers
-# ---------------------------------------------------------------------------- #
-
-function New-SymlinkIfNeeded {
-    param(
-        [string] $Source,
-        [string] $Target,
-        [switch] $Directory
-    )
-
-    if (Test-Path -Path $Target) {
-        $item = Get-Item $Target -Force
-        if ($item.LinkType -eq 'SymbolicLink' -and $item.Target -eq $Source) {
-            Write-Host "  Symlink already exists: $Target" -ForegroundColor Gray
-            return
-        }
-        Remove-Item -Path $Target -Force -Recurse
-    }
-
-    $TargetParent = Split-Path $Target -Parent
-    if (-not (Test-Path $TargetParent)) {
-        New-Item -ItemType Directory -Path $TargetParent -Force | Out-Null
-    }
-
-    New-Item -ItemType SymbolicLink -Path $Target -Target $Source | Out-Null
-    Write-Host "  Linked: $Target -> $Source" -ForegroundColor Magenta
-}
-
-function Copy-IfNotExists {
-    param(
-        [string] $Source,
-        [string] $Target,
-        [switch] $Force
-    )
-
-    if ((Test-Path -Path $Target) -and -not $Force) {
-        Write-Host "  Already exists (skipped): $Target" -ForegroundColor Gray
-        return
-    }
-
-    $TargetParent = Split-Path $Target -Parent
-    if (-not (Test-Path $TargetParent)) {
-        New-Item -ItemType Directory -Path $TargetParent -Force | Out-Null
-    }
-
-    Copy-Item -Path $Source -Destination $Target -Force
-    Write-Host "  Deployed: $Target" -ForegroundColor Magenta
-}
-
-function Install-CascadiaCodeFont {
-    $fontsDir = "$env:SystemRoot\Fonts"
-    $sentinel = Join-Path $fontsDir 'CascadiaCode.ttf'
-
-    if (Test-Path $sentinel) {
-        Write-Host '  Cascadia Code fonts already installed. Skipping.' -ForegroundColor Gray
-        return
-    }
-
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
-
-    $release = Invoke-RestMethod -Uri 'https://api.github.com/repos/microsoft/cascadia-code/releases/latest' -ErrorAction Stop
-    $asset   = $release.assets | Where-Object { $_.name -like 'CascadiaCode*.zip' } | Select-Object -First 1
-    $zipPath = Join-Path $env:TEMP $asset.name
-
-    Write-Host "  Downloading $($asset.name)..." -ForegroundColor Green
-    Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zipPath -ErrorAction Stop
-
-    $extractDir = Join-Path $env:TEMP 'CascadiaCodeFonts'
-    if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }
-    New-Item -ItemType Directory -Path $extractDir | Out-Null
-
-    $zip = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
-    foreach ($entry in $zip.Entries) {
-        if ($entry.FullName -match '^ttf/[^/]+\.ttf$') {
-            [System.IO.Compression.ZipFileExtensions]::ExtractToFile($entry, (Join-Path $extractDir $entry.Name), $true)
-        }
-    }
-    $zip.Dispose()
-
-    $regPath = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
-    foreach ($ttf in Get-ChildItem -Path $extractDir -Filter '*.ttf') {
-        Copy-Item -Path $ttf.FullName -Destination (Join-Path $fontsDir $ttf.Name) -Force
-        Set-ItemProperty -Path $regPath -Name "$($ttf.BaseName) (TrueType)" -Value $ttf.Name -Force
-        Write-Host "  Installed: $($ttf.Name)" -ForegroundColor Magenta
-    }
-
-    Remove-Item $zipPath -Force -ErrorAction SilentlyContinue
-    Remove-Item $extractDir -Recurse -Force -ErrorAction SilentlyContinue
-}
 
 # ---------------------------------------------------------------------------- #
 # Git
@@ -150,15 +55,6 @@ winget install --exact --id Git.Git --source winget --accept-source-agreements -
 
 $env:PATH = [System.Environment]::GetEnvironmentVariable('PATH', 'Machine') + ';' +
             [System.Environment]::GetEnvironmentVariable('PATH', 'User')
-
-git config --global user.name $Name
-git config --global user.email $Email
-git config --global core.editor edit
-git config --global core.symlinks true
-git config --global core.autocrlf false
-git config --global core.hookspath '~/.githooks'
-git config --global init.defaultBranch main
-git config --global push.autoSetupRemote true
 
 Write-Host 'Done. Git initialized.' -ForegroundColor Magenta
 
@@ -221,120 +117,12 @@ if (Test-Path -Path $RepoRoot) {
 
 Write-Host 'Applying WinGet Configuration...' -ForegroundColor Green
 
+$env:DOTFILES_ROOT = $RepoRoot
+
 $ConfigFile = Join-Path $RepoRoot '.config\configuration.winget'
 winget configure --file $ConfigFile --accept-configuration-agreements --disable-interactivity
 
 Write-Host 'Done. WinGet Configuration applied.' -ForegroundColor Magenta
-
-# ---------------------------------------------------------------------------- #
-# Fonts
-# ---------------------------------------------------------------------------- #
-
-Write-Host 'Installing fonts...' -ForegroundColor Green
-
-Install-CascadiaCodeFont
-
-Write-Host 'Done. Fonts installed.' -ForegroundColor Magenta
-
-# ---------------------------------------------------------------------------- #
-# Symlinks
-# ---------------------------------------------------------------------------- #
-
-Write-Host 'Creating symlinks...' -ForegroundColor Green
-
-New-SymlinkIfNeeded `
-    -Source (Join-Path $RepoRoot 'files\powershell\profile.ps1') `
-    -Target $PROFILE.CurrentUserAllHosts
-
-New-SymlinkIfNeeded `
-    -Source (Join-Path $RepoRoot 'files\copilot\copilot-instructions.md') `
-    -Target (Join-Path $HOME '.copilot\copilot-instructions.md')
-
-New-SymlinkIfNeeded `
-    -Source (Join-Path $RepoRoot 'files\copilot\agents') `
-    -Target (Join-Path $HOME '.copilot\agents') `
-    -Directory
-
-New-SymlinkIfNeeded `
-    -Source (Join-Path $RepoRoot 'files\copilot\skills') `
-    -Target (Join-Path $HOME '.copilot\skills') `
-    -Directory
-
-New-SymlinkIfNeeded `
-    -Source (Join-Path $RepoRoot 'files\az\config.json') `
-    -Target (Join-Path $HOME '.Azure\AzConfig.json')
-
-New-SymlinkIfNeeded `
-    -Source (Join-Path $RepoRoot 'files\githooks') `
-    -Target (Join-Path $HOME '.githooks') `
-    -Directory
-
-New-SymlinkIfNeeded `
-    -Source (Join-Path $RepoRoot 'files\wsl\.wslconfig') `
-    -Target (Join-Path $HOME '.wslconfig')
-
-Write-Host 'Done. Symlinks created.' -ForegroundColor Magenta
-
-# ---------------------------------------------------------------------------- #
-# Docker CLI plugins
-# ---------------------------------------------------------------------------- #
-
-Write-Host 'Configuring Docker CLI plugins...' -ForegroundColor Green
-
-$DockerPluginsDir = Join-Path $HOME '.docker\cli-plugins'
-if (-not (Test-Path $DockerPluginsDir)) {
-    New-Item -ItemType Directory -Path $DockerPluginsDir -Force | Out-Null
-}
-
-$WinGetLinks = Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links'
-foreach ($plugin in @('docker-buildx.exe', 'docker-compose.exe')) {
-    $pluginSource = Join-Path $WinGetLinks $plugin
-    if (Test-Path $pluginSource) {
-        New-SymlinkIfNeeded `
-            -Source $pluginSource `
-            -Target (Join-Path $DockerPluginsDir $plugin)
-    } else {
-        Write-Host "  Skipped $plugin (not in WinGet Links - install Docker.Buildx / Docker.DockerCompose)." -ForegroundColor Gray
-    }
-}
-
-Write-Host 'Done. Docker CLI plugins configured.' -ForegroundColor Magenta
-# ---------------------------------------------------------------------------- #
-
-Write-Host 'Deploying one-time config files...' -ForegroundColor Green
-
-$CopilotSource = Join-Path $RepoRoot 'files\copilot'
-$CopilotDest = Join-Path $HOME '.copilot'
-
-foreach ($file in @('config.json', 'mcp-config.json')) {
-    Copy-IfNotExists `
-        -Source (Join-Path $CopilotSource $file) `
-        -Target (Join-Path $CopilotDest $file) `
-        -Force:$Force
-}
-
-$DockerSource = Join-Path $RepoRoot 'files\docker'
-$DockerConfigJson = Join-Path $DockerSource 'config.json'
-Copy-IfNotExists `
-    -Source $DockerConfigJson `
-    -Target (Join-Path $HOME '.docker\config.json') `
-    -Force:$Force
-Copy-IfNotExists `
-    -Source $DockerConfigJson `
-    -Target (Join-Path $env:APPDATA 'containers\auth.json') `
-    -Force:$Force
-
-$WtLocalState = Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe\LocalState'
-if (Test-Path (Split-Path $WtLocalState -Parent)) {
-    Copy-IfNotExists `
-        -Source (Join-Path $RepoRoot 'files\terminal\settings.json') `
-        -Target (Join-Path $WtLocalState 'settings.json') `
-        -Force:$Force
-} else {
-    Write-Host '  Skipped Windows Terminal (not yet installed).' -ForegroundColor Gray
-}
-
-Write-Host 'Done. Config files deployed.' -ForegroundColor Magenta
 
 # ---------------------------------------------------------------------------- #
 # Environment variables

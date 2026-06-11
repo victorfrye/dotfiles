@@ -4,7 +4,7 @@ This document provides context for AI coding agents working in this repository.
 
 ## Architecture
 
-This is a Windows dotfiles repository that automates the setup of a local Windows development machine using a **hybrid approach**: a declarative WinGet Configuration file (DSC) handles packages, Windows settings, PowerShell modules, and fonts, while a thin bootstrap script handles Git setup, Dev Drive, repo cloning, symlinks, and environment variables.
+This is a Windows dotfiles repository that automates the setup of a local Windows development machine using a **hybrid approach**: a declarative WinGet Configuration file (**DSCv3**) handles packages, Windows registry settings, PowerShell modules, fonts, symlinks, Git config, Docker plugins, and config file patching — all as idempotent DSC script resources. A thin bootstrap script handles only Dev Drive creation, repo cloning, and environment variable setup before invoking `winget configure`.
 
 The single entry point is `scripts/Install-Dotfiles.ps1`, invoked remotely on a fresh machine via:
 
@@ -17,8 +17,8 @@ The script is **idempotent** — re-running it on an already-configured machine 
 
 ### Repository Structure
 
-- **`.config/configuration.winget`** — WinGet Configuration (DSC YAML): packages, Windows settings, PS modules
-- **`scripts/Install-Dotfiles.ps1`** — bootstrap script: Git init, Dev Drive, repo clone, `winget configure`, symlinks, Docker CLI plugins, one-time deploys, env vars
+- **`.config/configuration.winget`** — WinGet Configuration (**DSCv3** YAML): registry settings, packages, PS modules, fonts, terminal patches, Git config, symlinks, Docker plugins, config file patches, WSL install
+- **`scripts/Install-Dotfiles.ps1`** — thin bootstrap: Dev Drive detection/creation, repo clone, set `$env:DOTFILES_ROOT`, invoke `winget configure`, set machine-scope environment variables
 - **`scripts/Test-Dotfiles.ps1`** — post-install verification: checks symlinks, binaries, env vars, config validity
 - **`tests/Install-Dotfiles.Tests.ps1`** — Pester tests for CI: config validation, linting, JSON parsing
 - **`files/powershell/profile.ps1`** — PowerShell profile, symlinked to `$PROFILE.CurrentUserAllHosts`; sets env vars, loads Oh My Posh and posh-git, then dot-sources all scripts in `files/powershell/scripts/`
@@ -35,23 +35,50 @@ The script is **idempotent** — re-running it on an already-configured machine 
 - **`files/az/config.json`** — Azure PowerShell config, symlinked to `~/.Azure/AzConfig.json`
 - **`files/copilot/`** — GitHub Copilot CLI configuration (see below)
 - **`files/githooks/`** — Git hooks directory, symlinked to `~/.githooks`
-- **`files/terminal/settings.json`** — Windows Terminal Preview settings, deployed as one-time template
+- **`files/terminal/settings.json`** — Windows Terminal settings template; the DSC config patches the live settings.json for font and default profile (does not deploy this file directly)
 - **`files/wsl/.wslconfig`** — WSL configuration, symlinked to `~/.wslconfig`
-- **`files/docker/config.json`** — Docker credential store config (`credsStore: wincred`), deployed as one-time template to `~/.docker/config.json` — NOT symlinked, to prevent client-specific auth entries and runtime writes from propagating into the repo
-- **`files/docker/config.json`** also copied to `%APPDATA%\containers\auth.json` (Podman credential store) — same `credsStore: wincred` content, single source for both runtimes
+- **`files/docker/config.json`** — Docker credential store config (`credsStore: wincred`); the DSC config patches the live `~/.docker/config.json` and `%APPDATA%\containers\auth.json` using this as a reference — NOT deployed directly to avoid capturing runtime auth entries
 - **`env.ps1`** — local secrets file (**gitignored**, never committed; see below)
 
 ### Copilot CLI Configuration (`files/copilot/`)
 
 Deployed to `~/.copilot/` by the install script. Contains:
 
-- **`config.json`** — portable Copilot CLI settings (banner, theme, model preference)
+- **`config.json`** — portable Copilot CLI settings (banner, theme, model preference); **patched by DSC** (not deployed as a one-time copy)
 - **`copilot-instructions.md`** — personal coding instructions and engineering philosophy, symlinked to `~/.copilot/copilot-instructions.md`
-- **`mcp-config.json`** — MCP server definitions: Aspire, Playwright, Context7, WinGet. Deployed as one-time template — add org-specific servers (e.g., Azure DevOps) post-install.
+- **`mcp-config.json`** — MCP server definitions: Aspire, Playwright, Context7, WinGet. **Patched by DSC** (merges missing server entries, never overwrites extras) — add org-specific servers (e.g., Azure DevOps) post-install.
 - **`agents/`** — custom agent definitions directory, symlinked to `~/.copilot/agents/`: reserved for future custom agents
 - **`skills/`** — custom skill definitions directory, symlinked to `~/.copilot/skills/`: `interviewer`, `storywriter`
 
-### Dev Drive
+### DSCv3 Configuration Schema
+
+`.config/configuration.winget` uses the **DSCv3** schema with `metadata.winget.processor.identifier: dscv3`. Key differences from DSCv2:
+
+| Concern | DSCv2 | DSCv3 |
+|---|---|---|
+| Schema header | `configurationVersion: 0.2.0` | `$schema: .../PowerShell/DSC/.../config/document.json` |
+| Processor | implicit | `metadata.winget.processor.identifier: dscv3` |
+| Package resource | `Microsoft.WinGet.DSC/WinGetPackage` | `Microsoft.WinGet/Package` + `useLatest: true` |
+| Registry resource | `Microsoft.Windows.Developer/*` | `Microsoft.Windows/Registry` |
+| PS7 script resource | `PSDscResources/Script` | `Microsoft.DSC.Transitional/PowerShellScript` |
+| PS5 script resource | `PSDscResources/Script` | `Microsoft.DSC.Transitional/WindowsPowerShellScript` |
+| Elevated security | `directives.securityContext: elevated` | `metadata.securityContext: elevated` |
+
+**DSC resource sections in `.config/configuration.winget`** (in order):
+1. **Registry resources** — `Microsoft.Windows/Registry`: developer mode, long paths, sudo inline, dark theme (apps + system), Explorer settings (extensions, hidden files, full path, open to This PC, Git sidebar, taskbar alignment), Start menu (disable web search, disable recommendations)
+2. **Package resources** — `Microsoft.WinGet/Package`: all tools, languages, runtimes, apps
+3. **PS module scripts** — `Microsoft.DSC.Transitional/PowerShellScript`: install Az, Pester, PSScriptAnalyzer, posh-git modules
+4. **Font script** — Cascadia Code NF user-scope install (GitHub release API, HKCU registry, `%LOCALAPPDATA%\Microsoft\Windows\Fonts`)
+5. **Terminal scripts** — patch `settings.json` for Cascadia Mono NF font face, PS7 Preview default profile, GitHub Copilot fragment profile
+6. **Git config script** — set global `user.name`, `user.email`, `core.*`, `init.*`, `push.*`
+7. **Symlinks script** — create 7 symlinks (profile, copilot-instructions, agents/, skills/, az config, githooks/, .wslconfig); reads `$env:DOTFILES_ROOT`
+8. **Docker plugins script** — symlink `docker-buildx.exe` and `docker-compose.exe` into `~/.docker/cli-plugins/`
+9. **Config patch scripts** — merge-patch Copilot config.json, mcp-config.json, Docker config.json, Podman auth.json
+10. **WSL scripts** — 3-phase: enable WSL components → reboot for VMP → install Ubuntu 24.04 (uses `WindowsPowerShellScript`)
+
+**`$env:DOTFILES_ROOT` bridge:** `Install-Dotfiles.ps1` sets `$env:DOTFILES_ROOT = $RepoRoot` (process-scoped) before calling `winget configure`. Child DSC processes inherit this variable and use it in script resources that need the repo path (symlinks, config patches).
+
+
 
 The install script creates (or detects) a Windows ReFS Dev Drive volume labeled `DEVDRIVE`. All repositories and package manager caches live on this drive. The drive letter is dynamic — never hardcode it; always reference via the `DEVDRIVE` environment variable.
 
@@ -152,18 +179,14 @@ Run the full bootstrap (requires admin):
 .\scripts\Install-Dotfiles.ps1
 ```
 
-Force-refresh all one-time config templates (Docker config, Podman auth, Copilot config, Windows Terminal settings):
-
-```pwsh
-.\scripts\Install-Dotfiles.ps1 -Force
-```
-
 ### Validate
 
-Validate the WinGet Configuration without applying:
+> **Note:** `winget configure validate` targets the DSCv2 schema and reports warnings for DSCv3 resource types (`Microsoft.Windows/Registry`, `Microsoft.WinGet/Package`, `Microsoft.DSC.Transitional/*`). Use Pester tests for structural validation instead.
+
+Validate config YAML structure and lint all scripts:
 
 ```pwsh
-winget configure validate --file .config/configuration.winget
+Invoke-Pester .\tests\
 ```
 
 ### Test
@@ -183,15 +206,16 @@ Invoke-Pester .\tests\
 ### CI
 
 GitHub Actions CI runs on `windows-2025` and validates:
-- WinGet Configuration schema (`winget configure validate`)
 - PSScriptAnalyzer lint on all `.ps1` files
-- Pester tests (config structure, JSON parsing, syntax checks)
+- Pester tests (DSCv3 config structure, package declarations, registry resources, DSC script resources, JSON parsing, syntax checks)
+
+> `winget configure validate` is **not used in CI** — it targets DSCv2 and reports false warnings for DSCv3 resources.
 
 CI cannot test symlinks, env vars, or package installs (no Dev Drive or admin on runners).
 
 ### Add a Package
 
-Add a `WinGetPackage` resource entry to `.config/configuration.winget`.
+Add a `Microsoft.WinGet/Package` resource entry to `.config/configuration.winget` with `properties.id`, `properties.source: winget`, and `useLatest: true`.
 
 ### Apply WinGet Config Only
 

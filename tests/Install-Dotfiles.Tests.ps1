@@ -1,19 +1,191 @@
 #Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '5.0.0' }
 
 BeforeAll {
-    $RepoRoot = (Get-Item $PSScriptRoot).Parent.FullName
+    $RepoRoot   = (Get-Item $PSScriptRoot).Parent.FullName
+    $ConfigFile = Join-Path $RepoRoot '.config\configuration.winget'
+    $ConfigYaml = Get-Content $ConfigFile -Raw
 }
 
-Describe 'WinGet Configuration' {
-    It 'validates without errors' {
-        $configFile = Join-Path $RepoRoot '.config\configuration.winget'
-        $configFile | Should -Exist
+# ---------------------------------------------------------------------------
+# WinGet Configuration — schema and structure
+# ---------------------------------------------------------------------------
 
-        $output = winget configure validate --file $configFile 2>&1
-        $LASTEXITCODE | Should -Be 0
-        ($output | Out-String) | Should -Match 'no issues'
+Describe 'WinGet Configuration — schema' {
+    It 'uses DSCv3 processor identifier' {
+        $ConfigYaml | Should -Match 'identifier:\s*dscv3'
+    }
+
+    It 'references DSC document schema' {
+        $ConfigYaml | Should -Match '\$schema:.*PowerShell/DSC'
+    }
+
+    It 'has a resources array' {
+        $ConfigYaml | Should -Match 'resources:'
+        # Note: winget configure validate is designed for DSCv2 and reports warnings for
+        # DSCv3 resource types (Microsoft.Windows/Registry, Microsoft.WinGet/Package with
+        # useLatest, Microsoft.DSC.Transitional/*). Structural validation is done above.
+    }
+
+    It 'has valid YAML indentation (no tab characters)' {
+        $ConfigYaml | Should -Not -Match "`t"
     }
 }
+
+# ---------------------------------------------------------------------------
+# WinGet Configuration — packages
+# ---------------------------------------------------------------------------
+
+Describe 'WinGet Configuration — packages' {
+    $requiredPackages = @(
+        'Git.Git'
+        'GitHub.cli'
+        'GitHub.Copilot.Prerelease'
+        'Microsoft.Edit'
+        'Microsoft.VisualStudioCode.Insiders'
+        'BiomeJS.Biome'
+        'Hugo.Hugo.Extended'
+        'FiloSottile.mkcert'
+        'Anchore.Syft'
+        'Microsoft.Coreutils'
+        'Microsoft.DotNet.SDK.Preview'
+        'Microsoft.DotNet.SDK.10'
+        'Microsoft.DotNet.SDK.9'
+        'Microsoft.DotNet.SDK.8'
+        'Microsoft.DotNet.AspNetCore.Preview'
+        'Microsoft.DotNet.AspNetCore.10'
+        'Microsoft.DotNet.AspNetCore.9'
+        'Microsoft.DotNet.AspNetCore.8'
+        'Microsoft.NuGet'
+        'Microsoft.Aspire.Prerelease'
+        'Microsoft.OpenJDK.25'
+        'Microsoft.OpenJDK.21'
+        'Microsoft.OpenJDK.17'
+        'astral-sh.uv'
+        'Python.Python.3.14'
+        'OpenJS.NodeJS.LTS'
+        'OpenJS.NodeJS.22'
+        'OpenJS.NodeJS.20'
+        'Microsoft.PowerShell'
+        'Microsoft.PowerShell.Preview'
+        'Microsoft.AzureCLI'
+        'Microsoft.Azd'
+        'Microsoft.Azure.FunctionsCoreTools'
+        'Microsoft.Azure.StorageExplorer'
+        'Hashicorp.Terraform'
+        'Kubernetes.kubectl'
+        'Helm.Helm'
+        'Docker.DockerCLI'
+        'Docker.DockerCompose'
+        'Docker.Buildx'
+        'Docker.docker-credential-wincred'
+        'RedHat.Podman'
+        'RedHat.Podman-Desktop'
+        'Microsoft.FoundryLocal'
+        'Ollama.Ollama'
+        'Microsoft.Sqlcmd'
+        'Microsoft.WindowsTerminal.Preview'
+        'JanDeDobbeleer.OhMyPosh'
+        'Microsoft.PowerToys'
+        'Microsoft.Edge.Beta'
+        'Microsoft.Edge.Canary'
+        'Mozilla.Firefox'
+        'Google.Chrome'
+        'SlackTechnologies.Slack'
+        'Discord.Discord'
+        'Microsoft.Teams'
+        'Microsoft.BingWallpaper'
+    )
+
+    It 'declares package <_>' -ForEach $requiredPackages {
+        $ConfigYaml | Should -Match "id:\s*$([regex]::Escape($_))"
+    }
+}
+
+# ---------------------------------------------------------------------------
+# WinGet Configuration — registry resources
+# ---------------------------------------------------------------------------
+
+Describe 'WinGet Configuration — registry resources' {
+    $requiredRegistryNames = @(
+        'DeveloperMode'
+        'LongPaths'
+        'Sudo'
+        'DarkThemeApps'
+        'DarkThemeSystem'
+        'ShowFileExtensions'
+        'ShowHiddenFiles'
+        'TaskbarAlignment'
+        'ExplorerFullPath'
+        'ExplorerOpenThisPC'
+        'ExplorerGitIntegration'
+        'StartNoWebSearch'
+        'StartNoRecommendations'
+    )
+
+    It 'declares registry resource <_>' -ForEach $requiredRegistryNames {
+        $ConfigYaml | Should -Match "name:\s*$_"
+        $ConfigYaml | Should -Match 'type:\s*Microsoft\.Windows/Registry'
+    }
+}
+
+# ---------------------------------------------------------------------------
+# WinGet Configuration — DSC script resources
+# ---------------------------------------------------------------------------
+
+Describe 'WinGet Configuration — DSC script resources' {
+    $requiredScriptNames = @(
+        'poshGitModule'
+        'azModule'
+        'pesterModule'
+        'psScriptAnalyzerModule'
+        'CascadiaCodeNerdFonts'
+        'TerminalDefaultFont'
+        'TerminalDefaultProfile'
+        'CopilotTerminalFragment'
+        'GitGlobalConfig'
+        'Symlinks'
+        'DockerCLIPlugins'
+        'CopilotConfigPatch'
+        'CopilotMcpConfigPatch'
+        'DockerConfigPatch'
+        'PodmanAuthPatch'
+        'InstallWslComponents'
+        'RebootForVmp'
+        'InstallUbuntu'
+    )
+
+    It 'declares DSC script resource <_>' -ForEach $requiredScriptNames {
+        $ConfigYaml | Should -Match "name:\s*$_"
+    }
+
+    It 'uses Transitional PowerShellScript type' {
+        $ConfigYaml | Should -Match 'Microsoft\.DSC\.Transitional/PowerShellScript'
+    }
+
+    It 'uses Transitional WindowsPowerShellScript type for WSL' {
+        $ConfigYaml | Should -Match 'Microsoft\.DSC\.Transitional/WindowsPowerShellScript'
+    }
+}
+
+# ---------------------------------------------------------------------------
+# WinGet Configuration — DSC script resource patterns
+# ---------------------------------------------------------------------------
+
+Describe 'WinGet Configuration — DSC script resource patterns' {
+    It 'each PowerShellScript resource has getScript, testScript, and setScript' {
+        $resources = [regex]::Matches($ConfigYaml, 'type:\s*Microsoft\.DSC\.Transitional/PowerShellScript[\s\S]*?(?=- type:|$)')
+        foreach ($match in $resources) {
+            $block = $match.Value
+            $block | Should -Match 'getScript:'
+            $block | Should -Match 'testScript:'
+            $block | Should -Match 'setScript:'
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# JSON config files
+# ---------------------------------------------------------------------------
 
 Describe 'JSON config files' {
     $jsonFiles = @(
@@ -31,7 +203,11 @@ Describe 'JSON config files' {
     }
 }
 
-Describe 'PowerShell scripts' {
+# ---------------------------------------------------------------------------
+# PowerShell scripts — syntax
+# ---------------------------------------------------------------------------
+
+Describe 'PowerShell scripts — syntax' {
     $psFiles = @(
         'scripts\Install-Dotfiles.ps1'
         'scripts\Test-Dotfiles.ps1'
@@ -41,6 +217,7 @@ Describe 'PowerShell scripts' {
         'files\powershell\scripts\Set-CopilotProvider.ps1'
         'files\powershell\scripts\Set-JavaVersion.ps1'
         'files\powershell\scripts\Set-NodeVersion.ps1'
+        'files\powershell\scripts\docker.ps1'
     )
 
     It 'has valid syntax in <_>' -ForEach $psFiles {
@@ -52,7 +229,11 @@ Describe 'PowerShell scripts' {
     }
 }
 
-Describe 'PSScriptAnalyzer' {
+# ---------------------------------------------------------------------------
+# PowerShell scripts — PSScriptAnalyzer
+# ---------------------------------------------------------------------------
+
+Describe 'PowerShell scripts — PSScriptAnalyzer' {
     $psFiles = @(
         'scripts\Install-Dotfiles.ps1'
         'scripts\Test-Dotfiles.ps1'
@@ -62,6 +243,7 @@ Describe 'PSScriptAnalyzer' {
         'files\powershell\scripts\Set-CopilotProvider.ps1'
         'files\powershell\scripts\Set-JavaVersion.ps1'
         'files\powershell\scripts\Set-NodeVersion.ps1'
+        'files\powershell\scripts\docker.ps1'
     )
 
     It 'passes lint for <_>' -ForEach $psFiles {
@@ -70,10 +252,20 @@ Describe 'PSScriptAnalyzer' {
             return
         }
         $filePath = Join-Path $RepoRoot $_
-        $results = Invoke-ScriptAnalyzer -Path $filePath -Severity Error, Warning -ExcludeRule PSAvoidUsingWriteHost, PSUseShouldProcessForStateChangingFunctions, PSUseSingularNouns, PSAvoidUsingInvokeExpression, PSUseBOMForUnicodeEncodedFile, PSReviewUnusedParameter
+        $results = Invoke-ScriptAnalyzer -Path $filePath -Severity Error, Warning -ExcludeRule `
+            PSAvoidUsingWriteHost,
+            PSUseShouldProcessForStateChangingFunctions,
+            PSUseSingularNouns,
+            PSAvoidUsingInvokeExpression,
+            PSUseBOMForUnicodeEncodedFile,
+            PSReviewUnusedParameter
         $results | Should -BeNullOrEmpty
     }
 }
+
+# ---------------------------------------------------------------------------
+# Repository structure
+# ---------------------------------------------------------------------------
 
 Describe 'Repository structure' {
     $expectedFiles = @(
@@ -87,6 +279,7 @@ Describe 'Repository structure' {
         'files\powershell\scripts\Set-CopilotProvider.ps1'
         'files\powershell\scripts\Set-JavaVersion.ps1'
         'files\powershell\scripts\Set-NodeVersion.ps1'
+        'files\powershell\scripts\docker.ps1'
         'files\az\config.json'
         'files\copilot\config.json'
         'files\copilot\copilot-instructions.md'

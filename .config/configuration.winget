@@ -1,571 +1,1433 @@
-# yaml-language-server: $schema=https://aka.ms/configuration-dsc-schema/0.2
-properties:
-  configurationVersion: 0.2.0
-
-  assertions:
-    - resource: Microsoft.Windows.Developer/OsVersion
-      directives:
-        description: Verify minimum OS version (Windows 11 23H2+)
-        allowPrerelease: true
-      settings:
-        MinVersion: "10.0.22631"
-
-  resources:
-    # =========================================================================
-    # Windows Settings
-    # =========================================================================
-    - resource: Microsoft.Windows.Developer/DeveloperMode
-      directives:
-        description: Enable Developer Mode
-        allowPrerelease: true
-        securityContext: elevated
-      settings:
-        Ensure: Present
-
-    - resource: Microsoft.Windows.Developer/WindowsExplorer
-      directives:
-        description: Configure File Explorer defaults
-        allowPrerelease: true
-      settings:
-        FileExtensions: Show
-        HiddenFiles: Show
-
-    - resource: Microsoft.Windows.Developer/EnableLongPathSupport
-      directives:
-        description: Enable Win32 long path support
-        allowPrerelease: true
-        securityContext: elevated
-      settings:
-        Enabled: true
-
-    - resource: Microsoft.Windows.Developer/EnableDarkMode
-      directives:
-        description: Enable system dark mode
-        allowPrerelease: true
-      settings:
-        Ensure: Present
-        RestartExplorer: true
-
-    - resource: Microsoft.Windows.Developer/Taskbar
-      directives:
-        description: Configure taskbar alignment
-        allowPrerelease: true
-      settings:
-        Alignment: Middle
-
-    # =========================================================================
-    # Packages — Developer Tools
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      id: git
-      directives:
-        description: Install Git
-        securityContext: elevated
-      settings:
-        id: Git.Git
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install GitHub CLI
-      settings:
-        id: GitHub.cli
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install GitHub Copilot CLI (Prerelease)
-        allowPrerelease: true
-      settings:
-        id: GitHub.Copilot.Prerelease
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Microsoft Edit
-      settings:
-        id: Microsoft.Edit
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Visual Studio Code Insiders
-      settings:
-        id: Microsoft.VisualStudioCode.Insiders
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Biome linter and formatter
-      settings:
-        id: BiomeJS.Biome
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Hugo Extended
-      settings:
-        id: Hugo.Hugo.Extended
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install mkcert for local HTTPS
-      settings:
-        id: FiloSottile.mkcert
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Syft SBOM generator
-      settings:
-        id: Anchore.Syft
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Ubuntu 24.04 LTS (WSL)
-      settings:
-        id: Canonical.Ubuntu.2404
-        source: winget
-
-    # =========================================================================
-    # Packages — .NET Ecosystem
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install .NET SDK 11.0 Preview
-        allowPrerelease: true
-        securityContext: elevated
-      settings:
-        id: Microsoft.DotNet.SDK.Preview
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install .NET SDK 10.0
-        securityContext: elevated
-      settings:
-        id: Microsoft.DotNet.SDK.10
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install .NET SDK 9.0 (STS)
-        securityContext: elevated
-      settings:
-        id: Microsoft.DotNet.SDK.9
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install .NET SDK 8.0 (LTS)
-        securityContext: elevated
-      settings:
-        id: Microsoft.DotNet.SDK.8
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install ASP.NET Core Runtime 11.0 Preview
-        allowPrerelease: true
-        securityContext: elevated
-      settings:
-        id: Microsoft.DotNet.AspNetCore.Preview
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install ASP.NET Core Runtime 10.0
-        securityContext: elevated
-      settings:
-        id: Microsoft.DotNet.AspNetCore.10
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install ASP.NET Core Runtime 9.0 (STS)
-        securityContext: elevated
-      settings:
-        id: Microsoft.DotNet.AspNetCore.9
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install ASP.NET Core Runtime 8.0 (LTS)
-        securityContext: elevated
-      settings:
-        id: Microsoft.DotNet.AspNetCore.8
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install NuGet CLI
-      settings:
-        id: Microsoft.NuGet
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Aspire CLI (Prerelease)
-        allowPrerelease: true
-      settings:
-        id: Microsoft.Aspire.Prerelease
-        source: winget
-
-    # =========================================================================
-    # Packages — Java
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Microsoft OpenJDK 25
-        securityContext: elevated
-      settings:
-        id: Microsoft.OpenJDK.25
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Microsoft OpenJDK 21 (LTS)
-        securityContext: elevated
-      settings:
-        id: Microsoft.OpenJDK.21
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Microsoft OpenJDK 17 (LTS)
-        securityContext: elevated
-      settings:
-        id: Microsoft.OpenJDK.17
-        source: winget
-
-    # =========================================================================
-    # Packages — Python
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install uv (Python package manager)
-      settings:
-        id: astral-sh.uv
-        source: winget
-
-    # =========================================================================
-    # Packages — Node
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Node.js 24 (LTS)
-        securityContext: elevated
-      settings:
-        id: OpenJS.NodeJS.LTS
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Node.js 22 (LTS)
-        securityContext: elevated
-      settings:
-        id: OpenJS.NodeJS.22
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Node.js 20 (LTS)
-        securityContext: elevated
-      settings:
-        id: OpenJS.NodeJS.20
-        source: winget
-
-    # =========================================================================
-    # Packages — PowerShell
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install PowerShell (stable)
-        securityContext: elevated
-      settings:
-        id: Microsoft.PowerShell
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install PowerShell Preview
-        allowPrerelease: true
-        securityContext: elevated
-      settings:
-        id: Microsoft.PowerShell.Preview
-        source: winget
-
-    # =========================================================================
-    # Packages — Cloud & Infrastructure
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Azure CLI
-      settings:
-        id: Microsoft.AzureCLI
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Azure Developer CLI
-      settings:
-        id: Microsoft.Azd
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Azure Functions Core Tools
-      settings:
-        id: Microsoft.Azure.FunctionsCoreTools
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Azure Storage Explorer
-      settings:
-        id: Microsoft.Azure.StorageExplorer
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Terraform
-      settings:
-        id: Hashicorp.Terraform
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install kubectl
-      settings:
-        id: Kubernetes.kubectl
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Helm
-      settings:
-        id: Helm.Helm
-        source: winget
-
-    # =========================================================================
-    # Packages — Containers
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Docker CLI
-      settings:
-        id: Docker.DockerCLI
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Docker Compose
-      settings:
-        id: Docker.DockerCompose
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Docker Buildx
-      settings:
-        id: Docker.Buildx
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Docker Credential Helper for Windows
-      settings:
-        id: Docker.docker-credential-wincred
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Podman
-      settings:
-        id: RedHat.Podman
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Podman Desktop
-      settings:
-        id: RedHat.Podman-Desktop
-        source: winget
-
-    # =========================================================================
-    # Packages — AI
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Foundry Local
-      settings:
-        id: Microsoft.FoundryLocal
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Ollama
-      settings:
-        id: Ollama.Ollama
-        source: winget
-
-    # =========================================================================
-    # Packages — Database
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install sqlcmd CLI
-      settings:
-        id: Microsoft.Sqlcmd
-        source: winget
-
-    # =========================================================================
-    # Packages — Shell & Terminal
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Windows Terminal Preview
-        allowPrerelease: true
-      settings:
-        id: Microsoft.WindowsTerminal.Preview
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Oh My Posh
-      settings:
-        id: JanDeDobbeleer.OhMyPosh
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install PowerToys
-      settings:
-        id: Microsoft.PowerToys
-        source: winget
-
-    # =========================================================================
-    # Packages — Browsers
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Microsoft Edge Beta
-        allowPrerelease: true
-      settings:
-        id: Microsoft.Edge.Beta
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Microsoft Edge Canary
-        allowPrerelease: true
-      settings:
-        id: Microsoft.Edge.Canary
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Mozilla Firefox
-      settings:
-        id: Mozilla.Firefox
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Google Chrome
-      settings:
-        id: Google.Chrome
-        source: winget
-
-    # =========================================================================
-    # Packages — Communication
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Slack
-      settings:
-        id: SlackTechnologies.Slack
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Discord
-      settings:
-        id: Discord.Discord
-        source: winget
-
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Microsoft Teams
-      settings:
-        id: Microsoft.Teams
-        source: winget
-
-    # =========================================================================
-    # Packages — Other
-    # =========================================================================
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      directives:
-        description: Install Bing Wallpaper
-      settings:
-        id: Microsoft.BingWallpaper
-        source: winget
-
-    # =========================================================================
-    # PowerShell Modules
-    # =========================================================================
-    - resource: PSDscResources/Script
-      id: poshGitModule
-      dependsOn:
-        - git
-      directives:
-        description: Install posh-git PowerShell module
-        securityContext: elevated
-      settings:
-        GetScript: |
-          @{ Result = (Get-Module -Name posh-git -ListAvailable | Select-Object -First 1).Version }
-        TestScript: |
-          $null -ne (Get-Module -Name posh-git -ListAvailable)
-        SetScript: |
-          Install-Module -Name posh-git -Scope AllUsers -Force -AllowClobber
-
-    - resource: PSDscResources/Script
-      id: azModule
-      directives:
-        description: Install Az PowerShell module
-        securityContext: elevated
-      settings:
-        GetScript: |
-          @{ Result = (Get-Module -Name Az -ListAvailable | Select-Object -First 1).Version }
-        TestScript: |
-          $null -ne (Get-Module -Name Az -ListAvailable)
-        SetScript: |
-          Install-Module -Name Az -Repository PSGallery -Scope AllUsers -Force -AllowClobber
-
-    - resource: PSDscResources/Script
-      id: pesterModule
-      directives:
-        description: Install Pester PowerShell module
-        securityContext: elevated
-      settings:
-        GetScript: |
-          @{ Result = (Get-Module -Name Pester -ListAvailable | Select-Object -First 1).Version }
-        TestScript: |
-          $null -ne (Get-Module -Name Pester -ListAvailable | Where-Object { $_.Version -ge '5.0.0' })
-        SetScript: |
-          Install-Module -Name Pester -Scope AllUsers -Force -AllowClobber -SkipPublisherCheck
-
-    - resource: PSDscResources/Script
-      id: psScriptAnalyzerModule
-      directives:
-        description: Install PSScriptAnalyzer PowerShell module
-        securityContext: elevated
-      settings:
-        GetScript: |
-          @{ Result = (Get-Module -Name PSScriptAnalyzer -ListAvailable | Select-Object -First 1).Version }
-        TestScript: |
-          $null -ne (Get-Module -Name PSScriptAnalyzer -ListAvailable)
-        SetScript: |
-          Install-Module -Name PSScriptAnalyzer -Scope AllUsers -Force -AllowClobber
+# yaml-language-server: $schema=https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
+$schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
+metadata:
+  winget:
+    processor:
+      identifier: dscv3
+
+resources:
+
+  # ===========================================================================
+  # Windows Settings
+  # ===========================================================================
+
+  - type: Microsoft.Windows/Registry
+    name: DeveloperMode
+    properties:
+      keyPath: HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock
+      valueName: AllowDevelopmentWithoutDevLicense
+      valueData:
+        DWord: 1
+    metadata:
+      description: Enable Developer Mode
+      securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
+    name: LongPaths
+    properties:
+      keyPath: HKLM\SYSTEM\CurrentControlSet\Control\FileSystem
+      valueName: LongPathsEnabled
+      valueData:
+        DWord: 1
+    metadata:
+      description: Enable Win32 long path support
+      securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
+    name: Sudo
+    properties:
+      keyPath: HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Sudo
+      valueName: Enabled
+      valueData:
+        DWord: 3
+    metadata:
+      description: Enable Sudo in inline mode
+      securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
+    name: DarkThemeApps
+    properties:
+      keyPath: HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize
+      valueName: AppsUseLightTheme
+      valueData:
+        DWord: 0
+    metadata:
+      description: Enable dark theme for apps
+      securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
+    name: DarkThemeSystem
+    properties:
+      keyPath: HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize
+      valueName: SystemUsesLightTheme
+      valueData:
+        DWord: 0
+    metadata:
+      description: Enable dark theme for system
+      securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
+    name: ShowFileExtensions
+    properties:
+      keyPath: HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+      valueName: HideFileExt
+      valueData:
+        DWord: 0
+    metadata:
+      description: Show file extensions in Explorer
+      securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
+    name: ShowHiddenFiles
+    properties:
+      keyPath: HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+      valueName: Hidden
+      valueData:
+        DWord: 1
+    metadata:
+      description: Show hidden files in Explorer
+      securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
+    name: TaskbarAlignment
+    properties:
+      keyPath: HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+      valueName: TaskbarAl
+      valueData:
+        DWord: 1
+    metadata:
+      description: Center taskbar alignment
+      securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
+    name: ExplorerFullPath
+    properties:
+      keyPath: HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+      valueName: FullPathAddress
+      valueData:
+        DWord: 1
+    metadata:
+      description: Show full path in Explorer titlebar
+      securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
+    name: ExplorerOpenThisPC
+    properties:
+      keyPath: HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+      valueName: LaunchTo
+      valueData:
+        DWord: 1
+    metadata:
+      description: Open File Explorer to This PC
+      securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
+    name: ExplorerGitIntegration
+    properties:
+      keyPath: HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+      valueName: NavPaneShowVersionControl
+      valueData:
+        DWord: 1
+    metadata:
+      description: Enable Git integration in File Explorer
+      securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
+    name: StartNoWebSearch
+    properties:
+      keyPath: HKCU\SOFTWARE\Policies\Microsoft\Windows\Explorer
+      valueName: DisableSearchBoxSuggestions
+      valueData:
+        DWord: 1
+    metadata:
+      description: Disable web search in Start menu
+      securityContext: elevated
+
+  - type: Microsoft.Windows/Registry
+    name: StartNoRecommendations
+    properties:
+      keyPath: HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+      valueName: Start_IrisRecommendations
+      valueData:
+        DWord: 0
+    metadata:
+      description: Disable Start menu recommendations
+      securityContext: elevated
+  # ===========================================================================
+  # Packages — Developer Tools
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: git
+    properties:
+      id: Git.Git
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Git
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: GitHubCLI
+    dependsOn:
+      - git
+    properties:
+      id: GitHub.cli
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install GitHub CLI
+
+  - type: Microsoft.WinGet/Package
+    name: Copilot
+    dependsOn:
+      - git
+    properties:
+      id: GitHub.Copilot.Prerelease
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install GitHub Copilot CLI (Prerelease)
+
+  - type: Microsoft.WinGet/Package
+    name: Edit
+    properties:
+      id: Microsoft.Edit
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Microsoft Edit
+
+  - type: Microsoft.WinGet/Package
+    name: VSCodeInsiders
+    properties:
+      id: Microsoft.VisualStudioCode.Insiders
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Visual Studio Code Insiders
+
+  - type: Microsoft.WinGet/Package
+    name: Biome
+    properties:
+      id: BiomeJS.Biome
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Biome linter and formatter
+
+  - type: Microsoft.WinGet/Package
+    name: Hugo
+    properties:
+      id: Hugo.Hugo.Extended
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Hugo Extended
+
+  - type: Microsoft.WinGet/Package
+    name: Mkcert
+    properties:
+      id: FiloSottile.mkcert
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install mkcert for local HTTPS
+
+  - type: Microsoft.WinGet/Package
+    name: Syft
+    properties:
+      id: Anchore.Syft
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Syft SBOM generator
+
+  # ===========================================================================
+  # Packages — .NET Ecosystem
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: DotNetSdkPreview
+    properties:
+      id: Microsoft.DotNet.SDK.Preview
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install .NET SDK Preview
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: DotNetSdk10
+    properties:
+      id: Microsoft.DotNet.SDK.10
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install .NET SDK 10.0
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: DotNetSdk9
+    properties:
+      id: Microsoft.DotNet.SDK.9
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install .NET SDK 9.0 (STS)
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: DotNetSdk8
+    properties:
+      id: Microsoft.DotNet.SDK.8
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install .NET SDK 8.0 (LTS)
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: AspNetCorePreview
+    properties:
+      id: Microsoft.DotNet.AspNetCore.Preview
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install ASP.NET Core Runtime Preview
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: AspNetCore10
+    properties:
+      id: Microsoft.DotNet.AspNetCore.10
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install ASP.NET Core Runtime 10.0
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: AspNetCore9
+    properties:
+      id: Microsoft.DotNet.AspNetCore.9
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install ASP.NET Core Runtime 9.0 (STS)
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: AspNetCore8
+    properties:
+      id: Microsoft.DotNet.AspNetCore.8
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install ASP.NET Core Runtime 8.0 (LTS)
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: NuGet
+    properties:
+      id: Microsoft.NuGet
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install NuGet CLI
+
+  - type: Microsoft.WinGet/Package
+    name: Aspire
+    properties:
+      id: Microsoft.Aspire.Prerelease
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Aspire CLI (Prerelease)
+
+  # ===========================================================================
+  # Packages — Java
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: OpenJDK25
+    properties:
+      id: Microsoft.OpenJDK.25
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Microsoft OpenJDK 25
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: OpenJDK21
+    properties:
+      id: Microsoft.OpenJDK.21
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Microsoft OpenJDK 21 (LTS)
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: OpenJDK17
+    properties:
+      id: Microsoft.OpenJDK.17
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Microsoft OpenJDK 17 (LTS)
+      securityContext: elevated
+
+  # ===========================================================================
+  # Packages — Python
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: UV
+    properties:
+      id: astral-sh.uv
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install uv (Python package manager)
+
+  - type: Microsoft.WinGet/Package
+    name: Python
+    properties:
+      id: Python.Python.3.14
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Python 3.14
+
+  # ===========================================================================
+  # Packages — Node
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: NodeLTS
+    properties:
+      id: OpenJS.NodeJS.LTS
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Node.js (Current LTS)
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: Node22
+    properties:
+      id: OpenJS.NodeJS.22
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Node.js 22 (LTS)
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: Node20
+    properties:
+      id: OpenJS.NodeJS.20
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Node.js 20 (LTS)
+      securityContext: elevated
+
+  # ===========================================================================
+  # Packages — PowerShell
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: PowerShell
+    properties:
+      id: Microsoft.PowerShell
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install PowerShell (stable)
+      securityContext: elevated
+
+  - type: Microsoft.WinGet/Package
+    name: PowerShellPreview
+    properties:
+      id: Microsoft.PowerShell.Preview
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install PowerShell Preview
+      securityContext: elevated
+
+  # ===========================================================================
+  # Packages — Cloud & Infrastructure
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: AzureCLI
+    properties:
+      id: Microsoft.AzureCLI
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Azure CLI
+
+  - type: Microsoft.WinGet/Package
+    name: AzureDeveloperCLI
+    properties:
+      id: Microsoft.Azd
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Azure Developer CLI
+
+  - type: Microsoft.WinGet/Package
+    name: AzureFunctions
+    properties:
+      id: Microsoft.Azure.FunctionsCoreTools
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Azure Functions Core Tools
+
+  - type: Microsoft.WinGet/Package
+    name: AzureStorageExplorer
+    properties:
+      id: Microsoft.Azure.StorageExplorer
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Azure Storage Explorer
+
+  - type: Microsoft.WinGet/Package
+    name: Terraform
+    properties:
+      id: Hashicorp.Terraform
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Terraform
+
+  - type: Microsoft.WinGet/Package
+    name: Kubectl
+    properties:
+      id: Kubernetes.kubectl
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install kubectl
+
+  - type: Microsoft.WinGet/Package
+    name: Helm
+    properties:
+      id: Helm.Helm
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Helm
+
+  # ===========================================================================
+  # Packages — Containers
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: DockerCLI
+    properties:
+      id: Docker.DockerCLI
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Docker CLI
+
+  - type: Microsoft.WinGet/Package
+    name: DockerCompose
+    properties:
+      id: Docker.DockerCompose
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Docker Compose
+
+  - type: Microsoft.WinGet/Package
+    name: DockerBuildx
+    properties:
+      id: Docker.Buildx
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Docker Buildx
+
+  - type: Microsoft.WinGet/Package
+    name: DockerCredHelper
+    properties:
+      id: Docker.docker-credential-wincred
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Docker Credential Helper for Windows
+
+  - type: Microsoft.WinGet/Package
+    name: Podman
+    properties:
+      id: RedHat.Podman
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Podman
+
+  - type: Microsoft.WinGet/Package
+    name: PodmanDesktop
+    properties:
+      id: RedHat.Podman-Desktop
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Podman Desktop
+
+  # ===========================================================================
+  # Packages — AI
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: FoundryLocal
+    properties:
+      id: Microsoft.FoundryLocal
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Foundry Local
+
+  - type: Microsoft.WinGet/Package
+    name: Ollama
+    properties:
+      id: Ollama.Ollama
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Ollama
+
+  # ===========================================================================
+  # Packages — Database
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: Sqlcmd
+    properties:
+      id: Microsoft.Sqlcmd
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install sqlcmd CLI
+
+  # ===========================================================================
+  # Packages — Shell & Terminal
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: WindowsTerminal
+    properties:
+      id: Microsoft.WindowsTerminal.Preview
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Windows Terminal Preview
+
+  - type: Microsoft.WinGet/Package
+    name: OhMyPosh
+    properties:
+      id: JanDeDobbeleer.OhMyPosh
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Oh My Posh
+
+  - type: Microsoft.WinGet/Package
+    name: PowerToys
+    properties:
+      id: Microsoft.PowerToys
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install PowerToys
+
+  - type: Microsoft.WinGet/Package
+    name: Coreutils
+    properties:
+      id: Microsoft.Coreutils
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Microsoft Core Utilities
+
+  # ===========================================================================
+  # Packages — Browsers
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: EdgeBeta
+    properties:
+      id: Microsoft.Edge.Beta
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Microsoft Edge Beta
+
+  - type: Microsoft.WinGet/Package
+    name: EdgeCanary
+    properties:
+      id: Microsoft.Edge.Canary
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Microsoft Edge Canary
+
+  - type: Microsoft.WinGet/Package
+    name: Firefox
+    properties:
+      id: Mozilla.Firefox
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Mozilla Firefox
+
+  - type: Microsoft.WinGet/Package
+    name: Chrome
+    properties:
+      id: Google.Chrome
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Google Chrome
+
+  # ===========================================================================
+  # Packages — Communication
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: Slack
+    properties:
+      id: SlackTechnologies.Slack
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Slack
+
+  - type: Microsoft.WinGet/Package
+    name: Discord
+    properties:
+      id: Discord.Discord
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Discord
+
+  - type: Microsoft.WinGet/Package
+    name: Teams
+    properties:
+      id: Microsoft.Teams
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Microsoft Teams
+
+  # ===========================================================================
+  # Packages — Other
+  # ===========================================================================
+
+  - type: Microsoft.WinGet/Package
+    name: BingWallpaper
+    properties:
+      id: Microsoft.BingWallpaper
+      source: winget
+      useLatest: true
+    metadata:
+      description: Install Bing Wallpaper
+  # ===========================================================================
+  # PowerShell Modules
+  # ===========================================================================
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: poshGitModule
+    dependsOn:
+      - git
+    properties:
+      getScript: |
+        return @{ Version = (Get-Module -Name posh-git -ListAvailable | Select-Object -First 1).Version }
+      testScript: |
+        return ($null -ne (Get-Module -Name posh-git -ListAvailable))
+      setScript: |
+        Install-Module -Name posh-git -Scope AllUsers -Force -AllowClobber
+    metadata:
+      description: Install posh-git PowerShell module
+      securityContext: elevated
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: azModule
+    properties:
+      getScript: |
+        return @{ Version = (Get-Module -Name Az -ListAvailable | Select-Object -First 1).Version }
+      testScript: |
+        return ($null -ne (Get-Module -Name Az -ListAvailable))
+      setScript: |
+        Install-Module -Name Az -Repository PSGallery -Scope AllUsers -Force -AllowClobber
+    metadata:
+      description: Install Az PowerShell module
+      securityContext: elevated
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: pesterModule
+    properties:
+      getScript: |
+        return @{ Version = (Get-Module -Name Pester -ListAvailable | Select-Object -First 1).Version }
+      testScript: |
+        return ($null -ne (Get-Module -Name Pester -ListAvailable | Where-Object { $_.Version -ge '5.0.0' }))
+      setScript: |
+        Install-Module -Name Pester -Scope AllUsers -Force -AllowClobber -SkipPublisherCheck
+    metadata:
+      description: Install Pester PowerShell module
+      securityContext: elevated
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: psScriptAnalyzerModule
+    properties:
+      getScript: |
+        return @{ Version = (Get-Module -Name PSScriptAnalyzer -ListAvailable | Select-Object -First 1).Version }
+      testScript: |
+        return ($null -ne (Get-Module -Name PSScriptAnalyzer -ListAvailable))
+      setScript: |
+        Install-Module -Name PSScriptAnalyzer -Scope AllUsers -Force -AllowClobber
+    metadata:
+      description: Install PSScriptAnalyzer PowerShell module
+      securityContext: elevated
+
+  # ===========================================================================
+  # Fonts
+  # ===========================================================================
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: CascadiaCodeNerdFonts
+    properties:
+      getScript: |
+        $fontsDir    = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows\Fonts'
+        $wantedFonts = @('CascadiaCodeNF.ttf', 'CascadiaMonoNF.ttf')
+        $regPath     = 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
+        $regValues   = @(
+            (Get-ItemProperty $regPath -EA SilentlyContinue).PSObject.Properties |
+            Where-Object Name -notin 'PSPath','PSParentPath','PSChildName','PSDrive','PSProvider' |
+            Select-Object -ExpandProperty Value
+        )
+        $filesOk = -not ($wantedFonts | Where-Object { -not (Test-Path (Join-Path $fontsDir $_)) })
+        $regOk   = -not ($wantedFonts | Where-Object { $fn = $_; -not ($regValues | Where-Object { $_ -like "*$fn" }) })
+        return @{ filesInstalled = $filesOk; registryEntries = $regOk }
+      testScript: |
+        $fontsDir    = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows\Fonts'
+        $wantedFonts = @('CascadiaCodeNF.ttf', 'CascadiaMonoNF.ttf')
+        $regPath     = 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
+        $regValues   = @(
+            (Get-ItemProperty $regPath -EA SilentlyContinue).PSObject.Properties |
+            Where-Object Name -notin 'PSPath','PSParentPath','PSChildName','PSDrive','PSProvider' |
+            Select-Object -ExpandProperty Value
+        )
+        $filesOk = -not ($wantedFonts | Where-Object { -not (Test-Path (Join-Path $fontsDir $_)) })
+        $regOk   = -not ($wantedFonts | Where-Object { $fn = $_; -not ($regValues | Where-Object { $_ -like "*$fn" }) })
+        return ($filesOk -and $regOk)
+      setScript: |
+        $ErrorActionPreference = 'Stop'
+        $ProgressPreference    = 'SilentlyContinue'
+        $WantedFonts = @('CascadiaCodeNF.ttf', 'CascadiaMonoNF.ttf')
+        $fontsDir    = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows\Fonts'
+        $regPath     = 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
+        New-Item -ItemType Directory -Path $fontsDir -Force | Out-Null
+
+        $release = Invoke-RestMethod -Uri 'https://api.github.com/repos/microsoft/cascadia-code/releases/latest' -ErrorAction Stop
+        $asset   = $release.assets | Where-Object { $_.name -like 'CascadiaCode*.zip' } | Select-Object -First 1
+        $workDir = Join-Path $env:TEMP 'CascadiaCodeNF'
+        $zipPath = Join-Path $workDir $asset.name
+        New-Item -ItemType Directory -Path $workDir -Force | Out-Null
+
+        Write-Host "Downloading $($asset.name)..."
+        Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zipPath -UseBasicParsing
+
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        Add-Type -AssemblyName System.Drawing
+
+        $zip = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
+        try {
+            foreach ($name in $WantedFonts) {
+                $entry = $zip.Entries | Where-Object { $_.Name -eq $name } | Select-Object -First 1
+                if (-not $entry) { Write-Warning "Not found in archive: $name"; continue }
+                $dest = Join-Path $fontsDir $name
+                [System.IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $dest, $true)
+                $pfc = New-Object System.Drawing.Text.PrivateFontCollection
+                try {
+                    $pfc.AddFontFile($dest)
+                    $family = $pfc.Families[0].Name
+                } finally { $pfc.Dispose() }
+                $regName = "$family (TrueType)"
+                New-ItemProperty -Path $regPath -Name $regName -Value $dest -PropertyType String -Force | Out-Null
+                Write-Host "  Installed: $name as '$regName'"
+            }
+        } finally {
+            $zip.Dispose()
+        }
+        Remove-Item $zipPath -Force -ErrorAction SilentlyContinue
+        Remove-Item $workDir -Recurse -Force -ErrorAction SilentlyContinue
+    metadata:
+      description: Install Cascadia Code Nerd Fonts (user-scope)
+
+  # ===========================================================================
+  # Windows Terminal — Configuration
+  # ===========================================================================
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: TerminalDefaultFont
+    dependsOn:
+      - WindowsTerminal
+      - CascadiaCodeNerdFonts
+    properties:
+      getScript: |
+        $fontFace     = 'Cascadia Mono NF'
+        $settingsPath = @(
+            Get-ChildItem "$env:LOCALAPPDATA\Packages" -Filter 'Microsoft.WindowsTerminal*' -Directory -EA SilentlyContinue |
+                ForEach-Object { Join-Path $_.FullName 'LocalState\settings.json' }
+            "$env:LOCALAPPDATA\Microsoft\Windows Terminal\settings.json"
+        ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+        if (-not $settingsPath) { return @{ fontFace = $null } }
+        $raw   = Get-Content $settingsPath -Raw
+        $clean = [regex]::Replace($raw, '/\*[\s\S]*?\*/', '')
+        $clean = [regex]::Replace($clean, '(?m)^\s*//.*$', '')
+        $json  = $clean | ConvertFrom-Json
+        return @{ fontFace = $json.profiles.defaults.font.face }
+      testScript: |
+        $fontFace     = 'Cascadia Mono NF'
+        $settingsPath = @(
+            Get-ChildItem "$env:LOCALAPPDATA\Packages" -Filter 'Microsoft.WindowsTerminal*' -Directory -EA SilentlyContinue |
+                ForEach-Object { Join-Path $_.FullName 'LocalState\settings.json' }
+            "$env:LOCALAPPDATA\Microsoft\Windows Terminal\settings.json"
+        ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+        if (-not $settingsPath) { return $true }
+        $raw   = Get-Content $settingsPath -Raw
+        $clean = [regex]::Replace($raw, '/\*[\s\S]*?\*/', '')
+        $clean = [regex]::Replace($clean, '(?m)^\s*//.*$', '')
+        $json  = $clean | ConvertFrom-Json
+        return ($json.profiles.defaults.font.face -eq $fontFace)
+      setScript: |
+        $fontFace     = 'Cascadia Mono NF'
+        $settingsPath = @(
+            Get-ChildItem "$env:LOCALAPPDATA\Packages" -Filter 'Microsoft.WindowsTerminal*' -Directory -EA SilentlyContinue |
+                ForEach-Object { Join-Path $_.FullName 'LocalState\settings.json' }
+            "$env:LOCALAPPDATA\Microsoft\Windows Terminal\settings.json"
+        ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+        if (-not $settingsPath) { throw 'Windows Terminal settings.json not found.' }
+        Write-Host "Patching: $settingsPath"
+        Copy-Item $settingsPath "$settingsPath.bak" -Force
+        $raw   = Get-Content $settingsPath -Raw
+        $clean = [regex]::Replace($raw, '/\*[\s\S]*?\*/', '')
+        $clean = [regex]::Replace($clean, '(?m)^\s*//.*$', '')
+        $json  = $clean | ConvertFrom-Json -AsHashtable
+        if (-not $json.profiles)               { $json.profiles = [ordered]@{} }
+        if (-not $json.profiles.defaults)      { $json.profiles.defaults = [ordered]@{} }
+        if (-not $json.profiles.defaults.font) { $json.profiles.defaults.font = [ordered]@{} }
+        $json.profiles.defaults.font.face = $fontFace
+        $json | ConvertTo-Json -Depth 32 | Set-Content $settingsPath -Encoding utf8
+        Write-Host "Set default font to '$fontFace' (backup: $settingsPath.bak)"
+    metadata:
+      description: Set Cascadia Mono NF as default Windows Terminal font
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: TerminalDefaultProfile
+    dependsOn:
+      - WindowsTerminal
+      - PowerShellPreview
+    properties:
+      getScript: |
+        $settingsPath = @(
+            Get-ChildItem "$env:LOCALAPPDATA\Packages" -Filter 'Microsoft.WindowsTerminal*' -Directory -EA SilentlyContinue |
+                ForEach-Object { Join-Path $_.FullName 'LocalState\settings.json' }
+            "$env:LOCALAPPDATA\Microsoft\Windows Terminal\settings.json"
+        ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+        if (-not $settingsPath) { return @{ defaultProfile = $null; ps7PreviewGuid = $null } }
+        $raw      = Get-Content $settingsPath -Raw
+        $clean    = [regex]::Replace($raw, '/\*[\s\S]*?\*/', '')
+        $clean    = [regex]::Replace($clean, '(?m)^\s*//.*$', '')
+        $settings = $clean | ConvertFrom-Json
+        $ps7pre   = $settings.profiles.list | Where-Object {
+            ($_.source -eq 'Windows.Terminal.PowershellCore' -and $_.name -like '*Preview*') -or
+            $_.name -eq 'PowerShell Preview'
+        } | Select-Object -First 1
+        return @{ defaultProfile = $settings.defaultProfile; ps7PreviewGuid = $ps7pre.guid }
+      testScript: |
+        $settingsPath = @(
+            Get-ChildItem "$env:LOCALAPPDATA\Packages" -Filter 'Microsoft.WindowsTerminal*' -Directory -EA SilentlyContinue |
+                ForEach-Object { Join-Path $_.FullName 'LocalState\settings.json' }
+            "$env:LOCALAPPDATA\Microsoft\Windows Terminal\settings.json"
+        ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+        if (-not $settingsPath) { return $true }
+        $raw      = Get-Content $settingsPath -Raw
+        $clean    = [regex]::Replace($raw, '/\*[\s\S]*?\*/', '')
+        $clean    = [regex]::Replace($clean, '(?m)^\s*//.*$', '')
+        $settings = $clean | ConvertFrom-Json
+        $ps7pre   = $settings.profiles.list | Where-Object {
+            ($_.source -eq 'Windows.Terminal.PowershellCore' -and $_.name -like '*Preview*') -or
+            $_.name -eq 'PowerShell Preview'
+        } | Select-Object -First 1
+        if (-not $ps7pre) { return $true }
+        return ($settings.defaultProfile -eq $ps7pre.guid)
+      setScript: |
+        $settingsPath = @(
+            Get-ChildItem "$env:LOCALAPPDATA\Packages" -Filter 'Microsoft.WindowsTerminal*' -Directory -EA SilentlyContinue |
+                ForEach-Object { Join-Path $_.FullName 'LocalState\settings.json' }
+            "$env:LOCALAPPDATA\Microsoft\Windows Terminal\settings.json"
+        ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+        if (-not $settingsPath) { return }
+        Write-Host "Patching: $settingsPath"
+        Copy-Item $settingsPath "$settingsPath.bak" -Force
+        $raw      = Get-Content $settingsPath -Raw
+        $clean    = [regex]::Replace($raw, '/\*[\s\S]*?\*/', '')
+        $clean    = [regex]::Replace($clean, '(?m)^\s*//.*$', '')
+        $settings = $clean | ConvertFrom-Json
+        $ps7pre   = $settings.profiles.list | Where-Object {
+            ($_.source -eq 'Windows.Terminal.PowershellCore' -and $_.name -like '*Preview*') -or
+            $_.name -eq 'PowerShell Preview'
+        } | Select-Object -First 1
+        if ($ps7pre -and $settings.defaultProfile -ne $ps7pre.guid) {
+            $settings.defaultProfile = $ps7pre.guid
+            $settings | ConvertTo-Json -Depth 10 | Set-Content $settingsPath -Encoding UTF8
+            Write-Host "Set default profile to PowerShell Preview ($($ps7pre.guid))"
+        } elseif (-not $ps7pre) {
+            Write-Warning 'PowerShell Preview profile not found in Windows Terminal — skipping.'
+        }
+    metadata:
+      description: Set PowerShell Preview as default Windows Terminal profile
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: CopilotTerminalFragment
+    dependsOn:
+      - WindowsTerminal
+      - Copilot
+    properties:
+      getScript: |
+        $fragmentPath = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows Terminal\Fragments\Dotfiles\github-copilot.fragment.json'
+        return @{ fragmentPresent = (Test-Path $fragmentPath) }
+      testScript: |
+        $fragmentPath = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows Terminal\Fragments\Dotfiles\github-copilot.fragment.json'
+        return (Test-Path $fragmentPath)
+      setScript: |
+        $fragmentsDir = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows Terminal\Fragments\Dotfiles'
+        New-Item -ItemType Directory -Path $fragmentsDir -Force | Out-Null
+        $iconPath = Join-Path $fragmentsDir 'copilot.png'
+        try {
+            Invoke-WebRequest -Uri 'https://github.githubassets.com/favicons/favicon-dark.png' -OutFile $iconPath -UseBasicParsing -ErrorAction Stop
+        } catch {
+            Write-Warning "Could not download Copilot icon: $_"
+        }
+        $fragment = @{
+            profiles = @(
+                @{
+                    guid              = '{b1a4d2c8-6f3e-4a7b-9e2d-1c8f5a3b7d91}'
+                    name              = 'GitHub Copilot'
+                    commandline       = 'pwsh.exe -NoExit -Command "copilot"'
+                    icon              = 'copilot.png'
+                    startingDirectory = '%USERPROFILE%'
+                    hidden            = $false
+                    tabTitle          = 'Copilot'
+                }
+            )
+        }
+        $fragmentFile = Join-Path $fragmentsDir 'github-copilot.fragment.json'
+        $fragment | ConvertTo-Json -Depth 8 | Out-File -FilePath $fragmentFile -Encoding Utf8
+        @(
+            "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json",
+            "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe\LocalState\settings.json",
+            "$env:LOCALAPPDATA\Microsoft\Windows Terminal\settings.json"
+        ) | Where-Object { Test-Path $_ } | ForEach-Object {
+            try { (Get-Item -LiteralPath $_).LastWriteTime = Get-Date } catch {}
+        }
+        Write-Host "GitHub Copilot Terminal profile fragment written to $fragmentFile"
+    metadata:
+      description: Create GitHub Copilot profile in Windows Terminal
+
+  # ===========================================================================
+  # Git Configuration
+  # ===========================================================================
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: GitGlobalConfig
+    dependsOn:
+      - git
+    properties:
+      getScript: |
+        return @{
+            name          = (git config --global user.name 2>$null)
+            email         = (git config --global user.email 2>$null)
+            editor        = (git config --global core.editor 2>$null)
+            symlinks      = (git config --global core.symlinks 2>$null)
+            autocrlf      = (git config --global core.autocrlf 2>$null)
+            hookspath     = (git config --global core.hookspath 2>$null)
+            defaultBranch = (git config --global init.defaultBranch 2>$null)
+            autoSetup     = (git config --global push.autoSetupRemote 2>$null)
+        }
+      testScript: |
+        $expected = @{
+            'user.name'            = 'Victor Frye'
+            'user.email'           = 'victorfrye@outlook.com'
+            'core.editor'          = 'edit'
+            'core.symlinks'        = 'true'
+            'core.autocrlf'        = 'false'
+            'core.hookspath'       = '~/.githooks'
+            'init.defaultBranch'   = 'main'
+            'push.autoSetupRemote' = 'true'
+        }
+        foreach ($key in $expected.Keys) {
+            $actual = git config --global $key 2>$null
+            if ($actual -ne $expected[$key]) { return $false }
+        }
+        return $true
+      setScript: |
+        git config --global user.name 'Victor Frye'
+        git config --global user.email 'victorfrye@outlook.com'
+        git config --global core.editor edit
+        git config --global core.symlinks true
+        git config --global core.autocrlf false
+        git config --global core.hookspath '~/.githooks'
+        git config --global init.defaultBranch main
+        git config --global push.autoSetupRemote true
+        Write-Host 'Git global configuration applied.'
+    metadata:
+      description: Configure Git global settings
+
+  # ===========================================================================
+  # Symlinks
+  # ===========================================================================
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: Symlinks
+    dependsOn:
+      - GitGlobalConfig
+    properties:
+      getScript: |
+        $repo = $env:DOTFILES_ROOT
+        if ([string]::IsNullOrWhiteSpace($repo)) { return @{ error = 'DOTFILES_ROOT not set' } }
+        $profilePath = $PROFILE.CurrentUserAllHosts
+        $links = @(
+            @{ Src = Join-Path $repo 'files\powershell\profile.ps1';          Tgt = $profilePath }
+            @{ Src = Join-Path $repo 'files\copilot\copilot-instructions.md'; Tgt = Join-Path $HOME '.copilot\copilot-instructions.md' }
+            @{ Src = Join-Path $repo 'files\copilot\agents';                  Tgt = Join-Path $HOME '.copilot\agents' }
+            @{ Src = Join-Path $repo 'files\copilot\skills';                  Tgt = Join-Path $HOME '.copilot\skills' }
+            @{ Src = Join-Path $repo 'files\az\config.json';                  Tgt = Join-Path $HOME '.Azure\AzConfig.json' }
+            @{ Src = Join-Path $repo 'files\githooks';                        Tgt = Join-Path $HOME '.githooks' }
+            @{ Src = Join-Path $repo 'files\wsl\.wslconfig';                  Tgt = Join-Path $HOME '.wslconfig' }
+        )
+        $result = @{}
+        foreach ($link in $links) {
+            $name = Split-Path $link.Src -Leaf
+            $result[$name] = (Test-Path $link.Tgt) -and ((Get-Item $link.Tgt -Force).LinkType -eq 'SymbolicLink')
+        }
+        return $result
+      testScript: |
+        $repo = $env:DOTFILES_ROOT
+        if ([string]::IsNullOrWhiteSpace($repo)) { return $false }
+        $profilePath = $PROFILE.CurrentUserAllHosts
+        $links = @(
+            @{ Src = Join-Path $repo 'files\powershell\profile.ps1';          Tgt = $profilePath }
+            @{ Src = Join-Path $repo 'files\copilot\copilot-instructions.md'; Tgt = Join-Path $HOME '.copilot\copilot-instructions.md' }
+            @{ Src = Join-Path $repo 'files\copilot\agents';                  Tgt = Join-Path $HOME '.copilot\agents' }
+            @{ Src = Join-Path $repo 'files\copilot\skills';                  Tgt = Join-Path $HOME '.copilot\skills' }
+            @{ Src = Join-Path $repo 'files\az\config.json';                  Tgt = Join-Path $HOME '.Azure\AzConfig.json' }
+            @{ Src = Join-Path $repo 'files\githooks';                        Tgt = Join-Path $HOME '.githooks' }
+            @{ Src = Join-Path $repo 'files\wsl\.wslconfig';                  Tgt = Join-Path $HOME '.wslconfig' }
+        )
+        foreach ($link in $links) {
+            if (-not (Test-Path $link.Tgt -Force)) { return $false }
+            $item = Get-Item $link.Tgt -Force
+            if ($item.LinkType -ne 'SymbolicLink') { return $false }
+            if ($item.Target -ne $link.Src) { return $false }
+        }
+        return $true
+      setScript: |
+        $repo = $env:DOTFILES_ROOT
+        if ([string]::IsNullOrWhiteSpace($repo)) { throw 'DOTFILES_ROOT environment variable is not set.' }
+        $profilePath = $PROFILE.CurrentUserAllHosts
+        $links = @(
+            @{ Src = Join-Path $repo 'files\powershell\profile.ps1';          Tgt = $profilePath }
+            @{ Src = Join-Path $repo 'files\copilot\copilot-instructions.md'; Tgt = Join-Path $HOME '.copilot\copilot-instructions.md' }
+            @{ Src = Join-Path $repo 'files\copilot\agents';                  Tgt = Join-Path $HOME '.copilot\agents' }
+            @{ Src = Join-Path $repo 'files\copilot\skills';                  Tgt = Join-Path $HOME '.copilot\skills' }
+            @{ Src = Join-Path $repo 'files\az\config.json';                  Tgt = Join-Path $HOME '.Azure\AzConfig.json' }
+            @{ Src = Join-Path $repo 'files\githooks';                        Tgt = Join-Path $HOME '.githooks' }
+            @{ Src = Join-Path $repo 'files\wsl\.wslconfig';                  Tgt = Join-Path $HOME '.wslconfig' }
+        )
+        foreach ($link in $links) {
+            $src = $link.Src
+            $tgt = $link.Tgt
+            if (Test-Path $tgt -Force) {
+                $item = Get-Item $tgt -Force
+                if ($item.LinkType -eq 'SymbolicLink' -and $item.Target -eq $src) {
+                    Write-Host "  Already linked: $tgt"
+                    continue
+                }
+                Remove-Item $tgt -Force -Recurse
+            }
+            $parent = Split-Path $tgt -Parent
+            if (-not (Test-Path $parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
+            New-Item -ItemType SymbolicLink -Path $tgt -Target $src | Out-Null
+            Write-Host "  Linked: $tgt -> $src"
+        }
+    metadata:
+      description: Create dotfiles symlinks
+      securityContext: elevated
+
+  # ===========================================================================
+  # Docker CLI Plugins
+  # ===========================================================================
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: DockerCLIPlugins
+    dependsOn:
+      - DockerBuildx
+      - DockerCompose
+    properties:
+      getScript: |
+        $pluginsDir  = Join-Path $env:USERPROFILE '.docker\cli-plugins'
+        $winGetLinks = Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links'
+        $result      = @{}
+        foreach ($plugin in @('docker-buildx.exe', 'docker-compose.exe')) {
+            $src  = Join-Path $winGetLinks $plugin
+            $dst  = Join-Path $pluginsDir $plugin
+            $linked = (Test-Path $dst) -and ((Get-Item $dst -Force).LinkType -eq 'SymbolicLink')
+            $result[$plugin] = $linked
+        }
+        return $result
+      testScript: |
+        $pluginsDir  = Join-Path $env:USERPROFILE '.docker\cli-plugins'
+        $winGetLinks = Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links'
+        foreach ($plugin in @('docker-buildx.exe', 'docker-compose.exe')) {
+            $src = Join-Path $winGetLinks $plugin
+            if (-not (Test-Path $src)) { continue }
+            $dst = Join-Path $pluginsDir $plugin
+            if (-not (Test-Path $dst -Force)) { return $false }
+            $item = Get-Item $dst -Force
+            if ($item.LinkType -ne 'SymbolicLink') { return $false }
+            if ($item.Target -ne $src) { return $false }
+        }
+        return $true
+      setScript: |
+        $pluginsDir  = Join-Path $env:USERPROFILE '.docker\cli-plugins'
+        $winGetLinks = Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links'
+        New-Item -ItemType Directory -Path $pluginsDir -Force | Out-Null
+        foreach ($plugin in @('docker-buildx.exe', 'docker-compose.exe')) {
+            $src = Join-Path $winGetLinks $plugin
+            if (-not (Test-Path $src)) {
+                Write-Warning "  Skipped $plugin (not found in WinGet Links)"
+                continue
+            }
+            $dst = Join-Path $pluginsDir $plugin
+            if (Test-Path $dst -Force) { Remove-Item $dst -Force }
+            New-Item -ItemType SymbolicLink -Path $dst -Target $src | Out-Null
+            Write-Host "  Linked: $dst -> $src"
+        }
+    metadata:
+      description: Configure Docker CLI plugins
+      securityContext: elevated
+
+  # ===========================================================================
+  # Config File Patching
+  # ===========================================================================
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: CopilotConfigPatch
+    properties:
+      getScript: |
+        $dest = Join-Path $env:USERPROFILE '.copilot\config.json'
+        if (-not (Test-Path $dest)) { return @{ exists = $false } }
+        $json = Get-Content $dest -Raw | ConvertFrom-Json
+        return @{ banner = $json.banner; theme = $json.theme; model = $json.model; render_markdown = $json.render_markdown }
+      testScript: |
+        $dest = Join-Path $env:USERPROFILE '.copilot\config.json'
+        if (-not (Test-Path $dest)) { return $false }
+        $json = Get-Content $dest -Raw | ConvertFrom-Json
+        return ($json.banner -eq 'always' -and $json.theme -eq 'auto' -and
+                $json.model -eq 'claude-opus-4.6' -and $json.render_markdown -eq $true)
+      setScript: |
+        $dest = Join-Path $env:USERPROFILE '.copilot\config.json'
+        New-Item -ItemType Directory -Path (Split-Path $dest -Parent) -Force | Out-Null
+        $json = if (Test-Path $dest) { Get-Content $dest -Raw | ConvertFrom-Json -AsHashtable } else { @{} }
+        $json['banner']          = 'always'
+        $json['render_markdown'] = $true
+        $json['theme']           = 'auto'
+        $json['model']           = 'claude-opus-4.6'
+        $json | ConvertTo-Json -Depth 10 | Set-Content $dest -Encoding UTF8
+        Write-Host "Copilot config.json patched."
+    metadata:
+      description: Patch Copilot CLI config.json
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: CopilotMcpConfigPatch
+    properties:
+      getScript: |
+        $dest = Join-Path $env:USERPROFILE '.copilot\mcp-config.json'
+        if (-not (Test-Path $dest)) { return @{ exists = $false } }
+        $json = Get-Content $dest -Raw | ConvertFrom-Json
+        return @{ serverCount = ($json.mcpServers.PSObject.Properties | Measure-Object).Count }
+      testScript: |
+        $dest = Join-Path $env:USERPROFILE '.copilot\mcp-config.json'
+        if (-not (Test-Path $dest)) { return $false }
+        $json     = Get-Content $dest -Raw | ConvertFrom-Json -AsHashtable
+        $required = @('aspire', 'playwright', 'context7', 'winget')
+        foreach ($key in $required) {
+            if (-not $json.mcpServers.ContainsKey($key)) { return $false }
+        }
+        return $true
+      setScript: |
+        $dest = Join-Path $env:USERPROFILE '.copilot\mcp-config.json'
+        New-Item -ItemType Directory -Path (Split-Path $dest -Parent) -Force | Out-Null
+        $current = if (Test-Path $dest) { Get-Content $dest -Raw | ConvertFrom-Json -AsHashtable } else { @{} }
+        if (-not $current.ContainsKey('mcpServers')) { $current['mcpServers'] = @{} }
+        $defaults = [ordered]@{
+            aspire     = [ordered]@{ tools = @('*'); type = 'local'; command = 'aspire'; args = @('mcp', 'start') }
+            playwright = [ordered]@{ tools = @('*'); type = 'local'; command = 'npx'; args = @('-y', '@playwright/mcp@latest') }
+            context7   = [ordered]@{ type = 'http'; url = 'https://mcp.context7.com/mcp'; headers = [ordered]@{}; tools = @('query-docs', 'resolve-library-id') }
+            winget     = [ordered]@{ type = 'stdio'; command = 'WindowsPackageManagerMCPServer.exe'; tools = @('*'); args = @() }
+        }
+        foreach ($key in $defaults.Keys) {
+            if (-not $current.mcpServers.ContainsKey($key)) {
+                $current.mcpServers[$key] = $defaults[$key]
+                Write-Host "  Added MCP server: $key"
+            }
+        }
+        $current | ConvertTo-Json -Depth 10 | Set-Content $dest -Encoding UTF8
+        Write-Host "Copilot mcp-config.json patched."
+    metadata:
+      description: Patch Copilot CLI mcp-config.json
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: DockerConfigPatch
+    properties:
+      getScript: |
+        $dest = Join-Path $env:USERPROFILE '.docker\config.json'
+        if (-not (Test-Path $dest)) { return @{ exists = $false; credsStore = $null } }
+        $json = Get-Content $dest -Raw | ConvertFrom-Json
+        return @{ exists = $true; credsStore = $json.credsStore }
+      testScript: |
+        $dest = Join-Path $env:USERPROFILE '.docker\config.json'
+        if (-not (Test-Path $dest)) { return $false }
+        $json = Get-Content $dest -Raw | ConvertFrom-Json
+        return ($json.credsStore -eq 'wincred')
+      setScript: |
+        $dest = Join-Path $env:USERPROFILE '.docker\config.json'
+        New-Item -ItemType Directory -Path (Split-Path $dest -Parent) -Force | Out-Null
+        $json = if (Test-Path $dest) { Get-Content $dest -Raw | ConvertFrom-Json -AsHashtable } else { @{} }
+        $json['credsStore'] = 'wincred'
+        $json | ConvertTo-Json -Depth 10 | Set-Content $dest -Encoding UTF8
+        Write-Host "Docker config.json patched (credsStore = wincred)."
+    metadata:
+      description: Patch Docker config.json to use wincred credential store
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: PodmanAuthPatch
+    properties:
+      getScript: |
+        $dest = Join-Path $env:APPDATA 'containers\auth.json'
+        if (-not (Test-Path $dest)) { return @{ exists = $false; credsStore = $null } }
+        $json = Get-Content $dest -Raw | ConvertFrom-Json
+        return @{ exists = $true; credsStore = $json.credsStore }
+      testScript: |
+        $dest = Join-Path $env:APPDATA 'containers\auth.json'
+        if (-not (Test-Path $dest)) { return $false }
+        $json = Get-Content $dest -Raw | ConvertFrom-Json
+        return ($json.credsStore -eq 'wincred')
+      setScript: |
+        $dest = Join-Path $env:APPDATA 'containers\auth.json'
+        New-Item -ItemType Directory -Path (Split-Path $dest -Parent) -Force | Out-Null
+        $json = if (Test-Path $dest) { Get-Content $dest -Raw | ConvertFrom-Json -AsHashtable } else { @{} }
+        $json['credsStore'] = 'wincred'
+        $json | ConvertTo-Json -Depth 10 | Set-Content $dest -Encoding UTF8
+        Write-Host "Podman auth.json patched (credsStore = wincred)."
+    metadata:
+      description: Patch Podman auth.json to use wincred credential store
+  # ===========================================================================
+  # WSL — 3-Phase Install
+  # ===========================================================================
+
+  - type: Microsoft.DSC.Transitional/WindowsPowerShellScript
+    name: InstallWslComponents
+    properties:
+      getScript: |
+        $svc = Get-CimInstance -ClassName Win32_Service -Filter "Name='vmcompute'"
+        return @{ vmcomputePresent = [bool]$svc }
+      testScript: |
+        $svc = Get-CimInstance -ClassName Win32_Service -Filter "Name='vmcompute'"
+        return [bool]$svc
+      setScript: |
+        Write-Host "InstallWslComponents: running wsl --install --no-distribution..."
+        $process = Start-Process -FilePath "cmd.exe" -ArgumentList "/c wsl --install --no-distribution >nul 2>&1" -Wait -PassThru
+        if ($process.ExitCode -eq 3010 -or $process.ExitCode -eq 1641) {
+            Write-Host "WSL components installed. A system reboot is required."
+        } elseif ($process.ExitCode -ne 0) {
+            throw "wsl --install failed with exit code $($process.ExitCode)"
+        }
+    metadata:
+      description: Enable WSL optional components
+      securityContext: elevated
+
+  - type: Microsoft.DSC.Transitional/WindowsPowerShellScript
+    name: RebootForVmp
+    dependsOn:
+      - InstallWslComponents
+    properties:
+      getScript: |
+        $svc = Get-CimInstance -ClassName Win32_Service -Filter "Name='vmcompute'"
+        return @{ vmcomputePresent = [bool]$svc }
+      testScript: |
+        $svc = Get-CimInstance -ClassName Win32_Service -Filter "Name='vmcompute'"
+        return [bool]$svc
+      setScript: |
+        $configFile = "${WinGetConfigRoot}\configuration.winget"
+        $resumeCmd  = "winget configure --file `"$configFile`" --accept-configuration-agreements"
+        $runOncePath = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce'
+        Set-ItemProperty -Path $runOncePath -Name 'DSCConfigureResume' -Value $resumeCmd -Force
+        Write-Host "RebootForVmp: registered RunOnce resume key."
+        Write-Host "  HKCU:\...\RunOnce\DSCConfigureResume = $resumeCmd"
+        Write-Host "RebootForVmp: rebooting to activate Virtual Machine Platform..."
+        Restart-Computer -Force
+        Start-Sleep -Seconds 60
+        throw "Reboot initiated. DSC will resume via RunOnce on next login."
+    metadata:
+      description: Reboot to activate Virtual Machine Platform for WSL
+      securityContext: elevated
+
+  - type: Microsoft.DSC.Transitional/WindowsPowerShellScript
+    name: InstallUbuntu
+    dependsOn:
+      - RebootForVmp
+    properties:
+      getScript: |
+        $env:WSL_UTF8 = '1'
+        $distros = @()
+        try {
+            $raw = & wsl.exe --list --quiet 2>$null
+            if ($LASTEXITCODE -eq 0 -and $raw) {
+                $distros = @($raw | ForEach-Object { ($_ -replace "`0", '').Trim() } | Where-Object { $_ })
+            }
+        } catch {}
+        return @{ distroCount = $distros.Count; distros = ($distros -join ',') }
+      testScript: |
+        $env:WSL_UTF8 = '1'
+        try {
+            $raw = & wsl.exe --list --quiet 2>$null
+            if ($LASTEXITCODE -ne 0 -or -not $raw) { return $false }
+            $distros = @($raw | ForEach-Object { ($_ -replace "`0", '').Trim() } | Where-Object { $_ })
+            return $distros.Count -gt 0
+        } catch {
+            return $false
+        }
+      setScript: |
+        Write-Host "InstallUbuntu: running wsl --install -d Ubuntu --no-launch..."
+        $process = Start-Process -FilePath "cmd.exe" -ArgumentList "/c wsl --install -d Ubuntu --no-launch >nul 2>&1" -Wait -PassThru
+        if ($process.ExitCode -ne 0) {
+            throw "wsl --install -d Ubuntu --no-launch failed with exit code $($process.ExitCode)"
+        }
+        Write-Host "Ubuntu installed in WSL."
+    metadata:
+      description: Install Ubuntu in WSL
+      securityContext: elevated
