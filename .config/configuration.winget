@@ -809,7 +809,14 @@ resources:
     properties:
       getScript: |
         $fontsDir    = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows\Fonts'
-        $wantedFonts = @('CascadiaCodeNF.ttf', 'CascadiaMonoNF.ttf')
+        $wantedFonts = @(
+            'CascadiaCode.ttf'; 'CascadiaCodeItalic.ttf'
+            'CascadiaMono.ttf'; 'CascadiaMonoItalic.ttf'
+            'CascadiaCodePL.ttf'; 'CascadiaCodePLItalic.ttf'
+            'CascadiaMonoPL.ttf'; 'CascadiaMonoPLItalic.ttf'
+            'CascadiaCodeNF.ttf'; 'CascadiaCodeNFItalic.ttf'
+            'CascadiaMonoNF.ttf'; 'CascadiaMonoNFItalic.ttf'
+        )
         $regPath     = 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
         $regValues   = @(
             (Get-ItemProperty $regPath -EA SilentlyContinue).PSObject.Properties |
@@ -821,7 +828,14 @@ resources:
         return @{ filesInstalled = $filesOk; registryEntries = $regOk }
       testScript: |
         $fontsDir    = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows\Fonts'
-        $wantedFonts = @('CascadiaCodeNF.ttf', 'CascadiaMonoNF.ttf')
+        $wantedFonts = @(
+            'CascadiaCode.ttf'; 'CascadiaCodeItalic.ttf'
+            'CascadiaMono.ttf'; 'CascadiaMonoItalic.ttf'
+            'CascadiaCodePL.ttf'; 'CascadiaCodePLItalic.ttf'
+            'CascadiaMonoPL.ttf'; 'CascadiaMonoPLItalic.ttf'
+            'CascadiaCodeNF.ttf'; 'CascadiaCodeNFItalic.ttf'
+            'CascadiaMonoNF.ttf'; 'CascadiaMonoNFItalic.ttf'
+        )
         $regPath     = 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
         $regValues   = @(
             (Get-ItemProperty $regPath -EA SilentlyContinue).PSObject.Properties |
@@ -834,7 +848,20 @@ resources:
       setScript: |
         $ErrorActionPreference = 'Stop'
         $ProgressPreference    = 'SilentlyContinue'
-        $WantedFonts = @('CascadiaCodeNF.ttf', 'CascadiaMonoNF.ttf')
+        $WantedFonts = @(
+            'CascadiaCode.ttf'
+            'CascadiaCodeItalic.ttf'
+            'CascadiaMono.ttf'
+            'CascadiaMonoItalic.ttf'
+            'CascadiaCodePL.ttf'
+            'CascadiaCodePLItalic.ttf'
+            'CascadiaMonoPL.ttf'
+            'CascadiaMonoPLItalic.ttf'
+            'CascadiaCodeNF.ttf'
+            'CascadiaCodeNFItalic.ttf'
+            'CascadiaMonoNF.ttf'
+            'CascadiaMonoNFItalic.ttf'
+        )
         $fontsDir    = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows\Fonts'
         $regPath     = 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
         New-Item -ItemType Directory -Path $fontsDir -Force | Out-Null
@@ -1247,7 +1274,7 @@ resources:
         if (-not (Test-Path $dest)) { return $false }
         $json = Get-Content $dest -Raw | ConvertFrom-Json
         return ($json.banner -eq 'always' -and $json.theme -eq 'auto' -and
-                $json.model -eq 'claude-opus-4.6' -and $json.render_markdown -eq $true)
+                $json.model -eq 'claude-sonnet-4.6' -and $json.render_markdown -eq $true)
       setScript: |
         $dest = Join-Path $env:USERPROFILE '.copilot\config.json'
         New-Item -ItemType Directory -Path (Split-Path $dest -Parent) -Force | Out-Null
@@ -1255,7 +1282,7 @@ resources:
         $json['banner']          = 'always'
         $json['render_markdown'] = $true
         $json['theme']           = 'auto'
-        $json['model']           = 'claude-opus-4.6'
+        $json['model']           = 'claude-sonnet-4.6'
         $json | ConvertTo-Json -Depth 10 | Set-Content $dest -Encoding UTF8
         Write-Host "Copilot config.json patched."
     metadata:
