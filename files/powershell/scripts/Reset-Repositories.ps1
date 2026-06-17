@@ -102,4 +102,4 @@ function Reset-Repositories {
     Write-Host ''
 }
 
-Set-Alias -Name rrep -Value Reset-Repositories
+Set-Alias -Name rsrep -Value Reset-Repositories
