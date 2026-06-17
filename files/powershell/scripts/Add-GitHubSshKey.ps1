@@ -43,11 +43,11 @@ function Add-GitHubSshKey {
         if ($authMatch) {
             Write-Host "SSH auth key already registered ($($authMatch.title))." -ForegroundColor Magenta
         } else {
-            gh ssh-key add $KeyFile --title $Title --type authentication 2>&1 | Out-Null
+            $result = gh ssh-key add $KeyFile --title $Title --type authentication 2>&1
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "SSH auth key added as '$Title'." -ForegroundColor Magenta
             } else {
-                Write-Warning 'Failed to upload SSH auth key.'
+                Write-Warning "Failed to upload SSH auth key: $result"
             }
         }
 
@@ -57,11 +57,11 @@ function Add-GitHubSshKey {
         if ($signMatch) {
             Write-Host "SSH signing key already registered ($($signMatch.title))." -ForegroundColor Magenta
         } else {
-            gh ssh-key add $KeyFile --title $Title --type signing 2>&1 | Out-Null
+            $result = gh ssh-key add $KeyFile --title $Title --type signing 2>&1
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "SSH signing key added as '$Title'." -ForegroundColor Magenta
             } else {
-                Write-Warning 'Failed to upload SSH signing key.'
+                Write-Warning "Failed to upload SSH signing key: $result"
             }
         }
     } finally {
