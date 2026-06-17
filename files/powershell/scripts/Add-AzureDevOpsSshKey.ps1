@@ -11,7 +11,7 @@
     The Azure DevOps organization name (e.g. 'contoso' for dev.azure.com/contoso).
 .PARAMETER Token
     Personal access token with SSH key management permissions.
-    Defaults to the ADO_TOKEN environment variable.
+    Defaults to the AZDO_TOKEN environment variable.
 .PARAMETER Title
     Friendly name for the key in Azure DevOps. Defaults to the machine hostname.
 .EXAMPLE
@@ -24,13 +24,13 @@ function Add-AzureDevOpsSshKey {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)] [string] $Org,
-        [string] $Token = $env:ADO_TOKEN,
+        [string] $Token = $env:AZDO_TOKEN,
         [string] $Title = $env:COMPUTERNAME,
         [string] $KeyFile = (Join-Path $HOME '.ssh\id_rsa.pub')
     )
 
     if (-not $Token) {
-        Write-Warning 'ADO_TOKEN not set — pass -Token or set the environment variable in env.ps1.'
+        Write-Warning 'AZDO_TOKEN not set — pass -Token or set the environment variable in env.ps1.'
         return
     }
 
