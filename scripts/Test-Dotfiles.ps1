@@ -358,16 +358,12 @@ Write-StateRow 'commit.gpgsign'        (git config --global commit.gpgsign 2>$nu
 # ---------------------------------------------------------------------------- #
 Write-Section 'SSH Keys'
 
-$sshKeyInfo = ssh-keygen -l -f (Join-Path $HOME '.ssh\id_ed25519.pub') 2>$null
-if ($sshKeyInfo) {
-    $sshParts = $sshKeyInfo.Trim().Split(' ')
-    Write-StateRow "$($sshParts[-1] -replace '[()]','') Fingerprint" $sshParts[1]
-}
-
-$rsaKeyInfo = ssh-keygen -l -f (Join-Path $HOME '.ssh\id_rsa.pub') 2>$null
-if ($rsaKeyInfo) {
-    $rsaParts = $rsaKeyInfo.Trim().Split(' ')
-    Write-StateRow "$($rsaParts[-1] -replace '[()]','') Fingerprint" $rsaParts[1]
+Get-ChildItem -Path (Join-Path $HOME '.ssh') -Filter '*.pub' -ErrorAction SilentlyContinue | ForEach-Object {
+    $info = ssh-keygen -l -f $_.FullName 2>$null
+    if ($info) {
+        $parts = $info.Trim().Split(' ')
+        Write-StateRow $_.BaseName "$($parts[0]) $($parts[1]) $($parts[-1])"
+    }
 }
 
 # ---------------------------------------------------------------------------- #
