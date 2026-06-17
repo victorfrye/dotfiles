@@ -10,7 +10,7 @@
     without affecting the current gh session — useful for work or enterprise accounts.
 .PARAMETER Token
     GitHub personal access token with admin:public_key and admin:ssh_signing_key scopes.
-    Defaults to the GHE_TOKEN environment variable. Omit to use the current gh session.
+    Defaults to the GITHUB_TOKEN environment variable. Omit to use the current gh session.
 .PARAMETER Title
     Friendly name for the keys in GitHub. Defaults to the machine hostname.
 .EXAMPLE
@@ -22,7 +22,7 @@
 function Add-GitHubSshKey {
     [CmdletBinding()]
     param(
-        [string] $Token = $env:GHE_TOKEN,
+        [string] $Token = $env:GITHUB_TOKEN,
         [string] $Title = $env:COMPUTERNAME,
         [string] $KeyFile = (Join-Path $HOME '.ssh\id_ed25519.pub')
     )
