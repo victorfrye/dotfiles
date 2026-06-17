@@ -92,10 +92,20 @@ function Reset-Repositories {
             Write-Host "    Pull skipped — not fast-forwardable" -ForegroundColor Yellow
         }
 
-        # Rewrite HTTPS GitHub remote to SSH
+        # Rewrite remote to SSH
         $remoteUrl = git -C $repoPath remote get-url origin 2>$null
+        $newUrl = $null
         if ($remoteUrl -match '^https://github\.com/(.+?)(?:\.git)?$') {
-            git -C $repoPath remote set-url origin "git@github.com:$($Matches[1]).git" 2>$null | Out-Null
+            $newUrl = "git@github.com:$($Matches[1]).git"
+        } elseif ($remoteUrl -match '^https://dev\.azure\.com/([^/]+)/([^/]+)/_git/([^/?]+)') {
+            $newUrl = "git@ssh.dev.azure.com:v3/$($Matches[1])/$($Matches[2])/$($Matches[3])"
+        } elseif ($remoteUrl -match '^https://([^.]+)\.visualstudio\.com/(?:DefaultCollection/)?([^/]+)/_git/([^/?]+)') {
+            $newUrl = "git@ssh.dev.azure.com:v3/$($Matches[1])/$($Matches[2])/$($Matches[3])"
+        } elseif ($remoteUrl -match '^ssh://[^@]+@vs-ssh\.visualstudio\.com:\d+/v3/([^/]+)/([^/]+)/([^/]+)') {
+            $newUrl = "git@ssh.dev.azure.com:v3/$($Matches[1])/$($Matches[2])/$($Matches[3])"
+        }
+        if ($newUrl) {
+            git -C $repoPath remote set-url origin $newUrl 2>$null | Out-Null
             Write-Host '    Remote rewritten to SSH' -ForegroundColor DarkGray
         }
 
