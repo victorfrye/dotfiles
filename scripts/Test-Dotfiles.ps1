@@ -232,6 +232,11 @@ $sshPubKeyFile  = "$sshKeyFile.pub"
 $sshFingerprint = if (Test-Path $sshPubKeyFile) { ssh-keygen -l -f $sshPubKeyFile 2>$null } else { $null }
 Test-Check 'id_ed25519 key' { Test-Path $sshKeyFile } -Detail $sshFingerprint
 
+$rsaKeyFile     = Join-Path $HOME '.ssh\id_rsa'
+$rsaPubKeyFile  = "$rsaKeyFile.pub"
+$rsaFingerprint = if (Test-Path $rsaPubKeyFile) { ssh-keygen -l -f $rsaPubKeyFile 2>$null } else { $null }
+Test-Check 'id_rsa key' { Test-Path $rsaKeyFile } -Detail $rsaFingerprint
+
 $allowedSigners = Join-Path $HOME '.ssh\allowed_signers'
 Test-Check 'allowed_signers' { Test-Path $allowedSigners } -Detail $allowedSigners
 
@@ -357,6 +362,12 @@ $sshKeyInfo = ssh-keygen -l -f (Join-Path $HOME '.ssh\id_ed25519.pub') 2>$null
 if ($sshKeyInfo) {
     $sshParts = $sshKeyInfo.Trim().Split(' ')
     Write-StateRow "$($sshParts[-1] -replace '[()]','') Fingerprint" $sshParts[1]
+}
+
+$rsaKeyInfo = ssh-keygen -l -f (Join-Path $HOME '.ssh\id_rsa.pub') 2>$null
+if ($rsaKeyInfo) {
+    $rsaParts = $rsaKeyInfo.Trim().Split(' ')
+    Write-StateRow "$($rsaParts[-1] -replace '[()]','') Fingerprint" $rsaParts[1]
 }
 
 # ---------------------------------------------------------------------------- #
