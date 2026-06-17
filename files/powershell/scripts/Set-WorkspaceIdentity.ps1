@@ -12,23 +12,28 @@
 .PARAMETER Path
     Root directory whose git repositories should use the alternate identity.
     Typically an org-level folder like 'W:\Source\Repos\Orion'.
+.PARAMETER Here
+    Use the current directory as the path instead of specifying -Path.
 .PARAMETER Email
     Email address for git commits in the workspace.
 .PARAMETER Name
     Display name for git commits. Defaults to the global user.name.
 .EXAMPLE
-    Set-WorkspaceIdentity -Path 'W:\Source\Repos\Orion' -Email 'victor.frye@leadingedje.com'
+    Set-WorkspaceIdentity -Here -Email 'victor.frye@leadingedje.com'
 .EXAMPLE
-    Set-WorkspaceIdentity -Path 'W:\Source\Repos\Orion' -Email 'victor.frye@leadingedje.com' -Name 'Victor Frye'
+    Set-WorkspaceIdentity -Path 'W:\Source\Repos\Orion' -Email 'victor.frye@leadingedje.com'
 #>
 
 function Set-WorkspaceIdentity {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Path')]
     param(
-        [Parameter(Mandatory)] [string] $Path,
+        [Parameter(Mandatory, ParameterSetName = 'Path')] [string] $Path,
+        [Parameter(Mandatory, ParameterSetName = 'Here')] [switch] $Here,
         [Parameter(Mandatory)] [string] $Email,
         [string] $Name = (git config --global user.name 2>$null)
     )
+
+    if ($Here) { $Path = $PWD.Path }
 
     if (-not (Test-Path $Path)) {
         Write-Warning "Path does not exist: $Path"
