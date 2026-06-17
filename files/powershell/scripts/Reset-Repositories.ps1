@@ -12,8 +12,12 @@
     - Rewrites any HTTPS GitHub remote URLs to SSH (git@github.com:)
 .PARAMETER Root
     Root directory to search for git repositories. Defaults to $env:REPOS_ROOT.
+.PARAMETER Here
+    Search for repositories under the current directory instead of REPOS_ROOT.
 .EXAMPLE
     Reset-Repositories
+.EXAMPLE
+    Reset-Repositories -Here
 .EXAMPLE
     Reset-Repositories -Root 'W:\Source\Repos\VictorFrye'
 #>
@@ -21,8 +25,11 @@
 function Reset-Repositories {
     [CmdletBinding()]
     param(
-        [string] $Root = $env:REPOS_ROOT
+        [string] $Root = $env:REPOS_ROOT,
+        [switch] $Here
     )
+
+    if ($Here) { $Root = $PWD.Path }
 
     if (-not $Root -or -not (Test-Path $Root)) {
         Write-Warning 'REPOS_ROOT is not set or does not exist. Pass -Root or set the environment variable.'
@@ -102,4 +109,4 @@ function Reset-Repositories {
     Write-Host ''
 }
 
-Set-Alias -Name rsrep -Value Reset-Repositories
+Set-Alias -Name rsrepos -Value Reset-Repositories
