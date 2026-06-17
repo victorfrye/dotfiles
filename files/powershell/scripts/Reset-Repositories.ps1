@@ -97,7 +97,7 @@ function Reset-Repositories {
         $newUrl = $null
         if ($remoteUrl -match '^https://github\.com/(.+?)(?:\.git)?$') {
             $newUrl = "git@github.com:$($Matches[1]).git"
-        } elseif ($remoteUrl -match '^https://dev\.azure\.com/([^/]+)/([^/]+)/_git/([^/?]+)') {
+        } elseif ($remoteUrl -match '^https://(?:[^@]+@)?dev\.azure\.com/([^/]+)/([^/]+)/_git/([^/?]+)') {
             $newUrl = "git@ssh.dev.azure.com:v3/$($Matches[1])/$($Matches[2])/$($Matches[3])"
         } elseif ($remoteUrl -match '^https://([^.]+)\.visualstudio\.com/(?:DefaultCollection/)?([^/]+)/_git/([^/?]+)') {
             $newUrl = "git@ssh.dev.azure.com:v3/$($Matches[1])/$($Matches[2])/$($Matches[3])"
