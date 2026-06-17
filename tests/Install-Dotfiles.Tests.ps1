@@ -229,6 +229,7 @@ Describe 'PowerShell scripts — syntax' {
         'files\powershell\scripts\Set-NodeVersion.ps1'
         'files\powershell\scripts\Reset-Repositories.ps1'
         'files\powershell\scripts\Add-AzureDevOpsSshKey.ps1'
+        'files\powershell\scripts\Add-GitHubSshKey.ps1'
         'files\powershell\scripts\Set-WorkspaceIdentity.ps1'
         'files\powershell\scripts\docker.ps1'
     )
@@ -258,6 +259,7 @@ Describe 'PowerShell scripts — PSScriptAnalyzer' {
         'files\powershell\scripts\Set-NodeVersion.ps1'
         'files\powershell\scripts\Reset-Repositories.ps1'
         'files\powershell\scripts\Add-AzureDevOpsSshKey.ps1'
+        'files\powershell\scripts\Add-GitHubSshKey.ps1'
         'files\powershell\scripts\Set-WorkspaceIdentity.ps1'
         'files\powershell\scripts\docker.ps1'
     )
@@ -297,6 +299,7 @@ Describe 'Repository structure' {
         'files\powershell\scripts\Set-NodeVersion.ps1'
         'files\powershell\scripts\Reset-Repositories.ps1'
         'files\powershell\scripts\Add-AzureDevOpsSshKey.ps1'
+        'files\powershell\scripts\Add-GitHubSshKey.ps1'
         'files\powershell\scripts\Set-WorkspaceIdentity.ps1'
         'files\powershell\scripts\docker.ps1'
         'files\az\config.json'

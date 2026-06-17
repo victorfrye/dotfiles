@@ -62,4 +62,4 @@ function Add-AzureDevOpsSshKey {
     Write-Host "SSH key added to Azure DevOps org '$Org' as '$Title'." -ForegroundColor Magenta
 }
 
-Set-Alias -Name adossh -Value Add-AzureDevOpsSshKey
+Set-Alias -Name azdossh -Value Add-AzureDevOpsSshKey
