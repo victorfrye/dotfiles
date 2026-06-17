@@ -155,6 +155,12 @@ Describe 'WinGet Configuration — DSC script resources' {
         'InstallWslComponents'
         'RebootForVmp'
         'InstallUbuntu'
+        'GitHubSshKey'
+        'GitHubSshGitProtocol'
+        'GitHubCliAuth'
+        'GitHubSshKeyUpload'
+        'GitSigningConfig'
+        'GitHubSshSigningKeyUpload'
     )
 
     It 'declares DSC script resource <_>' -ForEach $requiredScriptNames {

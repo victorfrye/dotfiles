@@ -203,11 +203,16 @@ if ($wtPath) {
 Write-Section 'Git Configuration'
 
 $GitChecks = @(
-    @{ Key = 'user.name';            Expected = 'Victor Frye' }
-    @{ Key = 'user.email';           Expected = 'victorfrye@outlook.com' }
-    @{ Key = 'init.defaultBranch';   Expected = 'main' }
-    @{ Key = 'core.autocrlf';        Expected = 'false' }
-    @{ Key = 'push.autoSetupRemote'; Expected = 'true' }
+    @{ Key = 'user.name';                 Expected = 'Victor Frye' }
+    @{ Key = 'user.email';                Expected = 'victorfrye@outlook.com' }
+    @{ Key = 'init.defaultBranch';        Expected = 'main' }
+    @{ Key = 'core.autocrlf';             Expected = 'false' }
+    @{ Key = 'push.autoSetupRemote';      Expected = 'true' }
+    @{ Key = 'gpg.format';                Expected = 'ssh' }
+    @{ Key = 'user.signingKey';           Expected = '~/.ssh/id_ed25519.pub' }
+    @{ Key = 'commit.gpgsign';            Expected = 'true' }
+    @{ Key = 'tag.gpgsign';              Expected = 'true' }
+    @{ Key = 'gpg.ssh.allowedSignersFile'; Expected = '~/.ssh/allowed_signers' }
 )
 
 foreach ($gc in $GitChecks) {
@@ -215,6 +220,40 @@ foreach ($gc in $GitChecks) {
     $actual = git config --global $key 2>$null
     Test-Check "git config $key" { $actual -eq $expected } -Detail $actual
 }
+
+$ghGitProtocol = gh config get git_protocol 2>$null
+Test-Check 'gh config git_protocol' { $ghGitProtocol -eq 'ssh' } -Detail $ghGitProtocol
+
+# ---------------------------------------------------------------------------- #
+Write-Section 'SSH Configuration'
+
+$sshKeyFile     = Join-Path $HOME '.ssh\id_ed25519'
+$sshPubKeyFile  = "$sshKeyFile.pub"
+$sshFingerprint = if (Test-Path $sshPubKeyFile) { ssh-keygen -l -f $sshPubKeyFile 2>$null } else { $null }
+Test-Check 'id_ed25519 key' { Test-Path $sshKeyFile } -Detail $sshFingerprint
+
+$allowedSigners = Join-Path $HOME '.ssh\allowed_signers'
+Test-Check 'allowed_signers' { Test-Path $allowedSigners } -Detail $allowedSigners
+
+$pubKeyBody = if (Test-Path $sshPubKeyFile) { (Get-Content $sshPubKeyFile -Raw).Trim().Split(' ')[1] } else { $null }
+
+$authKeysRaw  = gh api user/keys 2>$null
+$authApiOk    = $LASTEXITCODE -eq 0
+$authUploaded = if ($authApiOk -and $pubKeyBody) {
+    $k = $authKeysRaw | ConvertFrom-Json -ErrorAction SilentlyContinue
+    ($k | Where-Object { $_.key -and $_.key.Trim().Split(' ')[1] -eq $pubKeyBody } | Measure-Object).Count -gt 0
+} else { $false }
+$authDetail   = if (-not $authApiOk) { '(requires admin:public_key scope)' } elseif ($authUploaded) { 'registered' } else { 'not uploaded' }
+Test-Check 'gh ssh-key auth' { $authUploaded } -Detail $authDetail
+
+$signKeysRaw  = gh api user/ssh_signing_keys 2>$null
+$signApiOk    = $LASTEXITCODE -eq 0
+$signUploaded = if ($signApiOk -and $pubKeyBody) {
+    $k = $signKeysRaw | ConvertFrom-Json -ErrorAction SilentlyContinue
+    ($k | Where-Object { $_.key -and $_.key.Trim().Split(' ')[1] -eq $pubKeyBody } | Measure-Object).Count -gt 0
+} else { $false }
+$signDetail   = if (-not $signApiOk) { '(requires admin:ssh_signing_key scope)' } else { if ($signUploaded) { 'registered' } else { 'not uploaded' } }
+Test-Check 'gh ssh-key signing' { $signUploaded } -Detail $signDetail
 
 # ---------------------------------------------------------------------------- #
 Write-Section 'PowerShell Modules'
@@ -305,14 +344,34 @@ Write-StateRow 'Python' (python --version 2>$null)
 # ---------------------------------------------------------------------------- #
 Write-Section 'Git Identity'
 
-Write-StateRow 'user.name'    (git config --global user.name  2>$null)
-Write-StateRow 'user.email'   (git config --global user.email 2>$null)
-Write-StateRow 'core.editor'  (git config --global core.editor 2>$null)
+Write-StateRow 'user.name'             (git config --global user.name  2>$null)
+Write-StateRow 'user.email'            (git config --global user.email 2>$null)
+Write-StateRow 'core.editor'           (git config --global core.editor 2>$null)
+Write-StateRow 'gpg.format'            (git config --global gpg.format 2>$null)
+Write-StateRow 'commit.gpgsign'        (git config --global commit.gpgsign 2>$null)
+
+# ---------------------------------------------------------------------------- #
+Write-Section 'SSH Keys'
+
+$sshKeyInfo = ssh-keygen -l -f (Join-Path $HOME '.ssh\id_ed25519.pub') 2>$null
+if ($sshKeyInfo) {
+    $sshParts = $sshKeyInfo.Trim().Split(' ')
+    Write-StateRow "$($sshParts[-1] -replace '[()]','') Fingerprint" $sshParts[1]
+}
 
 # ---------------------------------------------------------------------------- #
 Write-Section 'GitHub'
 
-Write-StateRow 'User' (gh api user --jq '.login' 2>$null)
+Write-StateRow 'User'           (gh api user --jq '.login' 2>$null)
+Write-StateRow 'Git Protocol'   (gh config get git_protocol 2>$null)
+
+$authKeysRaw = gh api user/keys 2>$null
+$authKeys    = if ($LASTEXITCODE -eq 0 -and $authKeysRaw) { ($authKeysRaw | ConvertFrom-Json | ForEach-Object { $_.title }) -join ', ' } else { $null }
+Write-StateRow 'SSH Auth Keys'  $authKeys
+
+$signKeysRaw = gh api user/ssh_signing_keys 2>$null
+$signKeys    = if ($LASTEXITCODE -eq 0 -and $signKeysRaw) { ($signKeysRaw | ConvertFrom-Json | ForEach-Object { $_.title }) -join ', ' } else { $null }
+Write-StateRow 'SSH Sign Keys'  $signKeys
 
 # ---------------------------------------------------------------------------- #
 Write-Section 'Azure'

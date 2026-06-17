@@ -1196,6 +1196,192 @@ resources:
       description: Configure Git global settings
 
   # ===========================================================================
+  # GitHub SSH Configuration
+  # ===========================================================================
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: GitHubSshKey
+    dependsOn:
+      - git
+      - GitGlobalConfig
+      - GitHubCLI
+    properties:
+      getScript: |
+        $keyFile = Join-Path $HOME '.ssh\id_ed25519'
+        if (-not (Test-Path $keyFile)) { return @{ exists = $false; fingerprint = $null } }
+        $fp = ssh-keygen -l -f $keyFile 2>$null
+        return @{ exists = $true; fingerprint = $fp }
+      testScript: |
+        return Test-Path (Join-Path $HOME '.ssh\id_ed25519')
+      setScript: |
+        $sshDir = Join-Path $HOME '.ssh'
+        if (-not (Test-Path $sshDir)) { New-Item -ItemType Directory -Path $sshDir -Force | Out-Null }
+        $keyFile = Join-Path $sshDir 'id_ed25519'
+        ssh-keygen -t ed25519 -C 'victorfrye@outlook.com' -f $keyFile -N ''
+        Write-Host "SSH key generated at $keyFile"
+    metadata:
+      description: Generate ed25519 SSH key for GitHub
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: GitHubSshGitProtocol
+    dependsOn:
+      - GitHubCLI
+    properties:
+      getScript: |
+        return @{ git_protocol = (gh config get git_protocol 2>$null) }
+      testScript: |
+        return ((gh config get git_protocol 2>$null) -eq 'ssh')
+      setScript: |
+        gh config set git_protocol ssh
+        Write-Host 'GitHub CLI git protocol set to SSH.'
+    metadata:
+      description: Configure GitHub CLI to use SSH for git operations
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: GitHubCliAuth
+    dependsOn:
+      - GitHubCLI
+    properties:
+      getScript: |
+        $status = gh auth status 2>&1
+        return @{ authenticated = ($LASTEXITCODE -eq 0); status = ($status | Out-String) }
+      testScript: |
+        gh auth status 2>&1 | Out-Null
+        return ($LASTEXITCODE -eq 0)
+      setScript: |
+        if ([string]::IsNullOrEmpty($env:GITHUB_TOKEN)) {
+            Write-Warning 'GITHUB_TOKEN not set — skipping gh auth login. Run `gh auth login` manually or set GITHUB_TOKEN in env.ps1.'
+            return
+        }
+        $env:GITHUB_TOKEN | gh auth login --with-token
+        Write-Host 'GitHub CLI authenticated via GITHUB_TOKEN.'
+    metadata:
+      description: Authenticate GitHub CLI using GITHUB_TOKEN
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: GitHubSshKeyUpload
+    dependsOn:
+      - GitHubSshKey
+      - GitHubCliAuth
+    properties:
+      getScript: |
+        $keys = gh api user/keys 2>$null | ConvertFrom-Json -ErrorAction SilentlyContinue
+        return @{ count = if ($keys) { $keys.Count } else { 0 } }
+      testScript: |
+        gh auth status 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) { return $true }
+        $pubKeyFile = Join-Path $HOME '.ssh\id_ed25519.pub'
+        if (-not (Test-Path $pubKeyFile)) { return $false }
+        $pubKey = (Get-Content $pubKeyFile -Raw).Trim().Split(' ')[1]
+        $raw = gh api user/keys 2>$null
+        if ($LASTEXITCODE -ne 0 -or -not $raw) { return $false }
+        $keys = $raw | ConvertFrom-Json -ErrorAction SilentlyContinue
+        if (-not $keys) { return $false }
+        return ($keys | Where-Object { $_.key -and $_.key.Trim().Split(' ')[1] -eq $pubKey } | Measure-Object).Count -gt 0
+      setScript: |
+        gh auth status 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning 'gh not authenticated — skipping SSH auth key upload. Run `gh auth login` first.'
+            return
+        }
+        $pubKeyFile = Join-Path $HOME '.ssh\id_ed25519.pub'
+        $hostname = $env:COMPUTERNAME
+        $result = gh ssh-key add $pubKeyFile --title $hostname --type authentication 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            if ([string]$result -match 'already|in use|exists') {
+                Write-Host 'SSH auth key already registered on GitHub.'
+            } else {
+                throw "Failed to upload SSH auth key: $result"
+            }
+        } else {
+            Write-Host "SSH auth key uploaded to GitHub for $hostname."
+        }
+    metadata:
+      description: Upload SSH public key to GitHub
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: GitSigningConfig
+    dependsOn:
+      - GitHubSshKey
+    properties:
+      getScript: |
+        return @{
+            gpgFormat            = (git config --global gpg.format 2>$null)
+            signingKey           = (git config --global user.signingKey 2>$null)
+            commitGpgsign        = (git config --global commit.gpgsign 2>$null)
+            tagGpgsign           = (git config --global tag.gpgsign 2>$null)
+            allowedSignersFile   = (git config --global gpg.ssh.allowedSignersFile 2>$null)
+            allowedSignersExists = (Test-Path (Join-Path $HOME '.ssh\allowed_signers'))
+        }
+      testScript: |
+        $expected = @{
+            'gpg.format'                 = 'ssh'
+            'user.signingKey'            = '~/.ssh/id_ed25519.pub'
+            'commit.gpgsign'             = 'true'
+            'tag.gpgsign'                = 'true'
+            'gpg.ssh.allowedSignersFile' = '~/.ssh/allowed_signers'
+        }
+        foreach ($key in $expected.Keys) {
+            $actual = git config --global $key 2>$null
+            if ($actual -ne $expected[$key]) { return $false }
+        }
+        return Test-Path (Join-Path $HOME '.ssh\allowed_signers')
+      setScript: |
+        git config --global gpg.format ssh
+        git config --global user.signingKey '~/.ssh/id_ed25519.pub'
+        git config --global commit.gpgsign true
+        git config --global tag.gpgsign true
+        git config --global gpg.ssh.allowedSignersFile '~/.ssh/allowed_signers'
+        $email  = git config --global user.email 2>$null
+        $pubKey = (Get-Content (Join-Path $HOME '.ssh\id_ed25519.pub')).Trim()
+        $entry  = "$email namespaces=`"git`" $pubKey"
+        Set-Content -Path (Join-Path $HOME '.ssh\allowed_signers') -Value $entry -Encoding UTF8
+        Write-Host 'Git SSH signing configuration applied.'
+    metadata:
+      description: Configure git SSH commit and tag signing
+
+  - type: Microsoft.DSC.Transitional/PowerShellScript
+    name: GitHubSshSigningKeyUpload
+    dependsOn:
+      - GitHubSshKey
+      - GitHubCliAuth
+    properties:
+      getScript: |
+        $keys = gh api user/ssh_signing_keys 2>$null | ConvertFrom-Json -ErrorAction SilentlyContinue
+        return @{ count = if ($keys) { $keys.Count } else { 0 } }
+      testScript: |
+        gh auth status 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) { return $true }
+        $pubKeyFile = Join-Path $HOME '.ssh\id_ed25519.pub'
+        if (-not (Test-Path $pubKeyFile)) { return $false }
+        $pubKey = (Get-Content $pubKeyFile -Raw).Trim().Split(' ')[1]
+        $raw = gh api user/ssh_signing_keys 2>$null
+        if ($LASTEXITCODE -ne 0 -or -not $raw) { return $false }
+        $keys = $raw | ConvertFrom-Json -ErrorAction SilentlyContinue
+        if (-not $keys) { return $false }
+        return ($keys | Where-Object { $_.key -and $_.key.Trim().Split(' ')[1] -eq $pubKey } | Measure-Object).Count -gt 0
+      setScript: |
+        gh auth status 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning 'gh not authenticated — skipping SSH signing key upload. Run `gh auth login` first.'
+            return
+        }
+        $pubKeyFile = Join-Path $HOME '.ssh\id_ed25519.pub'
+        $hostname = $env:COMPUTERNAME
+        $result = gh ssh-key add $pubKeyFile --title $hostname --type signing 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            if ([string]$result -match 'already|in use|exists') {
+                Write-Host 'SSH signing key already registered on GitHub.'
+            } else {
+                throw "Failed to upload SSH signing key: $result"
+            }
+        } else {
+            Write-Host "SSH signing key uploaded to GitHub for $hostname."
+        }
+    metadata:
+      description: Upload SSH signing key to GitHub
+
+  # ===========================================================================
   # Symlinks
   # ===========================================================================
 
