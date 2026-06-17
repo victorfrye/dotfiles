@@ -226,6 +226,7 @@ Describe 'PowerShell scripts — syntax' {
         'files\powershell\scripts\Set-CopilotProvider.ps1'
         'files\powershell\scripts\Set-JavaVersion.ps1'
         'files\powershell\scripts\Set-NodeVersion.ps1'
+        'files\powershell\scripts\Reset-Repositories.ps1'
         'files\powershell\scripts\docker.ps1'
     )
 
@@ -252,6 +253,7 @@ Describe 'PowerShell scripts — PSScriptAnalyzer' {
         'files\powershell\scripts\Set-CopilotProvider.ps1'
         'files\powershell\scripts\Set-JavaVersion.ps1'
         'files\powershell\scripts\Set-NodeVersion.ps1'
+        'files\powershell\scripts\Reset-Repositories.ps1'
         'files\powershell\scripts\docker.ps1'
     )
 
@@ -288,6 +290,7 @@ Describe 'Repository structure' {
         'files\powershell\scripts\Set-CopilotProvider.ps1'
         'files\powershell\scripts\Set-JavaVersion.ps1'
         'files\powershell\scripts\Set-NodeVersion.ps1'
+        'files\powershell\scripts\Reset-Repositories.ps1'
         'files\powershell\scripts\docker.ps1'
         'files\az\config.json'
         'files\copilot\settings.json'
