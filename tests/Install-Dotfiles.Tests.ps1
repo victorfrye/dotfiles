@@ -214,6 +214,34 @@ Describe 'JSON config files' {
 }
 
 # ---------------------------------------------------------------------------
+# Copilot skills — presence and front matter
+# ---------------------------------------------------------------------------
+
+Describe 'Copilot skills — presence and front matter' {
+    $skills = @(
+        'interviewer'
+        'storywriter'
+        'session-retrospective'
+    )
+
+    It 'contains a SKILL.md for <_>' -ForEach $skills {
+        $filePath = Join-Path $RepoRoot "files\copilot\skills\$_\SKILL.md"
+        $filePath | Should -Exist
+    }
+
+    It 'has compliant YAML front matter for <_>' -ForEach $skills {
+        $filePath = Join-Path $RepoRoot "files\copilot\skills\$_\SKILL.md"
+        $content  = Get-Content $filePath -Raw
+        $content | Should -Match '(?s)^---\r?\n.*?\r?\n---\r?\n'
+
+        $frontMatter = [regex]::Match($content, '(?s)^---\r?\n(.*?)\r?\n---\r?\n').Groups[1].Value
+        $frontMatter | Should -Match "(?m)^name:\s*$_\s*$"
+        $frontMatter | Should -Match '(?m)^description:\s*\S+'
+    }
+}
+
+
+# ---------------------------------------------------------------------------
 # PowerShell scripts — syntax
 # ---------------------------------------------------------------------------
 
@@ -306,6 +334,9 @@ Describe 'Repository structure' {
         'files\copilot\settings.json'
         'files\copilot\copilot-instructions.md'
         'files\copilot\mcp-config.json'
+        'files\copilot\skills\interviewer\SKILL.md'
+        'files\copilot\skills\storywriter\SKILL.md'
+        'files\copilot\skills\session-retrospective\SKILL.md'
         'files\githooks\pre-commit'
         'files\terminal\settings.json'
         'files\wsl\.wslconfig'

@@ -30,6 +30,7 @@ Configuration files are symlinked from the repo to their system destinations. Ed
 | `files/powershell/profile.ps1` | `$PROFILE.CurrentUserAllHosts` |
 | `files/copilot/copilot-instructions.md` | `~/.copilot/copilot-instructions.md` |
 | `files/copilot/agents/` | `~/.copilot/agents/` (directory) |
+| `files/copilot/skills/` | `~/.copilot/skills/` (directory) |
 | `files/az/config.json` | `~/.Azure/AzConfig.json` |
 | `files/githooks/` | `~/.githooks` (directory) |
 | `files/wsl/.wslconfig` | `~/.wslconfig` |

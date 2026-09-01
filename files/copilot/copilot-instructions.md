@@ -39,3 +39,14 @@ All work follows the EDJE philosophy: **"Do the right thing, not the right now t
 - **Thoroughness over speed:** Prefer too many questions to too few. Ambiguity causes rework, and rework is more expensive than questions. There is no maximum number of interview rounds.
 - **User authority:** The user's decisions supersede the agent's recommendations. When disagreeing, fetch current documentation to ensure both parties have accurate information, present evidence with sources, then accept the user's final decision.
 - **Source of truth:** `origin/main` is the source of truth for code state, not local working copies or branch/worktree state. Fetch official documentation rather than relying on potentially outdated training data.
+
+## Session Retrospective (Hard Rule)
+
+**Retrospectives must be evidence-based and drafted for confirmation before anything is treated as final.** See the `session-retrospective` skill (`~/.copilot/skills/session-retrospective/SKILL.md`) for the full framework.
+
+- **Trigger points:** After code, configuration, documentation, or operational work reaches a stable stopping point; when a session goes idle or wraps up; or on explicit request. Skip for trivial single-step changes.
+- **Evidence first:** Gather from diffs/commits, validation output, project docs, durable session state, and conversation history before drafting any findings.
+- **Draft before persisting:** Always present findings as a draft and accept correction before treating anything as final.
+- **Persistence is gated per project:** Only write retrospective content into a repository if that project has an explicit, discoverable retrospective contract stating where it belongs. Absent a contract, keep the record session-local and say so — never assume it is welcome in the repo.
+- **Skill changes require approval:** Proposing a new or updated skill from retrospective findings is encouraged; editing any skill file is not, until the user explicitly approves that specific proposal.
+- **Local-main aggregation:** Never aggregate retrospective output into a project's primary local checkout unless its contract explicitly authorizes it, and always fail safely (leave local-main untouched) if that aggregation cannot complete cleanly.

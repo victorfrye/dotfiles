@@ -19,7 +19,18 @@ When in doubt, interview. It is always cheaper to ask one more question than to 
 
 ## Interview Structure
 
-Use a **hybrid approach**: start broad, then drill deep.
+Use a **hybrid approach**: research first, then start broad, then drill deep.
+
+### Phase 0: Discovery (Required Before Any Questions)
+
+Before asking the first question, perform targeted research so questions are grounded in what is actually true rather than assumed. Do this even when the task seems familiar — discovery is what determines whether it actually is:
+
+- **Repository conventions** — Read the relevant existing code, structure, and patterns already used for this kind of change.
+- **Configuration and project documentation** — Read the project's agent-instructions, README, contributing guidance, and any other docs describing conventions relevant to the task.
+- **Existing patterns** — Look for prior art: has something similar been built or requested before? What did it look like, and what convention did it follow?
+- **Authoritative documentation** — When the task touches an external library, platform, service, or API, fetch current official documentation rather than relying on potentially outdated training data.
+
+Skip only the research categories that are genuinely inapplicable (e.g., no external library involved). Do not skip discovery merely because the request looks simple.
 
 ### Phase 1: Broad Scoping Round
 
@@ -34,7 +45,7 @@ This round establishes the boundaries and prevents scope creep before diving int
 
 ### Phase 2: Targeted Drill-Down
 
-Based on Phase 1 answers, ask focused follow-up questions **one at a time** using `ask_user`. Adapt dynamically — the questions you ask depend entirely on what the user has already told you. Continue until all categories are sufficiently covered.
+Based on discovery and Phase 1 answers, ask focused follow-up questions **one at a time** using `ask_user`. Adapt dynamically — the questions you ask depend entirely on what the user has already told you and what discovery found. Continue until all categories are sufficiently covered.
 
 ### Phase 3: Completion Check
 
@@ -111,6 +122,14 @@ Based on the task, add questions from relevant domains:
 - **CI/CD:** Pipeline changes? New gates? Deployment strategy?
 
 ## Behavioral Rules
+
+### Grounded Questions
+
+Every interview question should be informed by Phase 0 discovery findings, not asked in a vacuum:
+
+- Cite what discovery found when it changes the question — e.g., "I see the existing X pattern uses Y; should this follow the same convention, or is there a reason to diverge?"
+- Distinguish confirmed facts (verified by reading the repo/config/docs) from unknowns (not yet verified, or not discoverable without asking). Never present an assumption as if it were a discovered fact.
+- If discovery contradicts what the user described, say so and ask for clarification rather than silently trusting either source.
 
 ### Thoroughness Over Speed
 

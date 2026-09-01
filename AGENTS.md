@@ -48,7 +48,7 @@ Deployed to `~/.copilot/` by the install script. Contains:
 - **`copilot-instructions.md`** — personal coding instructions and engineering philosophy, symlinked to `~/.copilot/copilot-instructions.md`
 - **`mcp-config.json`** — MCP server definitions: Aspire, Playwright, Context7, WinGet. **Patched by DSC** (merges missing server entries, never overwrites extras) — add org-specific servers (e.g., Azure DevOps) post-install.
 - **`agents/`** — custom agent definitions directory, symlinked to `~/.copilot/agents/`: reserved for future custom agents
-- **`skills/`** — custom skill definitions directory, symlinked to `~/.copilot/skills/`: `interviewer`, `storywriter`
+- **`skills/`** — custom skill definitions directory, symlinked to `~/.copilot/skills/`: `interviewer`, `storywriter`, `session-retrospective`
 
 ### DSCv3 Configuration Schema
 
