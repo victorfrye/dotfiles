@@ -218,6 +218,100 @@ Describe 'JSON config files' {
 # ---------------------------------------------------------------------------
 
 Describe 'Copilot skills — presence and front matter' {
+    BeforeAll {
+        function ConvertFrom-YamlScalar {
+            # Parses a single YAML scalar value (the part after 'key:') well enough to reject
+            # malformed content, rather than only checking that a key exists. Supports single- and
+            # double-quoted scalars (with their escaping rules) and plain scalars, and rejects plain
+            # scalars containing an unquoted ': ' (or a trailing ':') since YAML would otherwise
+            # parse that as the start of a nested mapping.
+            param(
+                [Parameter(Mandatory)]
+                [AllowEmptyString()]
+                [string] $Value,
+
+                [Parameter(Mandatory)]
+                [string] $Key
+            )
+
+            $trimmed = $Value.Trim()
+
+            if ($trimmed.Length -eq 0) {
+                return ''
+            }
+
+            if ($trimmed.StartsWith("'")) {
+                if ($trimmed.Length -lt 2 -or -not $trimmed.EndsWith("'")) {
+                    throw "Unterminated single-quoted YAML scalar for key '$Key': '$Value'"
+                }
+                $inner = $trimmed.Substring(1, $trimmed.Length - 2)
+                if (($inner -replace "''", '') -match "'") {
+                    throw "Invalid single-quoted YAML scalar for key '$Key': unescaped quote in '$Value'"
+                }
+                return ($inner -replace "''", "'")
+            }
+
+            if ($trimmed.StartsWith('"')) {
+                if ($trimmed.Length -lt 2 -or -not $trimmed.EndsWith('"')) {
+                    throw "Unterminated double-quoted YAML scalar for key '$Key': '$Value'"
+                }
+                $inner = $trimmed.Substring(1, $trimmed.Length - 2)
+                if (($inner -replace '\\"', '') -match '"') {
+                    throw "Invalid double-quoted YAML scalar for key '$Key': unescaped quote in '$Value'"
+                }
+                return ($inner -replace '\\"', '"')
+            }
+
+            if ($trimmed -match "^[\[\{\|>*&!%@``]") {
+                throw "Unsupported YAML scalar indicator for key '$Key': '$Value'"
+            }
+
+            if ($trimmed -match ':(\s|$)') {
+                throw "Invalid plain YAML scalar for key '$Key' contains an unquoted ': ' sequence (or trailing ':') — quote the value: '$Value'"
+            }
+
+            return $trimmed
+        }
+
+        function ConvertFrom-SkillFrontMatter {
+            # Parses simple flat YAML front matter ('key: value' mappings, one per line) into a
+            # hashtable using a real (if minimal) YAML scalar grammar, so malformed front matter —
+            # e.g. an unquoted plain scalar containing ': ' — throws instead of silently passing a
+            # regex check for delimiters and key names.
+            param(
+                [Parameter(Mandatory)]
+                [AllowEmptyString()]
+                [string] $FrontMatter
+            )
+
+            $result = @{}
+
+            foreach ($line in ($FrontMatter -split "`r?`n")) {
+                if ([string]::IsNullOrWhiteSpace($line)) { continue }
+
+                if ($line -match "^\t") {
+                    throw "YAML front matter must not use tab indentation: '$line'"
+                }
+
+                $match = [regex]::Match($line, '^([A-Za-z0-9_-]+):(?:\s(.*))?$')
+                if (-not $match.Success) {
+                    throw "Line does not conform to 'key: value' YAML mapping syntax: '$line'"
+                }
+
+                $key = $match.Groups[1].Value
+                $rawValue = if ($match.Groups[2].Success) { $match.Groups[2].Value } else { '' }
+
+                if ($result.ContainsKey($key)) {
+                    throw "Duplicate key '$key' in YAML front matter"
+                }
+
+                $result[$key] = ConvertFrom-YamlScalar -Value $rawValue -Key $key
+            }
+
+            return $result
+        }
+    }
+
     $skills = @(
         'interviewer'
         'storywriter'
@@ -235,11 +329,12 @@ Describe 'Copilot skills — presence and front matter' {
         $content | Should -Match '(?s)^---\r?\n.*?\r?\n---\r?\n'
 
         $frontMatter = [regex]::Match($content, '(?s)^---\r?\n(.*?)\r?\n---\r?\n').Groups[1].Value
-        $frontMatter | Should -Match "(?m)^name:\s*$_\s*$"
-        $frontMatter | Should -Match '(?m)^description:\s*\S+'
+        $parsed = ConvertFrom-SkillFrontMatter -FrontMatter $frontMatter
+
+        $parsed['name'] | Should -Be $_
+        $parsed['description'] | Should -Match '\S'
     }
 }
-
 
 # ---------------------------------------------------------------------------
 # PowerShell scripts — syntax
