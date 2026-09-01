@@ -1,6 +1,6 @@
 ---
 name: session-retrospective
-description: Conduct an evidence-based retrospective after code, configuration, documentation, or operational work; when a session goes idle or wraps up; or on explicit request. Gathers evidence, drafts findings for user confirmation, writes durable lessons and handoff notes, and persists anything into a project only per that project's explicit retrospective contract.
+description: Conduct an evidence-based retrospective after code, configuration, documentation, or operational work; when a session goes idle or wraps up; or on explicit request. Gathers evidence, drafts findings for user confirmation, and always commits durable lessons and handoff notes into the project through its normal delivery workflow — discovering the project's retrospective contract, or proposing one as an evidence-backed change if none exists, rather than leaving knowledge only session-private.
 ---
 
 # Session Retrospective Instructions
@@ -50,12 +50,13 @@ Write this as durable prose someone could act on cold, not a terse bullet list o
 
 ## Evidence-Backed Persistence, Guided by a Per-Project Contract
 
-Whether — and where — this record gets written into a project is governed by that **project's own explicit retrospective contract**, never by this skill's own preference:
+A retrospective is only valuable if its lessons and handoff record end up in the project's **durable state** — session or runtime storage may hold a working draft, but it is never an acceptable final artifact or primary handoff. Every retrospective ends with confirmed findings committed into the project through its normal delivery workflow (the same branch/commit/review path used for any other change), guided by that **project's own explicit retrospective contract**:
 
-1. Look for an explicit contract before writing anything: a dedicated retrospective/contributing doc, or a clearly labeled section in the project's agent-instructions or contributing documentation, stating where retrospective content belongs (a specific file, a specific doc section, or explicitly "nowhere in the repository").
-2. If no contract exists, do not guess. Persist only to session-local/runtime storage that is not part of the project's repository, and tell the user plainly that no project contract authorizes writing this into the repository — offer to do so anyway only if the user explicitly asks.
-3. Every persisted statement must trace back to gathered evidence or a user-confirmed finding. Never persist speculation as settled fact.
-4. A retrospective is never a reason to touch application/source files. Do not "fix" unrelated issues surfaced during the retrospective — capture them as follow-up items instead, per rule above.
+1. **Always discover the contract first.** Look for an explicit contract before writing anything durable: a dedicated retrospective/contributing doc, or a clearly labeled section in the project's agent-instructions, contributing documentation, or equivalent, stating where retrospective content belongs (a specific file, a specific doc section, or an established decision-log/handoff convention).
+2. **If a contract exists**, follow it exactly: write the confirmed findings into the location and format it specifies, and commit them through the project's normal delivery workflow — never by bypassing review or editing outside that workflow.
+3. **If no contract exists, do not leave the knowledge session-private.** Draft a concrete, evidence-backed proposal for where this project should durably record retrospective/handoff knowledge (for example, a new "Decisions" or "Lessons Learned" section in its agent-instructions or contributing doc, or a dedicated file), present it to the user, and — once approved — add that contract documentation *and* the confirmed findings in the same change, committed through the project's normal delivery workflow. Session/runtime storage may hold the draft only until this is resolved, never as a substitute for it.
+4. Every persisted statement must trace back to gathered evidence or a user-confirmed finding. Never persist speculation as settled fact.
+5. A retrospective is never a reason to touch unrelated application/source files. Adding or updating the retrospective contract and recording confirmed findings is in scope; refactoring code or fixing unrelated bugs surfaced along the way is not — capture those as follow-up items instead.
 
 ## Proposing Skill Candidates
 
@@ -67,19 +68,19 @@ If the retrospective surfaces a repeatable pattern — a process, checklist, or 
 
 ## Local-Main Aggregation
 
-Some workflows run in an isolated worktree, branch, or session that is not the project's primary local checkout ("local-main"). A retrospective must **never** aggregate or write findings into local-main unless the project's contract explicitly authorizes that aggregation path (for example, a documented convention for committing shared session or squad knowledge back into a main working copy).
+The base persistence duty above — committing confirmed findings into the current project through its own normal delivery workflow — always applies and is distinct from this section. Some workflows additionally run in an isolated worktree, branch, or session that is not the project's primary local checkout ("local-main"), and separately maintain shared session or squad knowledge there. A retrospective must **never** aggregate or write findings into local-main unless the project's contract explicitly authorizes that separate aggregation path (for example, a documented convention for committing shared session or squad knowledge back into a main working copy).
 
 - If authorization is present, follow the contract's stated mechanism exactly — for example, committing from a branch rather than editing the main checkout's working tree directly.
-- If authorization is absent or ambiguous, skip aggregation and say so. Do not attempt it "just in case."
-- If aggregation is authorized but fails (missing path, lock, conflict, permissions, or any other error), **fail safely**: leave local-main untouched, report the failure plainly, and keep the retrospective persisted wherever it was already safely written (e.g., session-local storage). Never leave local-main in a partially written or corrupted state to complete an aggregation.
+- If authorization is absent or ambiguous, skip aggregation and say so. Do not attempt it "just in case." This never excuses skipping the base persistence duty above — the findings still get committed into the current project through its normal workflow.
+- If aggregation is authorized but fails (missing path, lock, conflict, permissions, or any other error), **fail safely**: leave local-main untouched, report the failure plainly, and keep the retrospective persisted wherever it was already durably committed per the base persistence duty above. Never leave local-main in a partially written or corrupted state to complete an aggregation.
 
 ## Behavioral Rules
 
 - **Tool-neutral.** Describe capabilities, not tool names — use whatever interactive prompting, file, and repository inspection tools the current environment actually provides.
-- **User authority.** The user's corrections about what happened, and their decisions about what gets persisted and where, are final.
+- **User authority.** The user's corrections about what happened, and their decisions about a proposed contract or where confirmed findings live within it, are final.
 - **No silent scope creep.** A retrospective observes and records; it does not refactor code, fix bugs, or make product decisions on its own initiative. Surface those as follow-ups instead.
 - **Confidence over completeness.** A retrospective that honestly reports "we don't have evidence for X" is more valuable than one that fabricates a clean, complete-looking narrative.
-- **Non-destructive by default.** When in doubt about whether an action (persisting, aggregating, modifying a skill) is authorized, don't — ask, or fall back to a private/session-local record.
+- **Durable by requirement, not by default guess.** Persisting confirmed findings into the project is never optional — discover the contract, or propose one, rather than defaulting to a session-private record. Reserve "don't, ask first" caution for local-main aggregation and skill-file changes, not for the base persistence duty itself.
 
 ## Worked Example
 
@@ -96,3 +97,11 @@ Some workflows run in an isolated worktree, branch, or session that is not the p
 **Persistence:** The squad's shared-knowledge doc has an explicit contract authorizing exactly this kind of cross-repo lesson to be appended there, plus a documented convention that squad state is committed and pushed from a worktree branch — never by editing the main checkout directly. The retrospective follows that convention exactly and reports the commit it produced.
 
 **Skill candidate:** The pattern of "confirm root cause across repos before recording it as fact" recurred three times this session. Proposed as a candidate addition to an existing investigation skill, with the three instances cited as evidence — deferred pending explicit user approval, no skill file changed.
+
+**Trigger (no existing contract):** A session that added a new deployment script to a project with no retrospective/handoff convention is wrapping up.
+
+**Evidence gathered:** The diff adding the script, its validation run, and a scan of the project's contributing docs and agent-instructions confirming no retrospective, decision-log, or handoff section exists anywhere in the repository.
+
+**Draft presented to user:** The confirmed findings (what the script does, why this approach was chosen over an alternative that was tried and reverted, and one open risk about a missing rollback path).
+
+**Persistence:** No contract is found, so the retrospective does not default to a session-private note. Instead, it proposes a concrete durable-contract addition — e.g., a new "Decisions" section in the project's agent-instructions doc, with the confirmed findings as its first entry — and asks the user to approve it. Once approved, both the new contract section and the confirmed findings are written and committed together through the project's normal branch/commit workflow, and the commit is reported back to the user.
